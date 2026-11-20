@@ -107,6 +107,28 @@ class MainActivity : Activity(), SensorEventListener {
             }
         )
         setContentView(root)
+
+        // Quiet check, at most once a day, for a newer version
+        val updatePrefs = getSharedPreferences("updates", Context.MODE_PRIVATE)
+        if (System.currentTimeMillis() - updatePrefs.getLong("lastCheck", 0L) > 24 * 3600_000L) {
+            Thread {
+                try {
+                    val latest = Updater.fetchLatest()
+                    updatePrefs.edit().putLong("lastCheck", System.currentTimeMillis()).apply()
+                    if (latest != null && Updater.isNewer(latest.version, Updater.installedVersion(this))) {
+                        runOnUiThread {
+                            Toast.makeText(
+                                this,
+                                "Update ${latest.version} available: Settings > Check for updates",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    // No internet is fine
+                }
+            }.start()
+        }
     }
 
     private fun makeButton(label: String, onClick: () -> Unit): Button =

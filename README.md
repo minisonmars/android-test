@@ -1,6 +1,6 @@
 # Caravan Leveller
 
-A simple Android bubble level for levelling a caravan, using the phone's built-in accelerometer. No internet connection or special permissions needed.
+A simple Android bubble level for levelling a caravan, using the phone's built-in accelerometer. It works offline; the internet is only used to check for app updates.
 
 ## Using it
 
@@ -50,12 +50,19 @@ The version number is the one set in `.github/workflows/build.yml` plus the buil
 
 The same APK is also attached to each Actions run as a zipped artifact. You can start a build manually from the Actions tab with **Run workflow**.
 
+## Updating the app
+
+**Settings > Check for updates** looks for a newer release on GitHub, and if there is one it downloads the APK and installs it from inside the app. The first time, Android asks you to allow Caravan Leveller to install apps ("Allow from this source"); after that you just confirm the update on Android's own screen. The app also checks quietly once a day and shows a message when a newer version is available.
+
+This works because every build is signed with the same key (`app/debug.keystore`) and the repo's releases are public.
+
 ## Project layout
 
 - `app/src/main/java/com/caravanlevel/MainActivity.kt` – sensors, smoothing, calibration, raise/lower maths and voice
 - `app/src/main/java/com/caravanlevel/BubbleView.kt` – bubble level, front arrow and instructions drawing
 - `app/src/main/java/com/caravanlevel/SettingsActivity.kt` – profiles and units screen
 - `app/src/main/java/com/caravanlevel/Store.kt` – saved profiles
+- `app/src/main/java/com/caravanlevel/Updater.kt` and `InstallReceiver.kt` – in-app update check, download and install
 - `app/debug.keystore` – fixed signing key so updates install over the old version
 - `app/src/main/res` – the app icon (a caravan with a spirit-level vial, drawn as vectors)
 - `.github/workflows/build.yml` – cloud build that produces the APK and publishes the release
