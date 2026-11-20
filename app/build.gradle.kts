@@ -13,7 +13,7 @@ android {
         targetSdk = 34
         // Goes up with every GitHub build so each APK counts as an update
         versionCode = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1
-        versionName = "0.3"
+        versionName = System.getenv("APP_VERSION") ?: "0.3.0"
     }
 
     // A fixed key kept in the repo, so every build is signed the same way and

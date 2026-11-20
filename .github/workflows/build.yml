@@ -5,9 +5,15 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write # needed to publish releases
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      # Change the first two numbers here to bump the version; the last is the build number
+      APP_VERSION: 0.3.${{ github.run_number }}
     steps:
       - uses: actions/checkout@v4
 
@@ -27,3 +33,13 @@ jobs:
         with:
           name: caravan-level-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp app/build/outputs/apk/debug/app-debug.apk "CaravanLevel-v${APP_VERSION}.apk"
+          gh release create "v${APP_VERSION}" "CaravanLevel-v${APP_VERSION}.apk" \
+            --title "Caravan Level v${APP_VERSION}" \
+            --notes "Automatic build of commit ${GITHUB_SHA::7}" \
+            --target "$GITHUB_SHA"

@@ -30,11 +30,14 @@ The phone's position on the caravan doesn't matter, because a rigid body tilts b
 
 The app is built automatically by GitHub Actions on every push to `main`.
 
-1. Go to the **Actions** tab and open the latest **Build APK** run.
-2. Download the **caravan-level-debug-apk** artifact at the bottom of the run page (use the desktop site in a mobile browser if needed).
-3. Unzip it and open `app-debug.apk` on the phone. Allow installs from your browser or files app when prompted.
+Every successful build publishes a **Release** named with its version number (for example `v0.3.12`) with the APK attached.
 
-You can also start a build manually from the Actions tab with **Run workflow**.
+1. Open the repo's **Releases** page (github.com/minisonmars/android-test/releases).
+2. Tap the APK under **Assets** on the latest release and open it on the phone. Allow installs from your browser or files app when prompted.
+
+The version number is the one set in `.github/workflows/build.yml` plus the build number, and the app's version code goes up with every build, so new APKs install over the old one.
+
+The same APK is also attached to each Actions run as a zipped artifact. You can start a build manually from the Actions tab with **Run workflow**.
 
 ## Project layout
 
