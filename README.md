@@ -52,7 +52,7 @@ The same APK is also attached to each Actions run as a zipped artifact. You can 
 
 ## Updating the app
 
-**Settings > Check for updates** looks for a newer release on GitHub, and if there is one it downloads the APK and installs it from inside the app. The first time, Android asks you to allow Caravan Leveller to install apps ("Allow from this source"); after that you just confirm the update on Android's own screen. The app also checks quietly once a day and shows a message when a newer version is available.
+**Settings > Check for updates** looks for a newer release on GitHub, and if there is one it downloads the APK and installs it from inside the app. The first time, Android asks you to allow Caravan Leveller to install apps ("Allow from this source"); after that you just confirm the update on Android's own screen. When you open the app and a newer version exists, it asks **Install** or **Skip**. Skip hides that version's prompt (you can still update from Settings).
 
 This works because every build is signed with the same key (`app/debug.keystore`) and the repo's releases are public.
 

@@ -119,6 +119,9 @@ class SettingsActivity : Activity() {
 
         setContentView(ScrollView(this).apply { addView(col) })
 
+        // Opened from the launch prompt after tapping Install
+        if (intent.getBooleanExtra("install_update", false)) checkForUpdates(installNow = true)
+
         refreshSpinner()
         loadFields()
 
@@ -141,7 +144,7 @@ class SettingsActivity : Activity() {
         }
     }
 
-    private fun checkForUpdates() {
+    private fun checkForUpdates(installNow: Boolean = false) {
         updateStatus.text = "Checking..."
         Thread {
             try {
@@ -149,7 +152,9 @@ class SettingsActivity : Activity() {
                 val current = Updater.installedVersion(this)
                 runOnUiThread {
                     if (latest == null) updateStatus.text = "No update found (you have $current)"
-                    else if (Updater.isNewer(latest.version, current)) offerUpdate(latest, current)
+                    else if (Updater.isNewer(latest.version, current)) {
+                        if (installNow) startUpdate(latest) else offerUpdate(latest, current)
+                    }
                     else updateStatus.text = "You have the latest version ($current)"
                 }
             } catch (e: Exception) {

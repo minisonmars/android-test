@@ -1,6 +1,7 @@
 package com.caravanlevel
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.hardware.Sensor
@@ -108,27 +109,39 @@ class MainActivity : Activity(), SensorEventListener {
         )
         setContentView(root)
 
-        // Quiet check, at most once a day, for a newer version
+        // On launch, look for a newer version and ask whether to install or skip it
         val updatePrefs = getSharedPreferences("updates", Context.MODE_PRIVATE)
-        if (System.currentTimeMillis() - updatePrefs.getLong("lastCheck", 0L) > 24 * 3600_000L) {
-            Thread {
-                try {
-                    val latest = Updater.fetchLatest()
-                    updatePrefs.edit().putLong("lastCheck", System.currentTimeMillis()).apply()
-                    if (latest != null && Updater.isNewer(latest.version, Updater.installedVersion(this))) {
-                        runOnUiThread {
-                            Toast.makeText(
-                                this,
-                                "Update ${latest.version} available: Settings > Check for updates",
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
+        Thread {
+            try {
+                val latest = Updater.fetchLatest()
+                val skipped = updatePrefs.getString("skippedVersion", "")
+                if (latest != null &&
+                    latest.version != skipped &&
+                    Updater.isNewer(latest.version, Updater.installedVersion(this))
+                ) {
+                    runOnUiThread {
+                        if (isFinishing) return@runOnUiThread
+                        AlertDialog.Builder(this)
+                            .setTitle("Update available")
+                            .setMessage(
+                                "Version ${latest.version} is available (you have ${Updater.installedVersion(this)}). " +
+                                    "Install it now?"
+                            )
+                            .setPositiveButton("Install") { _, _ ->
+                                startActivity(
+                                    Intent(this, SettingsActivity::class.java).putExtra("install_update", true)
+                                )
+                            }
+                            .setNegativeButton("Skip") { _, _ ->
+                                updatePrefs.edit().putString("skippedVersion", latest.version).apply()
+                            }
+                            .show()
                     }
-                } catch (e: Exception) {
-                    // No internet is fine
                 }
-            }.start()
-        }
+            } catch (e: Exception) {
+                // No internet is fine
+            }
+        }.start()
     }
 
     private fun makeButton(label: String, onClick: () -> Unit): Button =
