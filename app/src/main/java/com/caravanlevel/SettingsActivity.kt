@@ -102,7 +102,7 @@ class SettingsActivity : Activity() {
             Toast.makeText(this, "Calibration cleared (tap Save to keep)", Toast.LENGTH_SHORT).show()
         })
         // App updates, checked against the newest GitHub release
-        col.addView(label("App updates"))
+        col.addView(label("App updates (test build)"))
         updateStatus = TextView(this).apply {
             text = "Version ${Updater.installedVersion(this@SettingsActivity)}"
             setPadding(0, dp(4), 0, dp(4))
