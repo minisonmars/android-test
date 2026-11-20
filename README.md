@@ -1,4 +1,4 @@
-# Caravan Level
+# Caravan Leveller
 
 A simple Android bubble level for levelling a caravan, using the phone's built-in accelerometer. No internet connection or special permissions needed.
 
@@ -57,6 +57,7 @@ The same APK is also attached to each Actions run as a zipped artifact. You can 
 - `app/src/main/java/com/caravanlevel/SettingsActivity.kt` – profiles and units screen
 - `app/src/main/java/com/caravanlevel/Store.kt` – saved profiles
 - `app/debug.keystore` – fixed signing key so updates install over the old version
+- `app/src/main/res` – the app icon (a caravan with a spirit-level vial, drawn as vectors)
 - `.github/workflows/build.yml` – cloud build that produces the APK and publishes the release
 
 ## Ideas for later

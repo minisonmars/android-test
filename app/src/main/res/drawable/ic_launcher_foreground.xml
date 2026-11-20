@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <group
+        android:translateX="-1"
+        android:translateY="3">
+
+        <!-- Spirit level vial (orange) with its bubble -->
+        <path
+            android:fillColor="#FF961E"
+            android:pathData="M38,24 h34 a4.5,4.5 0 0 1 0,9 h-34 a4.5,4.5 0 0 1 0,-9 z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M51.5,28.5 a3,3 0 1,0 6,0 a3,3 0 1,0 -6,0 z" />
+
+        <!-- Caravan body with a window -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M30,66 v-16 a10,10 0 0 1 10,-10 h30 a10,10 0 0 1 10,10 v16 z" />
+        <path
+            android:fillColor="#2E9E6B"
+            android:pathData="M60,47 h12 a2,2 0 0 1 2,2 v5 a2,2 0 0 1 -2,2 h-12 a2,2 0 0 1 -2,-2 v-5 a2,2 0 0 1 2,-2 z" />
+
+        <!-- Towing hitch and jockey wheel -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M23,62 h7 v3 h-7 z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M25.5,68 a2,2 0 1,0 4,0 a2,2 0 1,0 -4,0 z" />
+
+        <!-- Wheel: green gap, white tyre, green hub -->
+        <path
+            android:fillColor="#2E9E6B"
+            android:pathData="M42.5,68 a8.5,8.5 0 1,0 17,0 a8.5,8.5 0 1,0 -17,0 z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M44,68 a7,7 0 1,0 14,0 a7,7 0 1,0 -14,0 z" />
+        <path
+            android:fillColor="#2E9E6B"
+            android:pathData="M48.5,68 a2.5,2.5 0 1,0 5,0 a2.5,2.5 0 1,0 -5,0 z" />
+    </group>
+</vector>
