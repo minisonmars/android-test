@@ -23,8 +23,10 @@ class BubbleView(context: Context) : View(context) {
         const val LEVEL_DEG = 0.5f // degrees counted as "level"
     }
 
-    var rollDeg = 0f
+    var rollDeg = 0f   // live values, drive the bubble
     var pitchDeg = 0f
+    var shownRoll = 0f // slowed-down values, drive the written figures
+    var shownPitch = 0f
     var sideText = ""
     var frontText = ""
     var hint = ""
@@ -113,14 +115,14 @@ class BubbleView(context: Context) : View(context) {
 
         // Angles
         var y = cy + radius + 34 * d
-        val rollSide = if (abs(rollDeg) < 0.05f) "" else if (rollDeg > 0) " (right high)" else " (left high)"
-        val pitchSide = if (abs(pitchDeg) < 0.05f) "" else if (pitchDeg > 0) " (front high)" else " (rear high)"
+        val rollSide = if (abs(shownRoll) < 0.05f) "" else if (shownRoll > 0) " (right high)" else " (left high)"
+        val pitchSide = if (abs(shownPitch) < 0.05f) "" else if (shownPitch > 0) " (front high)" else " (rear high)"
         text.typeface = Typeface.DEFAULT
         text.textSize = 16 * d
         text.color = Color.LTGRAY
-        canvas.drawText("Side: %.1f°%s".format(abs(rollDeg), rollSide), cx, y, text)
+        canvas.drawText("Side: %.1f°%s".format(abs(shownRoll), rollSide), cx, y, text)
         y += 24 * d
-        canvas.drawText("Front/back: %.1f°%s".format(abs(pitchDeg), pitchSide), cx, y, text)
+        canvas.drawText("Front/back: %.1f°%s".format(abs(shownPitch), pitchSide), cx, y, text)
         y += 42 * d
 
         // Instructions
@@ -135,7 +137,7 @@ class BubbleView(context: Context) : View(context) {
             canvas.drawText(frontText, cx, y, text)
             y += 32 * d
         }
-        if (isLevel) {
+        if (abs(shownRoll) <= LEVEL_DEG && abs(shownPitch) <= LEVEL_DEG) {
             text.color = green
             text.textSize = 34 * d
             canvas.drawText("LEVEL", cx, y, text)

@@ -75,6 +75,9 @@ object Store {
             .apply()
     }
 
+    /** Always two decimals: 4 -> "4.00", 4.5 -> "4.50". */
+    fun fixed(v: Float): String = String.format(Locale.UK, "%.2f", v)
+
     /** Format a number, trimming trailing zeros: 4.50 -> "4.5", 4.00 -> "4". */
     fun num(v: Float, decimals: Int = 2): String {
         val s = String.format(Locale.UK, "%.${decimals}f", v)

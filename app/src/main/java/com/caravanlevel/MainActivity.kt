@@ -44,6 +44,10 @@ class MainActivity : Activity(), SensorEventListener {
     private var candidateSince = 0L
     private var lastSpoken: String? = null
 
+    // How often the written figures refresh (the bubble itself stays smooth)
+    private val TEXT_UPDATE_MS = 1000L
+    private var lastTextUpdate = 0L
+
     private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -164,7 +168,21 @@ class MainActivity : Activity(), SensorEventListener {
         bubbleView.rollDeg = r
         bubbleView.pitchDeg = pt
         bubbleView.profileLabel = p.name
-        updateInstructions(p, r, pt)
+
+        val result = work(p, r, pt)
+
+        // The written figures only refresh every TEXT_UPDATE_MS so they can be read
+        val now = SystemClock.elapsedRealtime()
+        if (now - lastTextUpdate >= TEXT_UPDATE_MS) {
+            lastTextUpdate = now
+            bubbleView.shownRoll = r
+            bubbleView.shownPitch = pt
+            bubbleView.sideText = result.side
+            bubbleView.frontText = result.front
+            bubbleView.hint = result.hint
+        }
+
+        if (voiceOn && ttsReady && result.spoken.isNotEmpty()) speakWhenSettled(result.spoken)
         bubbleView.invalidate()
     }
 
@@ -174,17 +192,15 @@ class MainActivity : Activity(), SensorEventListener {
         return (valueInUnit / step).roundToInt() * step
     }
 
-    private fun updateInstructions(p: Profile, roll: Float, pitch: Float) {
+    private class Result(val side: String, val front: String, val hint: String, val spoken: String)
+
+    private fun work(p: Profile, roll: Float, pitch: Float): Result {
         val levelSide = abs(roll) <= BubbleView.LEVEL_DEG
         val levelFront = abs(pitch) <= BubbleView.LEVEL_DEG
 
         if (p.trackCm <= 0f || p.hitchCm <= 0f) {
-            bubbleView.sideText = ""
-            bubbleView.frontText = ""
-            bubbleView.hint = "Set caravan size in Settings for amounts"
-            return
+            return Result("", "", "Set caravan size in Settings for amounts", "")
         }
-        bubbleView.hint = ""
 
         val unitShort = if (state.inches) "in" else "cm"
         val unitSpoken = if (state.inches) "inches" else "centimetres"
@@ -196,24 +212,21 @@ class MainActivity : Activity(), SensorEventListener {
 
         if (!levelSide) {
             val cm = p.trackCm * tan(Math.toRadians(abs(roll).toDouble())).toFloat()
-            val n = Store.num(snap(cm / perUnit))
+            val amount = snap(cm / perUnit)
             val which = if (roll > 0) "left" else "right" // raise the low side
-            sideText = "Raise ${which.uppercase()} side $n $unitShort"
-            spoken.add("Raise $which side $n $unitSpoken")
+            sideText = "Raise ${which.uppercase()} side ${Store.fixed(amount)} $unitShort"
+            spoken.add("Raise $which side ${Store.num(amount)} $unitSpoken")
         }
         if (!levelFront) {
             val cm = p.hitchCm * tan(Math.toRadians(abs(pitch).toDouble())).toFloat()
-            val n = Store.num(snap(cm / perUnit))
+            val amount = snap(cm / perUnit)
             val verb = if (pitch > 0) "Lower" else "Raise" // front high -> lower the front
-            frontText = "$verb FRONT $n $unitShort"
-            spoken.add("$verb front $n $unitSpoken")
+            frontText = "$verb FRONT ${Store.fixed(amount)} $unitShort"
+            spoken.add("$verb front ${Store.num(amount)} $unitSpoken")
         }
         if (levelSide && levelFront) spoken.add("Level")
 
-        bubbleView.sideText = sideText
-        bubbleView.frontText = frontText
-
-        if (voiceOn && ttsReady) speakWhenSettled(spoken.joinToString(". "))
+        return Result(sideText, frontText, "", spoken.joinToString(". "))
     }
 
     /** Speak a message once it has stayed the same for two seconds. */
