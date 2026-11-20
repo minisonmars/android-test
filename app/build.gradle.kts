@@ -11,8 +11,20 @@ android {
         applicationId = "com.caravanlevel"
         minSdk = 24
         targetSdk = 34
-        versionCode = 2
-        versionName = "0.2"
+        // Goes up with every GitHub build so each APK counts as an update
+        versionCode = System.getenv("GITHUB_RUN_NUMBER")?.toIntOrNull() ?: 1
+        versionName = "0.3"
+    }
+
+    // A fixed key kept in the repo, so every build is signed the same way and
+    // installs over the previous one. (Debug use only, not for the Play Store.)
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("debug.keystore")
+            storePassword = "android"
+            keyAlias = "androiddebugkey"
+            keyPassword = "android"
+        }
     }
 
     compileOptions {

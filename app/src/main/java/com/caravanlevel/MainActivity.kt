@@ -40,9 +40,9 @@ class MainActivity : Activity(), SensorEventListener {
     private var tts: TextToSpeech? = null
     private var ttsReady = false
     private var voiceOn = false
-    private var candidate: String? = null
-    private var candidateSince = 0L
-    private var lastSpoken: String? = null
+    private var lastSpokenAt = 0L
+    private var levelAnnounced = false
+    private val SPEAK_EVERY_MS = 3000L
 
     // How often the written figures refresh (the bubble itself stays smooth)
     private val TEXT_UPDATE_MS = 1000L
@@ -77,8 +77,8 @@ class MainActivity : Activity(), SensorEventListener {
                 Toast.makeText(this, "Voice not available on this phone", Toast.LENGTH_LONG).show()
             } else {
                 voiceOn = !voiceOn
-                lastSpoken = null
-                candidate = null
+                lastSpokenAt = 0L
+                levelAnnounced = false
                 voiceButton.text = if (voiceOn) "Voice: ON" else "Voice: OFF"
                 if (!voiceOn) tts?.stop()
             }
@@ -120,8 +120,8 @@ class MainActivity : Activity(), SensorEventListener {
     override fun onResume() {
         super.onResume()
         state = Store.load(this) // pick up changes made in Settings
-        lastSpoken = null
-        candidate = null
+        lastSpokenAt = 0L
+        levelAnnounced = false
         val accel = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
         if (accel == null) {
             Toast.makeText(this, "No accelerometer found", Toast.LENGTH_LONG).show()
@@ -182,7 +182,7 @@ class MainActivity : Activity(), SensorEventListener {
             bubbleView.hint = result.hint
         }
 
-        if (voiceOn && ttsReady && result.spoken.isNotEmpty()) speakWhenSettled(result.spoken)
+        if (voiceOn && ttsReady && result.spoken.isNotEmpty()) speakRepeating(result.spoken)
         bubbleView.invalidate()
     }
 
@@ -229,15 +229,25 @@ class MainActivity : Activity(), SensorEventListener {
         return Result(sideText, frontText, "", spoken.joinToString(". "))
     }
 
-    /** Speak a message once it has stayed the same for two seconds. */
-    private fun speakWhenSettled(message: String) {
+    /**
+     * Repeat the current adjustment every SPEAK_EVERY_MS (start to start). If the last
+     * message is still being spoken it waits rather than cutting itself off.
+     * "Level" is announced once, then it goes quiet until you move out of level again.
+     */
+    private fun speakRepeating(message: String) {
+        val t = tts ?: return
         val now = SystemClock.elapsedRealtime()
-        if (message != candidate) {
-            candidate = message
-            candidateSince = now
-        } else if (now - candidateSince >= 2000 && message != lastSpoken) {
-            tts?.speak(message, TextToSpeech.QUEUE_FLUSH, null, "level")
-            lastSpoken = message
+        if (message == "Level") {
+            if (!levelAnnounced) {
+                t.speak(message, TextToSpeech.QUEUE_FLUSH, null, "level")
+                levelAnnounced = true
+            }
+            return
+        }
+        levelAnnounced = false
+        if (now - lastSpokenAt >= SPEAK_EVERY_MS && !t.isSpeaking) {
+            t.speak(message, TextToSpeech.QUEUE_FLUSH, null, "level")
+            lastSpokenAt = now
         }
     }
 
