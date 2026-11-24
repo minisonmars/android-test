@@ -1,11 +1,6 @@
 package com.caravanlevel
 
 import android.app.Activity
-import android.app.AlertDialog
-import android.content.Intent
-import android.net.Uri
-import android.provider.Settings as AndroidSettings
-import java.io.File
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
@@ -101,14 +96,16 @@ class SettingsActivity : Activity() {
             p.pitchOffset = 0f
             Toast.makeText(this, "Calibration cleared (tap Save to keep)", Toast.LENGTH_SHORT).show()
         })
-        // App updates, checked against the newest GitHub release
-        col.addView(label("App updates (test build)"))
+        // App updates: same layout as in all the other apps
+        col.addView(label("Updates"))
         updateStatus = TextView(this).apply {
-            text = "Version ${Updater.installedVersion(this@SettingsActivity)}"
+            textSize = 17f
             setPadding(0, dp(4), 0, dp(4))
         }
         col.addView(updateStatus)
-        col.addView(rowButton("Check for updates") { checkForUpdates() })
+        col.addView(rowButton("App versions and updates") {
+            Updater.showDialog(this) { refreshUpdateStatus() }
+        })
 
         col.addView(rowButton("Save") {
             commitFields()
@@ -119,8 +116,9 @@ class SettingsActivity : Activity() {
 
         setContentView(ScrollView(this).apply { addView(col) })
 
-        // Opened from the launch prompt after tapping Install
-        if (intent.getBooleanExtra("install_update", false)) checkForUpdates(installNow = true)
+        // Opening Settings always checks for a new version straight away
+        refreshUpdateStatus()
+        Updater.checkInBackground(this, force = true) { refreshUpdateStatus() }
 
         refreshSpinner()
         loadFields()
@@ -144,65 +142,11 @@ class SettingsActivity : Activity() {
         }
     }
 
-    private fun checkForUpdates(installNow: Boolean = false) {
-        updateStatus.text = "Checking..."
-        Thread {
-            try {
-                val latest = Updater.fetchLatest()
-                val current = Updater.installedVersion(this)
-                runOnUiThread {
-                    if (latest == null) updateStatus.text = "No update found (you have $current)"
-                    else if (Updater.isNewer(latest.version, current)) {
-                        if (installNow) startUpdate(latest) else offerUpdate(latest, current)
-                    }
-                    else updateStatus.text = "You have the latest version ($current)"
-                }
-            } catch (e: Exception) {
-                runOnUiThread { updateStatus.text = "Couldn't check: ${e.message}" }
-            }
-        }.start()
-    }
-
-    private fun offerUpdate(latest: Updater.Release, current: String) {
-        updateStatus.text = "Version ${latest.version} is available (you have $current)"
-        AlertDialog.Builder(this)
-            .setTitle("Update available")
-            .setMessage("Version ${latest.version} is ready. Download and install it now?")
-            .setPositiveButton("Install") { _, _ -> startUpdate(latest) }
-            .setNegativeButton("Not now", null)
-            .show()
-    }
-
-    private fun startUpdate(release: Updater.Release) {
-        if (!packageManager.canRequestPackageInstalls()) {
-            AlertDialog.Builder(this)
-                .setTitle("Allow updates")
-                .setMessage(
-                    "Android needs you to allow this app to install updates. Tap Open settings, switch on " +
-                        "\"Allow from this source\", then come back and tap Check for updates again."
-                )
-                .setPositiveButton("Open settings") { _, _ ->
-                    startActivity(
-                        Intent(AndroidSettings.ACTION_MANAGE_UNKNOWN_APP_SOURCES, Uri.parse("package:$packageName"))
-                    )
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
-            return
-        }
-        val file = File(cacheDir, "update.apk")
-        updateStatus.text = "Downloading..."
-        Thread {
-            try {
-                Updater.download(release.apkUrl, file) { percent ->
-                    runOnUiThread { updateStatus.text = "Downloading... $percent%" }
-                }
-                runOnUiThread { updateStatus.text = "Installing... confirm on the screen that appears" }
-                Updater.install(this, file)
-            } catch (e: Exception) {
-                runOnUiThread { updateStatus.text = "Update failed: ${e.message}" }
-            }
-        }.start()
+    /** Red when a newer version is ready, like the other apps' Updates line. */
+    private fun refreshUpdateStatus() {
+        updateStatus.text = Updater.statusLine(this)
+        if (Updater.available(this) != null) updateStatus.setTextColor(Updater.RED)
+        else updateStatus.setTextColor(Updater.GREEN)
     }
 
     private fun label(t: String) = TextView(this).apply {

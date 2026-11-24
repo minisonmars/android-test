@@ -52,9 +52,21 @@ The same APK is also attached to each Actions run as a zipped artifact. You can 
 
 ## Updating the app
 
-**Settings > Check for updates** looks for a newer release on GitHub, and if there is one it downloads the APK and installs it from inside the app. The first time, Android asks you to allow Caravan Leveller to install apps ("Allow from this source"); after that you just confirm the update on Android's own screen. When you open the app and a newer version exists, it asks **Install** or **Skip**. Skip hides that version's prompt (you can still update from Settings).
+The app updates itself from this repo's GitHub releases, the same way as all the other apps in this project.
 
-This works because every build is signed with the same key (`app/debug.keystore`) and the repo's releases are public.
+- When you open the app it quietly checks GitHub (at most every 6 hours, and every time you open Settings). If a newer version exists, a red line at the top of the main screen says "Version X is ready to install (you have Y)". Tap it to open the versions screen.
+- **Settings > Updates** shows your version (red when a new one is ready). **App versions and updates** opens the versions screen:
+  1. New versions first, newest at the top, each with its date, size and what changed, and an **Install version X** button.
+  2. **Installed: version Y** in green, with its notes.
+  3. **Show older versions (n)**: pick one from the list to read its notes. **Go back to this version** explains how (Android won't install an older version over a newer one, so you download it, uninstall, then install it; your profiles are lost).
+  4. **Reinstall version Y**.
+- The first time, Android asks you to allow Caravan Leveller to install apps ("Allow from this source"); after that you just confirm the update on Android's own screen.
+
+This works because every build is signed with the same key (`app/debug.keystore`) and the repo and its releases are public.
+
+### Release notes
+
+What changed is kept in `CHANGELOG.md`. New user-facing changes go as bullets under `## Next`. Each build uses that section as its GitHub release notes, renames it to the new version, commits the changelog back to `main` and copies every section to its release on GitHub (`.github/scripts/changelog.py`).
 
 ## Project layout
 
@@ -62,13 +74,13 @@ This works because every build is signed with the same key (`app/debug.keystore`
 - `app/src/main/java/com/caravanlevel/BubbleView.kt` – bubble level, front arrow and instructions drawing
 - `app/src/main/java/com/caravanlevel/SettingsActivity.kt` – profiles and units screen
 - `app/src/main/java/com/caravanlevel/Store.kt` – saved profiles
-- `app/src/main/java/com/caravanlevel/Updater.kt` and `InstallReceiver.kt` – in-app update check, download and install
+- `app/src/main/java/com/caravanlevel/Updater.kt` and `InstallReceiver.kt` – automatic update check, versions screen, download and install
 - `app/debug.keystore` – fixed signing key so updates install over the old version
 - `app/src/main/res` – the app icon (a caravan with a spirit-level vial, drawn as vectors)
 - `.github/workflows/build.yml` – cloud build that produces the APK and publishes the release
+- `.github/scripts/changelog.py` and `CHANGELOG.md` – release notes
 
 ## Ideas for later
 
 - Landscape or other phone orientations
-- Show the app version in Settings
 - Signed release build for the Play Store

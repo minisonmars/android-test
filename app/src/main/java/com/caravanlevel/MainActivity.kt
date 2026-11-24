@@ -1,9 +1,9 @@
 package com.caravanlevel
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -12,11 +12,13 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.speech.tts.TextToSpeech
 import android.view.Gravity
+import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import java.util.Locale
 import kotlin.math.abs
@@ -31,6 +33,7 @@ class MainActivity : Activity(), SensorEventListener {
     private lateinit var bubbleView: BubbleView
     private lateinit var voiceButton: Button
     private lateinit var state: State
+    private lateinit var updateBanner: TextView
 
     // Smoothed raw angles in degrees, before calibration offsets are applied
     private var rawRoll = 0f
@@ -107,41 +110,34 @@ class MainActivity : Activity(), SensorEventListener {
                 setMargins(dp(8), dp(8), dp(8), dp(24))
             }
         )
-        setContentView(root)
+        updateBanner = TextView(this).apply {
+            textSize = 17f
+            setTextColor(Color.WHITE)
+            setBackgroundColor(Updater.RED)
+            gravity = Gravity.CENTER
+            setPadding(dp(12), dp(14), dp(12), dp(14))
+            visibility = View.GONE
+            setOnClickListener { Updater.showDialog(this@MainActivity) { refreshUpdateBanner() } }
+        }
+        val page = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            addView(updateBanner, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
+            addView(root, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
+        }
+        setContentView(page)
 
-        // On launch, look for a newer version and ask whether to install or skip it
-        val updatePrefs = getSharedPreferences("updates", Context.MODE_PRIVATE)
-        Thread {
-            try {
-                val latest = Updater.fetchLatest()
-                val skipped = updatePrefs.getString("skippedVersion", "")
-                if (latest != null &&
-                    latest.version != skipped &&
-                    Updater.isNewer(latest.version, Updater.installedVersion(this))
-                ) {
-                    runOnUiThread {
-                        if (isFinishing) return@runOnUiThread
-                        AlertDialog.Builder(this)
-                            .setTitle("Update available")
-                            .setMessage(
-                                "Version ${latest.version} is available (you have ${Updater.installedVersion(this)}). " +
-                                    "Install it now?"
-                            )
-                            .setPositiveButton("Install") { _, _ ->
-                                startActivity(
-                                    Intent(this, SettingsActivity::class.java).putExtra("install_update", true)
-                                )
-                            }
-                            .setNegativeButton("Skip") { _, _ ->
-                                updatePrefs.edit().putString("skippedVersion", latest.version).apply()
-                            }
-                            .show()
-                    }
-                }
-            } catch (e: Exception) {
-                // No internet is fine
-            }
-        }.start()
+        // Quietly look for a newer version (at most every 6 hours); the banner shows if there is one
+        Updater.checkInBackground(this) { refreshUpdateBanner() }
+    }
+
+    /** A line at the top of the screen when a newer version is ready. Tapping it opens the versions screen. */
+    private fun refreshUpdateBanner() {
+        if (Updater.available(this) != null) {
+            updateBanner.text = Updater.statusLine(this) + ". Tap to see what's new."
+            updateBanner.visibility = View.VISIBLE
+        } else {
+            updateBanner.visibility = View.GONE
+        }
     }
 
     private fun makeButton(label: String, onClick: () -> Unit): Button =
@@ -155,6 +151,7 @@ class MainActivity : Activity(), SensorEventListener {
     override fun onResume() {
         super.onResume()
         state = Store.load(this) // pick up changes made in Settings
+        refreshUpdateBanner()
         lastSpokenAt = 0L
         levelAnnounced = false
         val accel = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
