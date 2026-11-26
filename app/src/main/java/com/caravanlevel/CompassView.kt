@@ -52,8 +52,8 @@ class CompassView(context: Context) : View(context) {
         for (i in 0 until 72) {
             val a = Math.toRadians(i * 5.0)
             val long = i % 6 == 0
-            val inner = r - (if (long) 16 else 8) * d
-            ring.strokeWidth = (if (long) 3 else 1.5f) * d
+            val inner = r - (if (long) 16f else 8f) * d
+            ring.strokeWidth = (if (long) 3f else 1.5f) * d
             c.drawLine(cx + inner * sin(a).toFloat(), cy - inner * cos(a).toFloat(),
                 cx + r * sin(a).toFloat(), cy - r * cos(a).toFloat(), ring)
         }
