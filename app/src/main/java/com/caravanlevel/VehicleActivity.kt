@@ -141,6 +141,8 @@ class VehicleActivity : Page() {
                 .apply { setPadding(0, ui.dp(8), 0, 0) })
         }
 
+        tyres(v)
+
         // Equipment
         content.addView(ui.heading("Equipment"))
         content.addView(ui.text("Makes, models and serial numbers, handy for spares and repairs.", 16f, Colours.MUTED))
@@ -173,6 +175,77 @@ class VehicleActivity : Page() {
             content.addView(ui.button("Edit", Colours.ACCENT) { editing = true; rebuild() })
         }
         content.addView(ui.button("Add another vehicle", Colours.TILE) { addVehicle() })
+    }
+
+    /** Tyre size, pressures (psi or bar) and the age from the DOT date code. */
+    private fun tyres(v: Vehicle) {
+        content.addView(ui.heading("Tyres"))
+        val twoPressures = v.type != VehicleType.CARAVAN
+        fun shown(psi: Float, bar: Boolean) = if (psi <= 0f) "" else
+            if (bar) "%.2f bar (%.1f psi)".format(psi / Tyres.PSI_PER_BAR, psi)
+            else "%.1f psi (%.2f bar)".format(psi, psi / Tyres.PSI_PER_BAR)
+        if (!editing) {
+            show("Tyre size", v.tyreSize)
+            if (twoPressures) {
+                show("Front pressure", shown(v.tyrePsiFront, v.tyreBar))
+                show("Rear pressure", shown(v.tyrePsiRear, v.tyreBar))
+            } else show("Pressure", shown(v.tyrePsiFront, v.tyreBar))
+            fun age(label: String, code: String) {
+                val years = Tyres.ageYears(code)
+                show(label, if (years == null) code else "%s (about %.1f years old)".format(code, years))
+                if (years != null && years >= Tyres.REPLACE_YEARS) {
+                    content.addView(ui.text(Tyres.oldAdvice(v.type), 16f, Colours.RED))
+                }
+            }
+            age("Tyre date code (DOT)", v.tyreDot)
+            age("Spare tyre date code (DOT)", v.spareDot)
+            return
+        }
+        content.addView(ui.label("Tyre size (on the sidewall, e.g. 185/80 R14 C)"))
+        val size = ui.field(v.tyreSize, "For example: 185/80 R14 C")
+        content.addView(size)
+        content.addView(ui.label("Pressure unit"))
+        var bar = v.tyreBar
+        val fields = mutableListOf<Pair<android.widget.EditText, (Float) -> Unit>>()
+        content.addView(ui.spinner(listOf("psi", "bar"), if (bar) 1 else 0) { pick ->
+            val nowBar = pick == 1
+            if (nowBar != bar) {
+                // convert what's typed so the numbers stay right
+                fields.forEach { (f, _) ->
+                    f.text.toString().trim().toFloatOrNull()?.let { n ->
+                        f.setText(if (nowBar) "%.2f".format(n / Tyres.PSI_PER_BAR) else "%.1f".format(n * Tyres.PSI_PER_BAR))
+                    }
+                }
+                bar = nowBar
+            }
+        })
+        fun pressure(label: String, psi: Float, set: (Float) -> Unit) {
+            content.addView(ui.label(label))
+            val text = if (psi <= 0f) "" else if (bar) "%.2f".format(psi / Tyres.PSI_PER_BAR) else "%.1f".format(psi)
+            val f = ui.numberField(text, "From the handbook or the plate")
+            content.addView(f)
+            fields.add(f to set)
+        }
+        if (twoPressures) {
+            pressure("Front pressure", v.tyrePsiFront) { v.tyrePsiFront = it }
+            pressure("Rear pressure", v.tyrePsiRear) { v.tyrePsiRear = it }
+        } else pressure("Pressure", v.tyrePsiFront) { v.tyrePsiFront = it }
+        content.addView(ui.label("Tyre date code (DOT): the last 4 numbers in the oval on the sidewall, week then year, e.g. 2321"))
+        val dot = ui.wholeNumberField(v.tyreDot, "For example: 2321")
+        content.addView(dot)
+        content.addView(ui.label("Spare tyre date code (DOT), if you have a spare"))
+        val spare = ui.wholeNumberField(v.spareDot, "For example: 2321")
+        content.addView(spare)
+        commits.add {
+            v.tyreSize = size.text.toString().trim()
+            v.tyreBar = bar
+            fields.forEach { (f, set) ->
+                val n = f.text.toString().trim().replace(',', '.').toFloatOrNull() ?: 0f
+                set(if (bar) n * Tyres.PSI_PER_BAR else n)
+            }
+            v.tyreDot = dot.text.toString().trim()
+            v.spareDot = spare.text.toString().trim()
+        }
     }
 
     private fun finishEditing() {

@@ -197,6 +197,14 @@ class Vehicle(
     var mroKg = 0      // mass in running order (MIRO / MRO), empty weight as built
     var mtplmKg = 0    // maximum technically permissible laden mass (the plated maximum)
 
+    // Tyres; pressures stored in psi (0 = not set), shown in the unit picked
+    var tyreSize = ""
+    var tyrePsiFront = 0f   // caravan: the only pressure
+    var tyrePsiRear = 0f
+    var tyreBar = false
+    var tyreDot = ""        // DOT date code, week and year e.g. 2321
+    var spareDot = ""
+
     /** The packing list has been added once (so deleting it is respected). */
     var packingAdded = false
 
@@ -236,6 +244,9 @@ class Vehicle(
             .put("photo", photo ?: JSONObject.NULL)
             .put("packingAdded", packingAdded)
             .put("mro", mroKg).put("mtplm", mtplmKg)
+            .put("tyreSize", tyreSize).put("tyrePsiFront", tyrePsiFront.toDouble())
+            .put("tyrePsiRear", tyrePsiRear.toDouble()).put("tyreBar", tyreBar)
+            .put("tyreDot", tyreDot).put("spareDot", spareDot)
     }
 
     /**
@@ -275,6 +286,9 @@ class Vehicle(
                 usage = Usage.of(o.optString("usage"))
                 o.optJSONObject("sizeUnits")?.let { u -> u.keys().forEach { k -> sizeUnits[k] = u.optString(k) } }
                 mroKg = o.optInt("mro", 0); mtplmKg = o.optInt("mtplm", 0)
+                tyreSize = o.optString("tyreSize"); tyrePsiFront = f("tyrePsiFront")
+                tyrePsiRear = f("tyrePsiRear"); tyreBar = o.optBoolean("tyreBar", false)
+                tyreDot = o.optString("tyreDot"); spareDot = o.optString("spareDot")
                 photo = if (o.isNull("photo")) null else o.optString("photo").ifBlank { null }
                 packingAdded = o.optBoolean("packingAdded", false)
             }
