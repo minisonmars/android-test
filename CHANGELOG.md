@@ -5,7 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Trip diary: a trip can now have several stops, each with its own arrival and leaving dates, site, pin, pitch, rating, cost, notes, contact details and photos. Tap a stop's name to open or close it, so only the one you're working on is shown in full. Existing trips become one-stop trips.
+- Trip diary: once a trip's last leaving date has passed, it opens read-only. Tap "Edit this trip" to change it.
+- Trip diary: "Address from the pin" fills in the address from where the pin is, and placing a pin fills it in automatically if the address is empty. "Use where I am now" has gone from trips.
+- Sites map: new target button to go to where you are, also when placing a pin.
 
 ## v0.3.45
 

@@ -38,12 +38,12 @@ import kotlin.math.tan
 /** Every site in the trip diary as a pin on an OpenStreetMap map. Tap a pin to see it. */
 class SitesMapActivity : Activity() {
     companion object {
-        /** Open to place one trip's pin: tap the map, then Use this spot. */
-        const val EXTRA_PICK_TRIP = "pickTrip"
+        /** Open to place one stop's pin: tap the map, then Use this spot. Pass "lat"/"lon" (or NaN) and "stop". */
+        const val EXTRA_PICK = "pick"
     }
 
     private lateinit var ui: Ui
-    private var pickId: String? = null
+    private var picking = false
     private lateinit var map: SiteMapView
     private lateinit var info: LinearLayout
 
@@ -51,20 +51,33 @@ class SitesMapActivity : Activity() {
         Theme.apply(this)
         super.onCreate(savedInstanceState)
         ui = Ui(this)
-        pickId = intent.getStringExtra(EXTRA_PICK_TRIP)
+        picking = intent.getBooleanExtra(EXTRA_PICK, false)
         map = SiteMapView(this)
         info = ui.card().apply { visibility = View.GONE }
+        if (picking) {
+            val lat = intent.getDoubleExtra("lat", Double.NaN)
+            val lon = intent.getDoubleExtra("lon", Double.NaN)
+            if (!lat.isNaN() && !lon.isNaN()) map.marker = lat to lon
+        }
 
-        val zoomIn = ui.button("+") { map.zoomBy(1) }.apply { textSize = 26f }
-        val zoomOut = ui.button("-") { map.zoomBy(-1) }.apply { textSize = 26f }
-        val zooms = LinearLayout(this).apply {
+        fun mapButton(icon: Icon?, label: String, onClick: () -> Unit) =
+            if (icon != null) IconView(this, icon, Colours.ACCENT).apply {
+                background = ui.rounded(Colours.CARD, 12)
+                setPadding(ui.dp(10), ui.dp(10), ui.dp(10), ui.dp(10))
+                isClickable = true
+                setOnClickListener { onClick() }
+            } else ui.button(label) { onClick() }.apply { textSize = 26f }
+        val buttons = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            addView(zoomIn, LinearLayout.LayoutParams(ui.dp(60), ui.dp(60)))
-            addView(zoomOut, LinearLayout.LayoutParams(ui.dp(60), ui.dp(60)))
+            addView(mapButton(null, "+") { map.zoomBy(1) }, LinearLayout.LayoutParams(ui.dp(60), ui.dp(60)))
+            addView(mapButton(null, "-") { map.zoomBy(-1) }, LinearLayout.LayoutParams(ui.dp(60), ui.dp(60)))
+            addView(mapButton(Icon.LOCATE, "") { goToMe() }, LinearLayout.LayoutParams(ui.dp(56), ui.dp(56)).apply {
+                setMargins(ui.dp(2), ui.dp(8), ui.dp(2), 0)
+            })
         }
         val frame = FrameLayout(this).apply {
             addView(map)
-            addView(zooms, FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
+            addView(buttons, FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
                 gravity = Gravity.END or Gravity.TOP; setMargins(0, ui.dp(8), ui.dp(8), 0)
             })
             addView(info, FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
@@ -73,57 +86,75 @@ class SitesMapActivity : Activity() {
         }
         val page = ui.column().apply {
             setBackgroundColor(Colours.BG)
-            addView(ui.text(if (pickId != null) "Place the pin" else "Sites map", 24f, bold = true).apply { setPadding(ui.dp(16), ui.dp(16), ui.dp(16), ui.dp(8)) })
+            addView(ui.text(if (picking) "Place the pin" else "Sites map", 24f, bold = true).apply { setPadding(ui.dp(16), ui.dp(16), ui.dp(16), ui.dp(8)) })
             addView(frame, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         }
         page.fitSystemBars()
         setContentView(page)
         Theme.barIcons(this)
         map.onPick = { show(it) }
-        if (pickId != null) map.onTapPoint = { lat, lon -> map.marker = lat to lon; showPick() }
+        if (picking) map.onTapPoint = { lat, lon -> map.marker = lat to lon; showPick() }
     }
 
     override fun onResume() {
         super.onResume()
-        val pid = pickId
-        if (pid != null) {
-            val t = GarageStore.load(this).trips.firstOrNull { it.id == pid }
-            if (map.marker == null && t != null && t.hasPlace) map.marker = t.lat!! to t.lon!!
-            map.setTrips(emptyList(), Here.last(this))
+        if (picking) {
+            map.setPins(emptyList(), Here.last(this))
             showPick()
             return
         }
-        val trips = GarageStore.load(this).trips.filter { it.hasPlace }
-        map.setTrips(trips, Here.last(this))
+        val pins = GarageStore.load(this).trips.flatMap { t -> t.placed.map { SiteMapView.Pin(t, it) } }
+        map.setPins(pins, Here.last(this))
         info.visibility = View.GONE
+    }
+
+    /** The "my location" button: centre the map on where the phone is. */
+    private fun goToMe() {
+        if (!Here.allowed(this)) {
+            requestPermissions(arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION), 1)
+            return
+        }
+        Here.last(this)?.let { map.showMe(it) }
+        Here.fresh(this) { l ->
+            if (l != null) map.showMe(l)
+            else android.widget.Toast.makeText(this, "Couldn't find where you are. Is Location turned on?", android.widget.Toast.LENGTH_LONG).show()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (Here.allowed(this)) goToMe()
     }
 
     private fun showPick() {
         info.removeAllViews()
         info.visibility = View.VISIBLE
         val m = map.marker
-        info.addView(ui.text(if (m == null) "Tap the map where the site is. Drag and pinch to move around." else "Tap again to move the pin.", 17f))
+        info.addView(ui.text(
+            if (m == null) "Tap the map where the site is. Drag and pinch to move around, or tap the target button to go to where you are."
+            else "Tap again to move the pin.", 17f
+        ))
         if (m != null) info.addView(ui.button("Use this spot", Colours.ACCENT) {
-            val g = GarageStore.load(this)
-            g.trips.firstOrNull { it.id == pickId }?.let { it.lat = m.first; it.lon = m.second; GarageStore.save(this, g) }
-            setResult(RESULT_OK, Intent().putExtra("lat", m.first).putExtra("lon", m.second))
+            setResult(RESULT_OK, Intent().putExtra("lat", m.first).putExtra("lon", m.second)
+                .putExtra("stop", intent.getStringExtra("stop")))
             finish()
         })
     }
 
-    private fun show(t: Trip?) {
+    private fun show(p: SiteMapView.Pin?) {
         info.removeAllViews()
-        if (t == null) { info.visibility = View.GONE; return }
+        if (p == null) { info.visibility = View.GONE; return }
+        val s = p.stop
         info.visibility = View.VISIBLE
-        info.addView(ui.text(t.site.ifBlank { "Trip" }, 20f, bold = true))
-        info.addView(ui.text(listOf(Units.date(t.startMs), t.place).filter { it.isNotBlank() }.joinToString("  ·  "), 16f, Colours.MUTED))
-        if (t.rating > 0) info.addView(Stars.row(this, ui, t.rating, 22, null))
+        info.addView(ui.text(s.site.ifBlank { p.trip.name }, 20f, bold = true))
+        info.addView(ui.text(listOf(Units.date(s.startMs), s.place).filter { it.isNotBlank() }.joinToString("  ·  "), 16f, Colours.MUTED))
+        if (s.rating > 0) info.addView(Stars.row(this, ui, s.rating, 22, null))
         info.addView(ui.row(
             ui.rowButton("Open trip", Colours.ACCENT) {
-                startActivity(Intent(this, DiaryEditActivity::class.java).putExtra(DiaryEditActivity.EXTRA_TRIP, t.id))
+                startActivity(Intent(this, DiaryEditActivity::class.java).putExtra(DiaryEditActivity.EXTRA_TRIP, p.trip.id))
             },
-            ui.rowButton("Directions") {
-                val u = android.net.Uri.parse("geo:${t.lat},${t.lon}?q=${t.lat},${t.lon}(${android.net.Uri.encode(t.site)})")
+            ui.rowButton("Navigate") {
+                val u = android.net.Uri.parse("geo:${s.lat},${s.lon}?q=${s.lat},${s.lon}(${android.net.Uri.encode(s.site)})")
                 try { startActivity(Intent(Intent.ACTION_VIEW, u)) } catch (_: Exception) {}
             }
         ))
@@ -135,7 +166,9 @@ class SitesMapActivity : Activity() {
  * Tiles are kept on the phone for 30 days so the map isn't fetched again each time.
  */
 class SiteMapView(context: Context) : View(context) {
-    var onPick: ((Trip?) -> Unit)? = null
+    class Pin(val trip: Trip, val stop: Stop)
+
+    var onPick: ((Pin?) -> Unit)? = null
     /** In "place the pin" mode: called with the tapped spot. */
     var onTapPoint: ((Double, Double) -> Unit)? = null
     /** A single pin being placed. */
@@ -143,7 +176,7 @@ class SiteMapView(context: Context) : View(context) {
         set(v) { field = v; invalidate() }
 
     private val d = resources.displayMetrics.density
-    private var trips: List<Trip> = emptyList()
+    private var trips: List<Pin> = emptyList()
     private var here: android.location.Location? = null
     private var zoom = 6
     /** Stretch of the current tiles (0.75 to 1.5) so pinching zooms smoothly between levels. */
@@ -166,8 +199,17 @@ class SiteMapView(context: Context) : View(context) {
         private const val MAX_AGE_MS = 30L * 24 * 3600 * 1000
     }
 
-    fun setTrips(list: List<Trip>, me: android.location.Location?) {
+    fun setPins(list: List<Pin>, me: android.location.Location?) {
         trips = list; here = me; fitted = false; invalidate()
+    }
+
+    /** Show and centre on where the phone is. */
+    fun showMe(l: android.location.Location) {
+        here = l
+        val lat = l.latitude; val lon = l.longitude
+        val z = max(zoom, 14)
+        if (!fitted) fitted = true
+        zoom = z; scale = 1.0; cxW = worldX(lon, z); cyW = worldY(lat, z); invalidate()
     }
 
     private fun worldX(lon: Double, z: Int) = (lon + 180.0) / 360.0 * TILE * 2.0.pow(z)
@@ -186,7 +228,7 @@ class SiteMapView(context: Context) : View(context) {
         if (width == 0) return
         fitted = true
         marker?.let { centreOn(it.first, it.second, 16); return }
-        val pts = trips.map { it.lat!! to it.lon!! }
+        val pts = trips.map { it.stop.lat!! to it.stop.lon!! }
         if (pts.isEmpty()) {
             here?.let { centreOn(it.latitude, it.longitude, if (onTapPoint != null) 14 else 10); return }
             centreOn(54.5, -3.0, 5); return
@@ -251,8 +293,8 @@ class SiteMapView(context: Context) : View(context) {
 
     private fun screenX(lon: Double) = ((worldX(lon, zoom) - cxW) * scale + width / 2.0).toFloat()
     private fun screenY(lat: Double) = ((worldY(lat, zoom) - cyW) * scale + height / 2.0).toFloat()
-    private fun dist(t: Trip, x: Float, y: Float): Float {
-        val dx = screenX(t.lon!!) - x; val dy = screenY(t.lat!!) - y + 18 * d
+    private fun dist(p: Pin, x: Float, y: Float): Float {
+        val dx = screenX(p.stop.lon!!) - x; val dy = screenY(p.stop.lat!!) - y + 18 * d
         return kotlin.math.sqrt(dx * dx + dy * dy)
     }
 
@@ -288,7 +330,8 @@ class SiteMapView(context: Context) : View(context) {
         }
 
         // Site pins, best rated drawn last so they're on top
-        trips.sortedBy { it.rating }.forEach { t ->
+        trips.sortedBy { it.stop.rating }.forEach { p ->
+            val t = p.stop
             val x = screenX(t.lon!!); val y = screenY(t.lat!!)
             pin.color = Colours.ACCENT
             c.drawCircle(x, y - 22 * d, 12 * d, pin)

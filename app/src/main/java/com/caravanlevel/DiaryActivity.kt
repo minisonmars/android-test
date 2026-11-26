@@ -31,7 +31,7 @@ class DiaryActivity : Page() {
             ).apply { setPadding(0, ui.dp(12), 0, 0) })
             return
         }
-        if (garage.trips.any { it.hasPlace }) {
+        if (garage.trips.any { it.placed.isNotEmpty() }) {
             content.addView(ui.button("Show all sites on a map") { showMap() })
         }
 
@@ -69,7 +69,7 @@ class DiaryActivity : Page() {
         val here = if (SORTS[sort] == "Nearest to me") Here.last(this) else null
         trips = when (SORTS[sort]) {
             "Nearest to me" -> if (here == null) trips.sortedByDescending { it.startMs } else
-                trips.sortedBy { t -> if (t.hasPlace) Geo.km(here.latitude, here.longitude, t.lat!!, t.lon!!) else Double.MAX_VALUE }
+                trips.sortedBy { t -> nearestKm(t, here) ?: Double.MAX_VALUE }
             "Highest rated" -> trips.sortedWith(compareByDescending<Trip> { it.rating }.thenByDescending { it.startMs })
             "Oldest first" -> trips.sortedBy { it.startMs }
             else -> trips.sortedByDescending { it.startMs }
@@ -81,8 +81,11 @@ class DiaryActivity : Page() {
         trips.forEach { t -> listBox.addView(card(t, here)) }
     }
 
+    private fun nearestKm(t: Trip, here: android.location.Location) =
+        t.placed.minOfOrNull { Geo.km(here.latitude, here.longitude, it.lat!!, it.lon!!) }
+
     private fun card(t: Trip, here: android.location.Location?) = ui.card().apply {
-        t.photos.firstOrNull { AttachmentProvider.mime(it).startsWith("image/") }?.let { name ->
+        t.stops.flatMap { it.photos }.firstOrNull { AttachmentProvider.mime(it).startsWith("image/") }?.let { name ->
             Attach.thumbnail(java.io.File(GarageStore.attachmentsDir(this@DiaryActivity), name), 360)?.let { bmp ->
                 addView(ImageView(this@DiaryActivity).apply {
                     setImageBitmap(bmp)
@@ -91,29 +94,25 @@ class DiaryActivity : Page() {
                 })
             }
         }
-        addView(ui.text(dates(t), 16f, Colours.MUTED))
-        addView(ui.text(t.site.ifBlank { "Trip" }, 20f, bold = true))
+        addView(ui.text(dates(t.startMs, t.endMs), 16f, Colours.MUTED))
+        addView(ui.text(t.name, 20f, bold = true))
+        val one = t.stops.singleOrNull()
         val bits = listOfNotNull(
-            t.place.takeIf { it.isNotBlank() },
-            t.pitch.takeIf { it.isNotBlank() }?.let { "Pitch $it" },
-            if (here != null && t.hasPlace) {
-                val km = Geo.km(here.latitude, here.longitude, t.lat!!, t.lon!!)
+            if (one != null) one.place.takeIf { it.isNotBlank() } else "${t.stops.size} stops",
+            one?.pitch?.takeIf { it.isNotBlank() }?.let { "Pitch $it" },
+            here?.let { h -> nearestKm(t, h) }?.let { km ->
                 if (AppPrefs.km(this@DiaryActivity)) "%.0f km away".format(km) else "%.0f miles away".format(km / Units.KM_PER_MILE)
-            } else null
+            }
         )
         if (bits.isNotEmpty()) addView(ui.text(bits.joinToString("  ·  "), 17f))
         if (t.rating > 0) addView(Stars.row(this@DiaryActivity, ui, t.rating, 22, null))
-        if (t.notes.isNotBlank()) addView(ui.text(t.notes.lines().take(2).joinToString("\n"), 16f, Colours.MUTED))
+        val notes = t.stops.firstOrNull { it.notes.isNotBlank() }?.notes
+        if (notes != null) addView(ui.text(notes.lines().take(2).joinToString("\n"), 16f, Colours.MUTED))
         isClickable = true
         setOnClickListener { edit(t.id) }
     }
 
-    private fun dates(t: Trip): String {
-        val end = t.endMs
-        if (end == null || Units.startOfDay(end) == Units.startOfDay(t.startMs)) return Units.date(t.startMs)
-        val nights = Units.daysFromToday(end) - Units.daysFromToday(t.startMs)
-        return "${Units.date(t.startMs)} to ${Units.date(end)} ($nights night${if (nights == 1) "" else "s"})"
-    }
+    private fun dates(start: Long, end: Long?) = DiaryDates.of(start, end)
 
     private fun showMap() {
         save()
@@ -141,4 +140,13 @@ object Stars {
                 })
             }
         }
+}
+
+/** "Sat 1 Jun 2026 to Mon 3 Jun 2026 (2 nights)" */
+object DiaryDates {
+    fun of(start: Long, end: Long?): String {
+        if (end == null || Units.startOfDay(end) == Units.startOfDay(start)) return Units.date(start)
+        val nights = Units.daysFromToday(end) - Units.daysFromToday(start)
+        return "${Units.date(start)} to ${Units.date(end)} ($nights night${if (nights == 1) "" else "s"})"
+    }
 }

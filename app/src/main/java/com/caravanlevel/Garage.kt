@@ -314,8 +314,41 @@ class Garage(val vehicles: MutableList<Vehicle>, val trips: MutableList<Trip> = 
     }
 }
 
-/** One stay in the trip diary. Kept for all vehicles together, noting which one was used. */
+/** One trip in the diary: one or more stops. Kept for all vehicles together, noting which one was used. */
 class Trip(
+    var title: String = "",
+    var vehicleId: String? = null,
+    val stops: MutableList<Stop> = mutableListOf(),
+    val id: String = newId()
+) {
+    val startMs get() = stops.minOfOrNull { it.startMs } ?: 0L
+    /** The last stop's leaving date, or null if any stop has none yet. */
+    val endMs: Long? get() = if (stops.isEmpty() || stops.any { it.endMs == null }) null else stops.maxOf { it.endMs!! }
+    /** Over once the last leaving date has passed: then it opens read-only. */
+    val over get() = endMs?.let { Units.startOfDay(it) < Units.startOfDay(System.currentTimeMillis()) } ?: false
+    val rating get() = stops.maxOfOrNull { it.rating } ?: 0
+    val placed get() = stops.filter { it.hasPlace }
+    /** A name for lists: the title, else the stops' site names. */
+    val name get() = title.ifBlank { stops.map { it.site }.filter { it.isNotBlank() }.joinToString(", ").ifBlank { "Trip" } }
+
+    fun searchText() = (listOf(title) + stops.map { it.searchText() }).joinToString(" ").lowercase()
+
+    fun json() = JSONObject().put("id", id).put("title", title).put("vehicle", vehicleId ?: JSONObject.NULL)
+        .put("stops", JSONArray().apply { stops.forEach { put(it.json()) } })
+
+    companion object {
+        fun from(o: JSONObject): Trip {
+            val vehicle = if (o.isNull("vehicle")) null else o.optString("vehicle").ifBlank { null }
+            // Before v0.3.46 a trip was a single stop with its details at the top level
+            val stops = if (o.has("stops")) o.optJSONArray("stops").objects().map { Stop.from(it) }.toMutableList()
+                else mutableListOf(Stop.from(o))
+            return Trip(o.optString("title"), vehicle, stops, o.optString("id", newId()))
+        }
+    }
+}
+
+/** One site on a trip. */
+class Stop(
     var startMs: Long,
     var endMs: Long? = null,
     var site: String = "",
@@ -329,30 +362,28 @@ class Trip(
     var email: String = "",
     var website: String = "",
     var cost: String = "",
-    var vehicleId: String? = null,
     val photos: MutableList<String> = mutableListOf(),
     val id: String = newId()
 ) {
     val hasPlace get() = lat != null && lon != null
+    val isEmpty get() = site.isBlank() && place.isBlank() && notes.isBlank() && pitch.isBlank() &&
+        photos.isEmpty() && !hasPlace && rating == 0 && phone.isBlank() && email.isBlank() && website.isBlank()
 
     fun json() = JSONObject().put("id", id).put("start", startMs).put("end", endMs ?: JSONObject.NULL)
         .put("site", site).put("place", place).put("lat", lat ?: JSONObject.NULL).put("lon", lon ?: JSONObject.NULL)
         .put("pitch", pitch).put("rating", rating).put("notes", notes)
         .put("phone", phone).put("email", email).put("website", website).put("cost", cost)
-        .put("vehicle", vehicleId ?: JSONObject.NULL)
         .put("photos", JSONArray().apply { photos.forEach { put(it) } })
 
-    /** Everything searchable, in lower case. */
-    fun searchText() = listOf(site, place, pitch, notes, phone, email, website).joinToString(" ").lowercase()
+    fun searchText() = listOf(site, place, pitch, notes, phone, email, website).joinToString(" ")
 
     companion object {
-        fun from(o: JSONObject) = Trip(
+        fun from(o: JSONObject) = Stop(
             o.optLong("start"), o.optLongOrNull("end"), o.optString("site"), o.optString("place"),
             if (o.isNull("lat") || !o.has("lat")) null else o.optDouble("lat"),
             if (o.isNull("lon") || !o.has("lon")) null else o.optDouble("lon"),
             o.optString("pitch"), o.optInt("rating"), o.optString("notes"),
             o.optString("phone"), o.optString("email"), o.optString("website"), o.optString("cost"),
-            if (o.isNull("vehicle")) null else o.optString("vehicle").ifBlank { null },
             o.optJSONArray("photos").strings().toMutableList(),
             o.optString("id", newId())
         )

@@ -173,7 +173,7 @@ object Theme {
 }
 
 /** Icons drawn in code, so they look the same on every phone. */
-enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS, CARAVAN, CAMPERVAN, MOTORHOME, CAR, COMPASS, CALIBRATE, BUBBLE, VIALS, VOICE, SIZES, DIARY, STAR, STAR_EMPTY }
+enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS, CARAVAN, CAMPERVAN, MOTORHOME, CAR, COMPASS, CALIBRATE, BUBBLE, VIALS, VOICE, SIZES, DIARY, STAR, STAR_EMPTY, LOCATE }
 
 class IconView(context: Context, var icon: Icon, var colour: Int = Colours.TEXT) : View(context) {
     private val painter = IconPainter()
@@ -233,6 +233,13 @@ class IconPainter {
                     c.drawPath(tick, stroke)
                     c.drawLine(50f, y, 72f, y, stroke)
                 }
+            }
+            Icon.LOCATE -> {
+                // "Where am I": a ring with a dot and four short lines
+                c.drawCircle(50f, 50f, 28f, stroke)
+                c.drawCircle(50f, 50f, 11f, fill)
+                c.drawLine(50f, 6f, 50f, 22f, stroke); c.drawLine(50f, 78f, 50f, 94f, stroke)
+                c.drawLine(6f, 50f, 22f, 50f, stroke); c.drawLine(78f, 50f, 94f, 50f, stroke)
             }
             Icon.DIARY -> {
                 // An open book with a map pin on the right page
