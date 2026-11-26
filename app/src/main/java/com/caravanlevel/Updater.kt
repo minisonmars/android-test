@@ -352,7 +352,7 @@ object Updater {
         Thread {
             try {
                 download(r.apkUrl, file) { p -> activity.runOnUiThread { status.text = "Downloading ${r.version}... $p%" } }
-                activity.runOnUiThread { status.text = "Installing... If Android asks, tap Update. The app closes when the update is in; open it again." }
+                activity.runOnUiThread { status.text = "Installing ${r.version}... The app will close by itself when it is done. Open it again to carry on. (If Android asks, tap Update.)" }
                 install(activity, file)
                 activity.runOnUiThread { status.postDelayed({ if (dialog.isShowing) dialog.dismiss() }, 4000) }
             } catch (e: Exception) {
