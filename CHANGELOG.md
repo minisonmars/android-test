@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.26
+
 - Settings > Theme: Light (for daytime), Dark (for night-time) or Follow the phone (the default), which switches when your phone does. Every page follows it, including the level
 
 ## v0.3.25
