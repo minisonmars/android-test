@@ -85,6 +85,14 @@ The version number is the one set in `.github/workflows/build.yml` plus the buil
 
 The same APK is also attached to each Actions run as a zipped artifact. You can start a build manually from the Actions tab with **Run workflow**.
 
+### Signing key
+
+Since version 0.3.24 the APK is signed with the apps' own private key (`CN=minisonmars apps`), not Android's standard debug key, because Play Protect is suspicious of debug-signed apps. It uses Android's key rotation: the old debug key vouches for the new one, so the new version installs over older ones without uninstalling (Android 9 and later use the new key, older Android versions still check the old one).
+
+- The key is stored encrypted in `signing/release.p12.enc`. Its password is the `SIGNING_PASSWORD` repository secret (GitHub > Settings > Secrets and variables > Actions), chosen by the owner. The first build with the secret made the key and committed the encrypted file. `.github/scripts/sign.sh` decrypts it during each build, re-signs the APK and checks it.
+- Without the secret, builds keep the old debug-key signature.
+- **Keep the password safe.** If it is lost, future versions can't be signed with this key and would need an uninstall and reinstall.
+
 ## Updating the app
 
 The app updates itself from this repo's GitHub releases, the same way as all the other apps in this project.

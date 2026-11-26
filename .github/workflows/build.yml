@@ -29,16 +29,33 @@ jobs:
       - name: Build release APK
         run: gradle assembleRelease --no-daemon
 
+      - name: Sign with the apps' own key (key rotation from the old debug key)
+        env:
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+        run: .github/scripts/sign.sh app/build/outputs/apk/release/app-release.apk app-signed.apk
+
+      - name: Save a newly made signing key (encrypted) before publishing
+        run: |
+          # Only on the very first signed build. If this push fails, nothing is published,
+          # so no version ever goes out signed with a key that wasn't kept.
+          if [ -d signing ] && [ -n "$(git status --porcelain signing)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add signing
+            git commit -m "Add the apps' signing key (encrypted)"
+            git push origin HEAD:main
+          fi
+
       - uses: actions/upload-artifact@v4
         with:
           name: caravan-leveller-apk
-          path: app/build/outputs/apk/release/app-release.apk
+          path: app-signed.apk
 
       - name: Publish release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cp app/build/outputs/apk/release/app-release.apk "CaravanLeveller-v${APP_VERSION}.apk"
+          cp app-signed.apk "CaravanLeveller-v${APP_VERSION}.apk"
           # Release notes = the "Next" section of CHANGELOG.md
           python3 .github/scripts/changelog.py notes > notes.md
           gh release create "v${APP_VERSION}" "CaravanLeveller-v${APP_VERSION}.apk" \

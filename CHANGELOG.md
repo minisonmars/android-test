@@ -5,7 +5,7 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Signed with the apps' own key instead of Android's standard debug key, to cut down Play Protect warnings. It still installs over the old version, keeping your data
 
 ## v0.3.24
 
