@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.31
+
 - Vehicle info: campervans, motorhomes and tow cars have a new size, "Width including wing mirrors".
 - Level: in Two bubbles, the side to side and front to back vials are now one above the other, each labelled at its ends.
 
