@@ -34,8 +34,8 @@ class BubbleView(context: Context) : View(context) {
 
     private val maxDisplayDeg = 5f // tilt at which the bubble hits the edge
     private val d = resources.displayMetrics.density
-    private val green = Color.rgb(60, 220, 90)
-    private val orange = Color.rgb(255, 170, 0)
+    private val green = Colours.LEVEL_GREEN
+    private val orange = Colours.LEVEL_ORANGE
 
     private val ring = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
@@ -44,22 +44,22 @@ class BubbleView(context: Context) : View(context) {
     private val cross = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeWidth = 3f
-        color = Color.DKGRAY
+        color = if (Colours.dark) Color.DKGRAY else Color.LTGRAY
     }
     private val bubble = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
     private val arrowPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
-        color = Color.WHITE
+        color = Colours.TEXT
     }
     private val text = Paint(Paint.ANTI_ALIAS_FLAG).apply { textAlign = Paint.Align.CENTER }
     private val rightText = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.RIGHT
-        color = Color.GRAY
+        color = Colours.MUTED
     }
     private val arrow = Path()
 
     override fun onDraw(canvas: Canvas) {
-        canvas.drawColor(Color.BLACK)
+        canvas.drawColor(Colours.BG)
 
         val w = width.toFloat()
         val cx = w / 2f
@@ -79,11 +79,11 @@ class BubbleView(context: Context) : View(context) {
 
         text.typeface = Typeface.DEFAULT_BOLD
         text.textSize = 18 * d
-        text.color = Color.WHITE
+        text.color = Colours.TEXT
         canvas.drawText("FRONT", cx, ay + 90 * d, text)
         text.typeface = Typeface.DEFAULT
         text.textSize = 12 * d
-        text.color = Color.GRAY
+        text.color = Colours.MUTED
         canvas.drawText("Point the top of the phone toward the front", cx, ay + 108 * d, text)
 
         rightText.textSize = 12 * d
@@ -96,7 +96,7 @@ class BubbleView(context: Context) : View(context) {
 
         val isLevel = abs(rollDeg) <= LEVEL_DEG && abs(pitchDeg) <= LEVEL_DEG
         bubble.color = if (isLevel) green else orange
-        ring.color = if (isLevel) green else Color.GRAY
+        ring.color = if (isLevel) green else Colours.MUTED
 
         canvas.drawCircle(cx, cy, radius, ring)
         canvas.drawCircle(cx, cy, bubbleR * 1.6f, cross)
@@ -119,7 +119,7 @@ class BubbleView(context: Context) : View(context) {
         val pitchSide = if (abs(shownPitch) < 0.05f) "" else if (shownPitch > 0) " (front high)" else " (rear high)"
         text.typeface = Typeface.DEFAULT
         text.textSize = 16 * d
-        text.color = Color.LTGRAY
+        text.color = Colours.TEXT
         canvas.drawText("Side: %.1f°%s".format(abs(shownRoll), rollSide), cx, y, text)
         y += 24 * d
         canvas.drawText("Front/back: %.1f°%s".format(abs(shownPitch), pitchSide), cx, y, text)
@@ -146,7 +146,7 @@ class BubbleView(context: Context) : View(context) {
         if (hint.isNotEmpty()) {
             text.typeface = Typeface.DEFAULT
             text.textSize = 13 * d
-            text.color = Color.GRAY
+            text.color = Colours.MUTED
             canvas.drawText(hint, cx, y, text)
         }
     }

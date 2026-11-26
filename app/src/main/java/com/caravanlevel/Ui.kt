@@ -49,23 +49,94 @@ fun View.fitSystemBars() {
     requestApplyInsets()
 }
 
-/** Colours used across the app (dark background, like the level screen). */
+/**
+ * Colours used across the app. Light or dark depending on Settings > Theme (light, dark,
+ * or follow the phone). Call [Theme.apply] at the start of each screen's onCreate.
+ */
 object Colours {
-    val BG = Color.rgb(18, 18, 18)
-    val CARD = Color.rgb(38, 44, 48)
-    val TILE = Color.rgb(36, 60, 52)
+    var dark = true
+        private set
+    var BG = 0; var CARD = 0; var TILE = 0; var TEXT = 0; var MUTED = 0
     val ACCENT = Color.rgb(46, 158, 107)
-    val TEXT = Color.WHITE
-    val MUTED = Color.rgb(176, 184, 188)
     val RED = Color.rgb(198, 40, 40)
     val AMBER = Color.rgb(230, 140, 0)
     val GREEN = Color.rgb(46, 125, 50)
+    var RED_CARD = 0; var AMBER_CARD = 0   // backgrounds for overdue / due-soon cards
+    var LEVEL_GREEN = 0; var LEVEL_ORANGE = 0
+
+    init { set(true) }
+
+    fun set(dark: Boolean) {
+        this.dark = dark
+        if (dark) {
+            BG = Color.rgb(18, 18, 18); CARD = Color.rgb(38, 44, 48); TILE = Color.rgb(36, 60, 52)
+            TEXT = Color.WHITE; MUTED = Color.rgb(176, 184, 188)
+            RED_CARD = RED; AMBER_CARD = AMBER
+            LEVEL_GREEN = Color.rgb(60, 220, 90); LEVEL_ORANGE = Color.rgb(255, 170, 0)
+        } else {
+            BG = Color.rgb(246, 247, 248); CARD = Color.rgb(226, 231, 234); TILE = Color.rgb(205, 234, 219)
+            TEXT = Color.rgb(25, 28, 30); MUTED = Color.rgb(84, 94, 100)
+            RED_CARD = Color.rgb(255, 205, 210); AMBER_CARD = Color.rgb(255, 224, 178)
+            LEVEL_GREEN = Color.rgb(30, 150, 60); LEVEL_ORANGE = Color.rgb(214, 120, 0)
+        }
+    }
+
+    /** Text colour that reads well on a strongly coloured button. */
+    fun on(background: Int) = if (background == ACCENT || background == RED || background == GREEN || background == AMBER) Color.WHITE else TEXT
+}
+
+/** Settings > Theme: light, dark, or follow the phone. */
+object Theme {
+    const val LIGHT = "LIGHT"
+    const val DARK = "DARK"
+    const val SYSTEM = "SYSTEM"
+
+    fun choice(ctx: Context): String =
+        ctx.getSharedPreferences("app", Context.MODE_PRIVATE).getString("theme", SYSTEM) ?: SYSTEM
+
+    fun setChoice(ctx: Context, v: String) =
+        ctx.getSharedPreferences("app", Context.MODE_PRIVATE).edit().putString("theme", v).apply()
+
+    fun isDark(ctx: Context): Boolean = when (choice(ctx)) {
+        LIGHT -> false
+        DARK -> true
+        else -> (ctx.resources.configuration.uiMode and android.content.res.Configuration.UI_MODE_NIGHT_MASK) ==
+            android.content.res.Configuration.UI_MODE_NIGHT_YES
+    }
+
+    /** Call before super.onCreate. Returns whether dark was used, to spot a change later. */
+    fun apply(a: Activity): Boolean {
+        val dark = isDark(a)
+        Colours.set(dark)
+        a.setTheme(if (dark) android.R.style.Theme_Material_NoActionBar else android.R.style.Theme_Material_Light_NoActionBar)
+        return dark
+    }
+
+    /** Status and navigation bar icons dark on a light page. Call after setContentView. */
+    @Suppress("DEPRECATION")
+    fun barIcons(a: Activity) {
+        val dark = Colours.dark
+        if (android.os.Build.VERSION.SDK_INT >= 30) {
+            val flags = android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS or
+                android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+            a.window.insetsController?.setSystemBarsAppearance(if (dark) 0 else flags, flags)
+        } else if (android.os.Build.VERSION.SDK_INT >= 23) {
+            var v = a.window.decorView.systemUiVisibility
+            v = if (dark) v and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv() else v or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+            a.window.decorView.systemUiVisibility = v
+        }
+    }
+
+    /** In onResume: if the theme setting changed while this screen was open, redraw it. */
+    fun recreateIfChanged(a: Activity, wasDark: Boolean) {
+        if (isDark(a) != wasDark) a.recreate()
+    }
 }
 
 /** Icons drawn in code, so they look the same on every phone. */
 enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS }
 
-class IconView(context: Context, var icon: Icon, var colour: Int = Color.WHITE) : View(context) {
+class IconView(context: Context, var icon: Icon, var colour: Int = Colours.TEXT) : View(context) {
     private val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
@@ -191,7 +262,7 @@ class Ui(val ctx: Activity) {
         text = label
         isAllCaps = false
         textSize = 18f
-        setTextColor(Colours.TEXT)
+        setTextColor(Colours.on(colour))
         background = rounded(colour)
         minHeight = dp(56)
         setPadding(dp(16), dp(8), dp(16), dp(8))
@@ -299,7 +370,10 @@ abstract class Page : Activity() {
     /** Copy anything typed on screen into [vehicle] before saving or rebuilding. */
     open fun commit() {}
 
+    private var wasDark = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        wasDark = Theme.apply(this)
         super.onCreate(savedInstanceState)
         ui = Ui(this)
         val page = ui.column().apply { setBackgroundColor(Colours.BG) }
@@ -313,10 +387,12 @@ abstract class Page : Activity() {
         page.addView(scroll, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         page.fitSystemBars()
         setContentView(page)
+        Theme.barIcons(this)
     }
 
     override fun onResume() {
         super.onResume()
+        Theme.recreateIfChanged(this, wasDark)
         AppPrefs.setLastSection(this, section.name)
         reload()
     }

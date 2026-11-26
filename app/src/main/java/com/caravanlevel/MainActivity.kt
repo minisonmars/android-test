@@ -26,7 +26,10 @@ class MainActivity : Activity() {
         const val EXTRA_VEHICLE = "vehicle"
     }
 
+    private var wasDark = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        wasDark = Theme.apply(this)
         super.onCreate(savedInstanceState)
         ui = Ui(this)
 
@@ -48,6 +51,7 @@ class MainActivity : Activity() {
         }
         page.fitSystemBars()
         setContentView(page)
+        Theme.barIcons(this)
 
         Reminders.schedule(this)
         Reminders.checkNow(this)
@@ -76,6 +80,7 @@ class MainActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
+        Theme.recreateIfChanged(this, wasDark)
         AppPrefs.setLastSection(this, AppPrefs.OPEN_HOME)
         refreshUpdateBanner()
         build()

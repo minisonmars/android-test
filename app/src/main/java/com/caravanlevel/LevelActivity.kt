@@ -58,7 +58,10 @@ class LevelActivity : Activity(), SensorEventListener {
 
     private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
 
+    private var wasDark = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        wasDark = Theme.apply(this)
         super.onCreate(savedInstanceState)
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
@@ -122,6 +125,7 @@ class LevelActivity : Activity(), SensorEventListener {
         }
         page.fitSystemBars()
         setContentView(page)
+        Theme.barIcons(this)
     }
 
     /** Load the chosen vehicle and show the picker at the top. */
@@ -148,6 +152,7 @@ class LevelActivity : Activity(), SensorEventListener {
 
     override fun onResume() {
         super.onResume()
+        Theme.recreateIfChanged(this, wasDark)
         AppPrefs.setLastSection(this, Section.LEVEL.name)
         loadVehicle() // pick up changes made on the other pages
         lastSpokenAt = 0L

@@ -69,7 +69,8 @@ The phone's position on the caravan doesn't matter, because a rigid body tilts b
 ## Settings
 
 - Open the app on: home page, where you left off, or a chosen page
-- Sizes in cm or inches, distances in miles or km (stored in cm and miles inside the app)
+- Theme: Light, Dark, or Follow the phone (default)
+- Inches or cm for levelling amounts and as the starting unit for new sizes; distances in miles or km (stored in cm and miles inside the app)
 - Updates (see below)
 
 ## Getting the APK

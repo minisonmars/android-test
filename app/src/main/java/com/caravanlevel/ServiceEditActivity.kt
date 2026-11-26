@@ -38,6 +38,7 @@ class ServiceEditActivity : Activity() {
     private val commits = mutableListOf<() -> Unit>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Theme.apply(this)
         super.onCreate(savedInstanceState)
         ui = Ui(this)
         garage = GarageStore.load(this)
@@ -53,6 +54,7 @@ class ServiceEditActivity : Activity() {
             fitSystemBars()
             addView(col)
         })
+        Theme.barIcons(this)
         build()
     }
 

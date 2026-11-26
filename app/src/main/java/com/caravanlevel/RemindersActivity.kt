@@ -60,8 +60,8 @@ class RemindersActivity : Page() {
             val days = Due.days(v, r)
             val colour = when {
                 days == null -> Colours.CARD
-                days < 0 -> Colours.RED
-                days <= 30 -> Colours.AMBER
+                days < 0 -> Colours.RED_CARD
+                days <= 30 -> Colours.AMBER_CARD
                 else -> Colours.CARD
             }
             val card = ui.card(colour)

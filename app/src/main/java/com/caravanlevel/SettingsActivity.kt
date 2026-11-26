@@ -14,10 +14,21 @@ class SettingsActivity : Activity() {
     private lateinit var updateStatus: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Theme.apply(this)
         super.onCreate(savedInstanceState)
         ui = Ui(this)
         val col = ui.column(16)
         col.addView(ui.text("Settings", 24f, bold = true))
+
+        // Theme
+        col.addView(ui.heading("Theme"))
+        val themes = listOf(Theme.SYSTEM to "Follow the phone", Theme.LIGHT to "Light (for daytime)", Theme.DARK to "Dark (for night-time)")
+        val shownTheme = themes.indexOfFirst { it.first == Theme.choice(this) }.coerceAtLeast(0)
+        col.addView(ui.spinner(themes.map { it.second }, shownTheme) {
+            Theme.setChoice(this, themes[it].first)
+            recreate() // redraw this page straight away; the others redraw when you go back
+        })
+        col.addView(ui.text("Follow the phone switches between light and dark when your phone does.", 16f, Colours.MUTED))
 
         // Start page
         col.addView(ui.heading("Open the app on"))
@@ -29,7 +40,7 @@ class SettingsActivity : Activity() {
 
         // Units
         col.addView(ui.heading("Units"))
-        col.addView(switch("Sizes in inches instead of cm", AppPrefs.inches(this)) { AppPrefs.setInches(this, it) })
+        col.addView(switch("Inches for levelling amounts and new sizes (instead of cm)", AppPrefs.inches(this)) { AppPrefs.setInches(this, it) })
         col.addView(switch("Distances in km instead of miles", AppPrefs.km(this)) { AppPrefs.setKm(this, it) })
 
         // App updates: same layout as in all the other apps
@@ -46,6 +57,7 @@ class SettingsActivity : Activity() {
             fitSystemBars()
             addView(col)
         })
+        Theme.barIcons(this)
 
         // Opening Settings always checks for a new version straight away
         refreshUpdateStatus()
