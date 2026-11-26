@@ -23,16 +23,17 @@ class DiaryActivity : Page() {
     private lateinit var listBox: LinearLayout
 
     override fun build() {
-        content.addView(ui.button("Add a trip", Colours.ACCENT) { edit(null) })
+        // Small icon buttons: add a trip, and the map once any site has a pin
+        val icons = LinearLayout(this).apply { orientation = LinearLayout.HORIZONTAL }
+        icons.addView(iconButton(Icon.ADD, "Add") { edit(null) })
+        if (garage.trips.any { it.placed.isNotEmpty() }) icons.addView(iconButton(Icon.MAP, "Map") { showMap() })
+        content.addView(icons)
         if (garage.trips.isEmpty()) {
             content.addView(ui.text(
                 "No trips yet. Add where you stayed, the pitch, what it was like, photos and the site's contact details.",
                 18f, Colours.MUTED
             ).apply { setPadding(0, ui.dp(12), 0, 0) })
             return
-        }
-        if (garage.trips.any { it.placed.isNotEmpty() }) {
-            content.addView(ui.button("Show all sites on a map") { showMap() })
         }
 
         content.addView(ui.label("Search"))
@@ -79,6 +80,17 @@ class DiaryActivity : Page() {
         }
         if (trips.isEmpty()) listBox.addView(ui.text("Nothing matches that search.", 17f, Colours.MUTED).apply { setPadding(0, ui.dp(12), 0, 0) })
         trips.forEach { t -> listBox.addView(card(t, here)) }
+    }
+
+    /** An icon with a short word under it, on a small tile. */
+    private fun iconButton(icon: Icon, label: String, onClick: () -> Unit) = ui.column(6).apply {
+        gravity = android.view.Gravity.CENTER
+        background = ui.rounded(Colours.TILE, 14)
+        isClickable = true
+        setOnClickListener { onClick() }
+        addView(IconView(this@DiaryActivity, icon, Colours.ACCENT).apply { layoutParams = LinearLayout.LayoutParams(ui.dp(32), ui.dp(32)) })
+        addView(ui.text(label, 13f, bold = true).apply { gravity = android.view.Gravity.CENTER })
+        layoutParams = LinearLayout.LayoutParams(ui.dp(76), ui.dp(70)).apply { setMargins(0, ui.dp(6), ui.dp(10), ui.dp(4)) }
     }
 
     private fun nearestKm(t: Trip, here: android.location.Location) =

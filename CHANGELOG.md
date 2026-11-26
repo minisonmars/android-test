@@ -5,7 +5,7 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Trip diary: Add a trip and the map are now small icon tiles at the top, to save space.
 
 ## v0.3.50
 
