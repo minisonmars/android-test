@@ -93,6 +93,7 @@ class ChecklistActivity : Page() {
             }
         }
         showProgress()
+        if (list.kind == "packing") tripBox(list)
         content.addView(progress)
 
         list.items.forEach { item ->
@@ -122,6 +123,40 @@ class ChecklistActivity : Page() {
             editing = true
             rebuild()
         })
+    }
+
+    /** Packing list: choose the trip's countries and their kit is added at the top. */
+    private fun tripBox(list: Checklist) {
+        val card = ui.card()
+        card.addView(ui.text("Going abroad?", 19f, bold = true))
+        card.addView(ui.text(
+            if (list.countries.isEmpty()) "Choose the countries you'll drive through, and the kit and paperwork they need is added to this list."
+            else "Kit for: ${list.countries.joinToString(", ")}", 16f
+        ))
+        card.addView(ui.button(if (list.countries.isEmpty()) "Choose countries" else "Change countries", Colours.ACCENT) { chooseCountries(list) })
+        if (list.countries.isNotEmpty()) {
+            card.addView(ui.text(
+                "General information, as the rules were understood in ${TripRules.CHECKED}. Rules change, so check gov.uk \"Driving abroad\" and the AA or RAC country guides before you go.",
+                14f, Colours.MUTED
+            ))
+        }
+        content.addView(card)
+    }
+
+    private fun chooseCountries(list: Checklist) {
+        val names = TripRules.countries
+        val on = BooleanArray(names.size) { names[it] in list.countries }
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Countries on this trip")
+            .setMultiChoiceItems(names.toTypedArray(), on) { _, i, v -> on[i] = v }
+            .setPositiveButton("OK") { _, _ ->
+                list.countries.clear()
+                list.countries.addAll(names.filterIndexed { i, _ -> on[i] })
+                TripRules.apply(list, vehicle.type)
+                saveAndRebuild()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun buildEditor(list: Checklist) {

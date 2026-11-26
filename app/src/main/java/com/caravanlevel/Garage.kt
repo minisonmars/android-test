@@ -57,11 +57,17 @@ class Detail(var label: String, var value: String) {
 }
 
 class CheckItem(var text: String, var ticked: Boolean = false, val id: String = newId()) {
+    /** Set on items added for trip countries (the TripRules key), so they can be updated. */
+    var rule: String? = null
+
     fun json() = JSONObject().put("id", id).put("text", text).put("ticked", ticked)
+        .put("rule", rule ?: JSONObject.NULL)
 
     companion object {
         fun from(o: JSONObject) =
-            CheckItem(o.optString("text"), o.optBoolean("ticked"), o.optString("id", newId()))
+            CheckItem(o.optString("text"), o.optBoolean("ticked"), o.optString("id", newId())).apply {
+                rule = if (o.isNull("rule")) null else o.optString("rule").ifBlank { null }
+            }
     }
 }
 
@@ -71,8 +77,14 @@ class Checklist(
     val id: String = newId(),
     var completedAt: Long = 0L   // when the last item was ticked, 0 if not finished
 ) {
+    /** "packing" for the packing list (it can add kit for trip countries), else "". */
+    var kind = ""
+    /** Countries chosen for the trip (packing list only). */
+    val countries = mutableListOf<String>()
+
     fun json() = JSONObject().put("id", id).put("name", name).put("completedAt", completedAt)
         .put("items", JSONArray().apply { items.forEach { put(it.json()) } })
+        .put("kind", kind).put("countries", JSONArray(countries))
 
     val done get() = items.count { it.ticked }
     val finished get() = items.isNotEmpty() && done == items.size
@@ -88,7 +100,10 @@ class Checklist(
             o.optJSONArray("items").objects().map { CheckItem.from(it) }.toMutableList(),
             o.optString("id", newId()),
             o.optLong("completedAt", 0L)
-        )
+        ).apply {
+            kind = o.optString("kind", "")
+            countries.addAll(o.optJSONArray("countries").strings())
+        }
     }
 }
 
@@ -182,6 +197,9 @@ class Vehicle(
     var mroKg = 0      // mass in running order (MIRO / MRO), empty weight as built
     var mtplmKg = 0    // maximum technically permissible laden mass (the plated maximum)
 
+    /** The packing list has been added once (so deleting it is respected). */
+    var packingAdded = false
+
     /** Photo of the vehicle: a file name in the attachments folder. */
     var photo: String? = null
 
@@ -216,6 +234,7 @@ class Vehicle(
             .put("annualMiles", annualMiles).put("usage", usage.name)
             .put("sizeUnits", JSONObject(sizeUnits.toMap()))
             .put("photo", photo ?: JSONObject.NULL)
+            .put("packingAdded", packingAdded)
             .put("mro", mroKg).put("mtplm", mtplmKg)
     }
 
@@ -257,6 +276,7 @@ class Vehicle(
                 o.optJSONObject("sizeUnits")?.let { u -> u.keys().forEach { k -> sizeUnits[k] = u.optString(k) } }
                 mroKg = o.optInt("mro", 0); mtplmKg = o.optInt("mtplm", 0)
                 photo = if (o.isNull("photo")) null else o.optString("photo").ifBlank { null }
+                packingAdded = o.optBoolean("packingAdded", false)
             }
         }
 
@@ -273,6 +293,7 @@ class Vehicle(
         /** A new vehicle with the default checklists and detail lines for its type. */
         fun create(name: String, type: VehicleType) = Vehicle(name, type).apply {
             checklists.addAll(DefaultLists.forType(type))
+            packingAdded = true
             applyStandardDetails()
         }
     }
@@ -323,6 +344,12 @@ object GarageStore {
             val before = v.details.map { it.label }
             v.applyStandardDetails()
             if (v.details.map { it.label } != before) changed = true
+            if (!v.packingAdded) {
+                // Packing lists came in v0.3.35: give every vehicle one, once
+                if (v.checklists.none { it.kind == "packing" }) v.checklists.add(DefaultLists.packing(v.type))
+                v.packingAdded = true
+                changed = true
+            }
         }
         if (changed) save(ctx, g)
         if (g.vehicles.isEmpty()) {
@@ -389,7 +416,54 @@ object DefaultLists {
             list("Before driving", vanBeforeDriving)
         )
         VehicleType.CAR -> listOf(list("Before towing", carBeforeTowing))
-    }
+    } + packing(t)
+
+    /** Things to pack or take. Kit needed abroad is added when trip countries are chosen. */
+    fun packing(t: VehicleType) = list("Packing", when (t) {
+        VehicleType.CAR -> carPacking
+        VehicleType.CARAVAN -> livingPacking + caravanPacking
+        else -> livingPacking
+    }).apply { kind = "packing" }
+
+    private val livingPacking = listOf(
+        "Bedding and pillows",
+        "Towels",
+        "Clothes, coats and wellies",
+        "Toiletries",
+        "Medicines and prescriptions",
+        "First aid kit",
+        "Phone chargers and cables",
+        "Torch and spare batteries",
+        "Food and drinks",
+        "Kettle, pans and cooking utensils",
+        "Plates, cups and cutlery",
+        "Tea towels and washing-up liquid",
+        "Bin bags",
+        "Toilet chemicals and toilet roll",
+        "Fresh water container and hose",
+        "Waste water container",
+        "Electric hook-up cable and adaptors",
+        "Spare gas bottle",
+        "Levelling ramps or blocks",
+        "Outdoor chairs and table",
+        "Awning or windbreak, pegs and mallet",
+        "Site booking and breakdown cover details",
+        "Games, books and things to do",
+        "Pet bed, food and lead (if bringing pets)"
+    )
+
+    private val caravanPacking = listOf(
+        "Towing mirrors",
+        "Hitch lock and wheel clamp keys",
+        "Motor mover remote (if fitted)"
+    )
+
+    private val carPacking = listOf(
+        "Towing mirrors",
+        "Tow ball cover and spare electrics adaptor",
+        "Breakdown cover details",
+        "Phone charger for the car"
+    )
 
     private fun list(name: String, items: List<String>) =
         Checklist(name, items.map { CheckItem(it) }.toMutableList())
