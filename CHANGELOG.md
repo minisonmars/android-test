@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.55
+
 - Vehicle info has a new Tyres section: tyre size, pressures in psi or bar, and the DOT date code. It shows how old the tyres are and warns once they're over 5 years old.
 
 ## v0.3.54
