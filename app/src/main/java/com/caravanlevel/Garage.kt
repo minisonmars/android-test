@@ -167,6 +167,12 @@ class Vehicle(
     var hitchCm = 0f        // caravan: hitch coupling to axle centre (levelling front to back)
     var wheelbaseCm = 0f    // motorised: front axle to rear axle (levelling front to back)
 
+    /** The unit each size was typed in (key -> SizeUnit name), so it's shown the same way. */
+    val sizeUnits = mutableMapOf<String, String>()
+
+    /** Photo of the vehicle: a file name in the attachments folder. */
+    var photo: String? = null
+
     // Level calibration, degrees
     var rollOffset = 0f
     var pitchOffset = 0f
@@ -196,6 +202,23 @@ class Vehicle(
             .put("wheelbase", wheelbaseCm.toDouble())
             .put("roll", rollOffset.toDouble()).put("pitch", pitchOffset.toDouble())
             .put("annualMiles", annualMiles).put("usage", usage.name)
+            .put("sizeUnits", JSONObject(sizeUnits.toMap()))
+            .put("photo", photo ?: JSONObject.NULL)
+    }
+
+    /**
+     * Make sure the standard lines for this type are there (e.g. Registration for a van,
+     * CRiS number for a caravan), and drop empty standard lines that don't apply.
+     */
+    fun applyStandardDetails() {
+        val wanted = standardDetails(type)
+        details.removeAll { it.label in FIXED_DETAILS && it.label !in wanted && it.value.isBlank() }
+        var insertAt = 0
+        for (name in wanted) {
+            val at = details.indexOfFirst { it.label == name }
+            if (at >= 0) insertAt = at + 1
+            else details.add(insertAt++, Detail(name, ""))
+        }
     }
 
     companion object {
@@ -218,18 +241,25 @@ class Vehicle(
                 rollOffset = f("roll"); pitchOffset = f("pitch")
                 annualMiles = o.optInt("annualMiles", 0)
                 usage = Usage.of(o.optString("usage"))
+                o.optJSONObject("sizeUnits")?.let { u -> u.keys().forEach { k -> sizeUnits[k] = u.optString(k) } }
+                photo = if (o.isNull("photo")) null else o.optString("photo").ifBlank { null }
             }
         }
 
+        const val VIN = "VIN (chassis number)"
+
         /** Standard detail lines: their names can't be changed and they can't be removed. */
-        val FIXED_DETAILS = setOf("Make", "Model", "Year", "CRiS number", "Registration")
+        val FIXED_DETAILS = setOf("Make", "Model", "Year", "CRiS number", "Registration", VIN)
+
+        /** Caravans have a CRiS number but no registration; vans and cars are registered. */
+        fun standardDetails(t: VehicleType) =
+            if (t == VehicleType.CARAVAN) listOf("Make", "Model", "Year", "CRiS number", VIN)
+            else listOf("Make", "Model", "Year", "Registration", VIN)
 
         /** A new vehicle with the default checklists and detail lines for its type. */
         fun create(name: String, type: VehicleType) = Vehicle(name, type).apply {
             checklists.addAll(DefaultLists.forType(type))
-            details.addAll(listOf("Make", "Model", "Year").map { Detail(it, "") })
-            if (type == VehicleType.CARAVAN) details.add(Detail("CRiS number", ""))
-            else details.add(Detail("Registration", ""))
+            applyStandardDetails()
         }
     }
 }
@@ -274,7 +304,13 @@ object GarageStore {
             }.toMutableList())
             save(ctx, g)
         }
-        if (fixTypedIntoNames(g)) save(ctx, g)
+        var changed = fixTypedIntoNames(g)
+        for (v in g.vehicles) {
+            val before = v.details.map { it.label }
+            v.applyStandardDetails()
+            if (v.details.map { it.label } != before) changed = true
+        }
+        if (changed) save(ctx, g)
         if (g.vehicles.isEmpty()) {
             g.vehicles.add(Vehicle.create("My caravan", VehicleType.CARAVAN))
             save(ctx, g)
@@ -388,7 +424,9 @@ object DefaultLists {
     private val vanSetup = listOf(
         "Check the pitch for slopes, soft ground and overhanging branches",
         "Drive onto levelling ramps if needed",
-        "Apply the handbrake and put it in gear or park",
+        "Apply the handbrake and put it in gear or park; engine off",
+        "Turn the cab seats round, if they swivel",
+        "Fit the cab blinds or windscreen cover",
         "Connect the mains hook-up: van end first, then the bollard",
         "Check the RCD and switch on the mains",
         "Turn on the gas and check for smells",
@@ -413,11 +451,20 @@ object DefaultLists {
     )
 
     private val vanBeforeDriving = listOf(
-        "Check tyre pressures",
-        "Check oil, coolant and screen wash",
+        "Check tyre pressures (including the spare)",
+        "Check oil, coolant, brake fluid and screen wash",
+        "Enough fuel (and AdBlue, if your van uses it)",
+        "Gas turned off at the bottle (or set for travel if you have a crash-sensor regulator)",
+        "Fridge on 12 V or off, door catch locked",
+        "Cupboards, drawers and the fridge closed; loose items and the TV stowed",
+        "Hook-up cable unplugged and stowed",
         "Habitation door locked, step in",
-        "Roof lights closed, aerial down",
-        "All lights and indicators working"
+        "Roof lights, windows and vents closed; aerial and satellite dish down",
+        "Awning wound in and locked",
+        "Cab seats facing forward, cab blinds and screen cover off",
+        "Bikes and rack secure, number plate and lights not hidden",
+        "Levelling ramps and chocks picked up and stowed",
+        "Mirrors adjusted; all lights and indicators working"
     )
 
     private val carBeforeTowing = listOf(

@@ -68,6 +68,16 @@ object AppPrefs {
     fun setAskedNotifications(ctx: Context) = p(ctx).edit().putBoolean("askedNotif", true).apply()
 }
 
+/** Units a size can be typed in. Each size remembers its own. */
+enum class SizeUnit(val label: String, val cm: Float) {
+    MM("mm", 0.1f), CM("cm", 1f), M("m", 100f),
+    IN("in", 2.54f), FT("ft", 30.48f), YD("yd", 91.44f);
+
+    companion object {
+        fun of(s: String?) = values().firstOrNull { it.name == s }
+    }
+}
+
 /** Showing and reading sizes, distances, money and dates in the chosen units. */
 object Units {
     const val KM_PER_MILE = 1.609344
@@ -85,6 +95,17 @@ object Units {
         val v = s.replace(',', '.').trim().toFloatOrNull() ?: return 0f
         return if (AppPrefs.inches(ctx)) v * Store.CM_PER_INCH else v
     }
+
+    /** The unit a size is shown in: the one it was typed in, else cm or inches from Settings. */
+    fun unitOf(ctx: Context, v: Vehicle, key: String): SizeUnit =
+        SizeUnit.of(v.sizeUnits[key]) ?: if (AppPrefs.inches(ctx)) SizeUnit.IN else SizeUnit.CM
+
+    /** cm -> number in the given unit with two decimals, or "" if not set. */
+    fun sizeNumber(cm: Float, u: SizeUnit): String = if (cm <= 0f) "" else Store.fixed(cm / u.cm)
+
+    /** Typed number in the given unit -> cm (0 if empty). */
+    fun parseSizeIn(s: String, u: SizeUnit): Float =
+        (s.replace(',', '.').trim().toFloatOrNull() ?: 0f) * u.cm
 
     fun distUnit(ctx: Context) = if (AppPrefs.km(ctx)) "km" else "miles"
 

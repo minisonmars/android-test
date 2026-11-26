@@ -5,7 +5,13 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Vehicle info: add a photo of the vehicle (take one or choose one from your gallery, in Edit). Tap it to see it full size
+- Each size can be typed in mm, cm, m, inches, feet or yards, and is shown in the unit you used (for example 6.40 m, 205.00 cm)
+- Standard lines now depend on the type: caravans have CRiS number and VIN (chassis number); campervans, motorhomes and cars have Registration and VIN
+- Changing a vehicle's type offers to swap to that type's starting checklists
+- Campervan and motorhome checklists have more van checks (fuel and AdBlue, cab seats and blinds, bikes, ramps and more) and no towing checks
+- Caravans no longer show mileage, and their reminders are by date only
+- Fixed drop-downs sometimes ignoring your first choice
 
 ## v0.3.23
 

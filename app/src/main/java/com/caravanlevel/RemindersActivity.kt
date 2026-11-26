@@ -154,11 +154,14 @@ class RemindersActivity : Page() {
         box.addView(title)
         box.addView(dateBtn)
         box.addView(clearDate)
-        box.addView(ui.label("Due at mileage ($unit)"))
-        box.addView(miles)
+        val byMiles = vehicle.type.motorised // caravans have no odometer
+        if (byMiles) {
+            box.addView(ui.label("Due at mileage ($unit)"))
+            box.addView(miles)
+        }
         box.addView(ui.label("Repeats"))
         box.addView(months)
-        box.addView(repeatMiles)
+        if (byMiles) box.addView(repeatMiles)
         box.addView(notes)
 
         AlertDialog.Builder(this)

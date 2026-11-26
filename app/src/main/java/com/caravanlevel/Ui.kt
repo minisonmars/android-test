@@ -254,9 +254,10 @@ class Ui(val ctx: Activity) {
         adapter = ad
         setSelection(selected.coerceIn(0, (items.size - 1).coerceAtLeast(0)))
         onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            var first = true
+            var current = selected.coerceIn(0, (items.size - 1).coerceAtLeast(0))
             override fun onItemSelected(p: AdapterView<*>?, v: View?, pos: Int, id: Long) {
-                if (first) { first = false; return } // ignore the initial selection
+                if (pos == current) return // the initial selection, or no change
+                current = pos
                 onPick(pos)
             }
             override fun onNothingSelected(p: AdapterView<*>?) {}

@@ -1,7 +1,13 @@
 package com.caravanlevel
 
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
+import android.content.Intent
+import android.os.Bundle
+import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.Toast
 
 /**
@@ -20,10 +26,30 @@ class VehicleActivity : Page() {
     /** Read-only until you tap Edit, so nothing gets changed by accident. */
     private var editing = false
 
+    /** File name of a photo the camera is taking, kept if Android restarts the page. */
+    private var pendingPhoto: String? = null
+
+    companion object {
+        private const val TAKE_PHOTO = 1
+        private const val PICK_PHOTO = 2
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        pendingPhoto = savedInstanceState?.getString("photo")
+        editing = savedInstanceState?.getBoolean("editing") ?: false
+    }
+
+    override fun onSaveInstanceState(out: Bundle) {
+        super.onSaveInstanceState(out)
+        out.putString("photo", pendingPhoto)
+        out.putBoolean("editing", editing)
+    }
+
     override fun build() {
         commits.clear()
         val v = vehicle
-        val unit = Units.sizeUnit(this)
+        photo(v)
 
         content.addView(if (editing) ui.button("Done editing", Colours.ACCENT) { finishEditing() }
         else ui.button("Edit", Colours.ACCENT) { editing = true; rebuild() })
@@ -37,12 +63,7 @@ class VehicleActivity : Page() {
             commits.add { name.text.toString().trim().takeIf { it.isNotEmpty() }?.let { v.name = it } }
             content.addView(ui.label("Type"))
             val types = VehicleType.values()
-            content.addView(ui.spinner(types.map { it.label }, types.indexOf(v.type)) {
-                save()
-                v.type = types[it]
-                save()
-                reload() // the name in the bar and the size names change
-            })
+            content.addView(ui.spinner(types.map { it.label }, types.indexOf(v.type)) { changeType(types[it]) })
         } else {
             show("Name", v.name)
             show("Type", v.type.label)
@@ -52,30 +73,42 @@ class VehicleActivity : Page() {
         content.addView(ui.heading("Details"))
         detailList(v.details, "For example: Chassis number", "For example: Swift")
 
-        // Sizes
-        content.addView(ui.heading("Sizes ($unit)"))
-        fun size(label: String, get: () -> Float, set: (Float) -> Unit) {
+        // Sizes: each one in the unit it was typed in
+        content.addView(ui.heading("Sizes"))
+        if (editing) content.addView(ui.text("Pick the unit next to each size: mm, cm, m, in, ft or yd.", 16f, Colours.MUTED))
+        fun size(key: String, label: String, get: () -> Float, set: (Float) -> Unit) {
+            val u = Units.unitOf(this, v, key)
             if (!editing) {
-                show(label, Units.sizeText(this, get()).let { if (it.isEmpty()) "" else "$it $unit" })
+                show(label, Units.sizeNumber(get(), u).let { if (it.isEmpty()) "" else "$it ${u.label}" })
                 return
             }
             content.addView(ui.label(label))
-            val f = ui.numberField(Units.sizeText(this, get()))
-            content.addView(f)
-            commits.add { set(Units.parseSize(this, f.text.toString())) }
+            val f = ui.numberField(Units.sizeNumber(get(), u)).apply {
+                layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+            }
+            val units = SizeUnit.values()
+            var chosen = u
+            val spin = ui.spinner(units.map { it.label }, units.indexOf(u)) { chosen = units[it] }.apply {
+                layoutParams = LinearLayout.LayoutParams(ui.dp(110), ViewGroup.LayoutParams.WRAP_CONTENT)
+            }
+            content.addView(ui.row(f, spin))
+            commits.add {
+                set(Units.parseSizeIn(f.text.toString(), chosen))
+                v.sizeUnits[key] = chosen.name
+            }
         }
-        size("Overall length", { v.lengthCm }) { v.lengthCm = it }
-        if (v.type == VehicleType.CARAVAN) size("Body length (without the A-frame)", { v.bodyLengthCm }) { v.bodyLengthCm = it }
-        size("Width (body, without mirrors)", { v.widthCm }) { v.widthCm = it }
-        size("Height", { v.heightCm }) { v.heightCm = it }
+        size("length", "Overall length", { v.lengthCm }) { v.lengthCm = it }
+        if (v.type == VehicleType.CARAVAN) size("bodyLength", "Body length (without the A-frame)", { v.bodyLengthCm }) { v.bodyLengthCm = it }
+        size("width", "Width (body, without mirrors)", { v.widthCm }) { v.widthCm = it }
+        size("height", "Height", { v.heightCm }) { v.heightCm = it }
 
-        content.addView(ui.heading("Levelling sizes ($unit)"))
+        content.addView(ui.heading("Levelling sizes"))
         content.addView(ui.text("The level uses these to tell you how much to raise or lower.", 16f, Colours.MUTED))
-        size("Track width: wheel centre to wheel centre", { v.trackCm }) { v.trackCm = it }
+        size("track", "Track width: wheel centre to wheel centre", { v.trackCm }) { v.trackCm = it }
         if (v.type == VehicleType.CARAVAN) {
-            size("Hitch to axle: coupling to axle centre (midpoint for twin axle)", { v.hitchCm }) { v.hitchCm = it }
+            size("hitch", "Hitch to axle: coupling to axle centre (midpoint for twin axle)", { v.hitchCm }) { v.hitchCm = it }
         } else {
-            size("Wheelbase: front axle centre to rear axle centre", { v.wheelbaseCm }) { v.wheelbaseCm = it }
+            size("wheelbase", "Wheelbase: front axle centre to rear axle centre", { v.wheelbaseCm }) { v.wheelbaseCm = it }
         }
         if (editing) content.addView(ui.button("Clear the level calibration") {
             v.rollOffset = 0f
@@ -97,7 +130,7 @@ class VehicleActivity : Page() {
         }
 
         // Mileage
-        mileage(v)
+        if (v.type.motorised) mileage(v) // caravans have no odometer
 
         // Notes
         content.addView(ui.heading("Notes"))
@@ -251,6 +284,111 @@ class VehicleActivity : Page() {
             .setNegativeButton("Cancel", null).show()
     }
 
+    /** Change caravan <-> van: the standard lines change, and offer the matching checklists. */
+    private fun changeType(t: VehicleType) {
+        save()
+        val v = vehicle
+        val old = v.type
+        v.type = t
+        v.applyStandardDetails()
+        save()
+        reload() // the name in the bar and the size names change
+        val listsDiffer = DefaultLists.forType(old).map { it.name } != DefaultLists.forType(t).map { it.name } ||
+            old.motorised != t.motorised
+        if (listsDiffer && old != t) {
+            ui.confirm(
+                "Use the ${t.label.lowercase()} checklists?",
+                "Replace this vehicle's checklists with the starting lists for a ${t.label.lowercase()}? " +
+                    "Any changes you made to the lists will be lost. Choose Keep to leave them as they are.",
+                "Replace"
+            ) {
+                vehicle.checklists.clear()
+                vehicle.checklists.addAll(DefaultLists.forType(t))
+                GarageStore.save(this, garage)
+                Toast.makeText(this, "Checklists replaced", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    // ---------- Photo of the vehicle ----------
+
+    private fun photo(v: Vehicle) {
+        val name = v.photo
+        if (name != null) {
+            val f = java.io.File(GarageStore.attachmentsDir(this), name)
+            Attach.thumbnail(f, 900)?.let { bmp ->
+                content.addView(ImageView(this).apply {
+                    setImageBitmap(bmp)
+                    scaleType = ImageView.ScaleType.CENTER_CROP
+                    layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ui.dp(220))
+                        .apply { setMargins(0, ui.dp(8), 0, ui.dp(4)) }
+                    setOnClickListener { Attach.view(this@VehicleActivity, name) }
+                })
+            }
+        }
+        if (!editing) return
+        content.addView(ui.row(
+            ui.rowButton(if (name == null) "Take a photo" else "New photo", Colours.TILE) { takePhoto() },
+            ui.rowButton("Choose a photo", Colours.TILE) { pickPhoto() }
+        ))
+        if (name != null) content.addView(ui.button("Remove the photo", Colours.RED) {
+            save()
+            GarageStore.deleteAttachment(this, name)
+            vehicle.photo = null
+            saveAndRebuild()
+        })
+    }
+
+    private fun takePhoto() {
+        save()
+        val name = Attach.newName("${vehicle.name}.jpg")
+        java.io.File(GarageStore.attachmentsDir(this), name).createNewFile()
+        try {
+            pendingPhoto = name
+            startActivityForResult(Attach.cameraIntent(name), TAKE_PHOTO)
+        } catch (_: ActivityNotFoundException) {
+            pendingPhoto = null
+            GarageStore.deleteAttachment(this, name)
+            Toast.makeText(this, "No camera app found", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun pickPhoto() {
+        save()
+        val i = Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*")
+        try {
+            startActivityForResult(i, PICK_PHOTO)
+        } catch (_: ActivityNotFoundException) {
+            Toast.makeText(this, "No photo picker found", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        // The page reloads from storage straight after this, so work on a fresh copy
+        val g = GarageStore.load(this)
+        val v = GarageStore.active(this, g)
+        var newPhoto: String? = null
+        when (requestCode) {
+            TAKE_PHOTO -> {
+                val name = pendingPhoto ?: return
+                pendingPhoto = null
+                val f = java.io.File(GarageStore.attachmentsDir(this), name)
+                if (resultCode == RESULT_OK && f.length() > 0) newPhoto = name else f.delete()
+            }
+            PICK_PHOTO -> {
+                val uri = data?.data
+                if (resultCode == RESULT_OK && uri != null) newPhoto = Attach.copyIn(this, uri)
+            }
+        }
+        if (newPhoto != null) {
+            v.photo?.let { GarageStore.deleteAttachment(this, it) }
+            v.photo = newPhoto
+            GarageStore.save(this, g)
+        }
+    }
+
     private fun deleteVehicle() {
         if (garage.vehicles.size <= 1) {
             Toast.makeText(this, "You need at least one vehicle", Toast.LENGTH_LONG).show()
@@ -263,6 +401,7 @@ class VehicleActivity : Page() {
         ) {
             val v = vehicle
             v.services.flatMap { it.attachments }.forEach { GarageStore.deleteAttachment(this, it) }
+            v.photo?.let { GarageStore.deleteAttachment(this, it) }
             garage.vehicles.remove(v)
             AppPrefs.setActiveVehicle(this, garage.vehicles[0].id)
             GarageStore.save(this, garage)

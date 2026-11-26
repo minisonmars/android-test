@@ -13,11 +13,12 @@ The app opens on a home page with a big button for each part: **Level**, **Check
 You can have several vehicles: caravan, campervan, motorhome or tow car. The chosen vehicle is shown at the top of every page; pick another from the drop-down and the whole app switches to it. Add or delete vehicles on **Vehicle info**. (Caravan profiles from older versions became vehicles, keeping their sizes and calibration.)
 
 **Vehicle info** holds:
-- Name and type, and details such as make, model, year, CRiS number or registration (add your own lines)
-- Sizes: overall length, body length (caravans), width and height, in cm or inches
+- A photo of the vehicle (take one or choose one in Edit; tap it to see it full size)
+- Name and type, and the standard lines for the type: Make, Model, Year, VIN (chassis number), plus CRiS number for a caravan or Registration for a campervan, motorhome or car. Add your own lines too. Changing the type swaps the standard lines and offers that type's starting checklists
+- Sizes: overall length, body length (caravans), width and height. Each size is typed in its own unit (mm, cm, m, in, ft or yd) and shown in that unit
 - Levelling sizes used by the level: track width, plus hitch to axle (caravan) or wheelbase (campervan, motorhome)
 - Equipment: fridge, heaters, pump, battery and so on, with makes, models and serial numbers
-- Mileage: odometer readings (a caravan has none, so start from 0), estimated miles per year and when you use it
+- Mileage (campervans, motorhomes and cars only): odometer readings, estimated miles per year and when you use it. Caravans have no mileage, and their reminders are by date only
 - Notes
 
 The page is read-only until you tap **Edit**; then values, sizes, mileage settings and notes can be changed, and lines added or removed. The standard lines (Make, Model, Year, CRiS number, Registration) keep their names; only lines you add can be renamed or removed. Tap **Done editing** when finished. Everything is saved as soon as you leave the page.
