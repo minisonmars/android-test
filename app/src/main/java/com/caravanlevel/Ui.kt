@@ -30,6 +30,25 @@ import kotlin.math.cos
 import kotlin.math.min
 import kotlin.math.sin
 
+/**
+ * From target API 35 Android draws apps edge to edge, under the status bar, navigation
+ * bar and keyboard. Pad the screen's root view so nothing hides behind them.
+ */
+fun View.fitSystemBars() {
+    setOnApplyWindowInsetsListener { v, insets ->
+        if (android.os.Build.VERSION.SDK_INT >= 30) {
+            val i = insets.getInsets(android.view.WindowInsets.Type.systemBars() or android.view.WindowInsets.Type.ime())
+            v.setPadding(i.left, i.top, i.right, i.bottom)
+        } else {
+            @Suppress("DEPRECATION")
+            v.setPadding(insets.systemWindowInsetLeft, insets.systemWindowInsetTop,
+                insets.systemWindowInsetRight, insets.systemWindowInsetBottom)
+        }
+        insets
+    }
+    requestApplyInsets()
+}
+
 /** Colours used across the app (dark background, like the level screen). */
 object Colours {
     val BG = Color.rgb(18, 18, 18)
@@ -291,6 +310,7 @@ abstract class Page : Activity() {
         content = ui.column().apply { setPadding(ui.dp(16), ui.dp(4), ui.dp(16), ui.dp(32)) }
         scroll = ScrollView(this).apply { addView(content); isFillViewport = true }
         page.addView(scroll, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
+        page.fitSystemBars()
         setContentView(page)
     }
 

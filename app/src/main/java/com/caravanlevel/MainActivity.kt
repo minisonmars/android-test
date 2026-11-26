@@ -46,6 +46,7 @@ class MainActivity : Activity() {
             addView(ScrollView(this@MainActivity).apply { addView(body) },
                 LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         }
+        page.fitSystemBars()
         setContentView(page)
 
         Reminders.schedule(this)

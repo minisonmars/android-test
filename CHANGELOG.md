@@ -5,7 +5,8 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Now built for a newer version of Android (API 35). Newer Android versions only let an app update itself without the "Update this app?" screen if it targets a recent version, so this should fix the pop-up from the next update on
+- Screens now fit around the status bar, navigation bar and keyboard on newer phones
 
 ## v0.3.21
 

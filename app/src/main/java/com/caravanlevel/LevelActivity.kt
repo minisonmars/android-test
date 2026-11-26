@@ -120,6 +120,7 @@ class LevelActivity : Activity(), SensorEventListener {
             addView(barHolder, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
             addView(root, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         }
+        page.fitSystemBars()
         setContentView(page)
     }
 

@@ -43,6 +43,7 @@ class SettingsActivity : Activity() {
 
         setContentView(ScrollView(this).apply {
             setBackgroundColor(Colours.BG)
+            fitSystemBars()
             addView(col)
         })
 

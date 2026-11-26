@@ -50,6 +50,7 @@ class ServiceEditActivity : Activity() {
         col = ui.column(16)
         setContentView(ScrollView(this).apply {
             setBackgroundColor(Colours.BG)
+            fitSystemBars()
             addView(col)
         })
         build()
