@@ -212,10 +212,7 @@ class DiaryEditActivity : Activity() {
         field("Address or town", s.place, "For example: Keswick, Cumbria") { s.place = it }
         if (s.hasPlace) {
             col.addView(ui.text("Pinned on the map", 16f, Colours.MUTED))
-            col.addView(ui.row(
-                ui.rowButton("Move the pin") { pickOnMap(s) },
-                ui.rowButton("Address from the pin") { addressFromPin(s) }
-            ))
+            col.addView(ui.button("Move the pin") { pickOnMap(s) })
             col.addView(ui.row(
                 ui.rowButton("Navigate (maps app)") { openMaps(s) },
                 ui.rowButton("Remove pin", Colours.BG) { keep(); s.lat = null; s.lon = null; keep(); build() }
@@ -289,29 +286,6 @@ class DiaryEditActivity : Activity() {
             .putExtra(SitesMapActivity.EXTRA_PICK, true)
             .putExtra("lat", s.lat ?: Double.NaN).putExtra("lon", s.lon ?: Double.NaN)
             .putExtra("stop", s.id), MAP)
-    }
-
-    /** The address for a position, using the phone's own lookup (needs internet). */
-    @Suppress("DEPRECATION")
-    private fun addressFor(lat: Double, lon: Double): String? = try {
-        Geocoder(this, Locale.UK).getFromLocation(lat, lon, 1)?.firstOrNull()?.let { a ->
-            a.getAddressLine(0)?.removeSuffix(", UK")?.removeSuffix(", United Kingdom")
-                ?: listOfNotNull(a.locality ?: a.subAdminArea, a.adminArea).distinct().joinToString(", ").ifBlank { null }
-        }
-    } catch (_: Exception) { null }
-
-    private fun addressFromPin(s: Stop) {
-        keep()
-        val lat = s.lat ?: return
-        val lon = s.lon ?: return
-        Toast.makeText(this, "Looking up the address...", Toast.LENGTH_SHORT).show()
-        Thread {
-            val a = addressFor(lat, lon)
-            runOnUiThread {
-                if (a == null) Toast.makeText(this, "Couldn't find an address there (it needs internet)", Toast.LENGTH_LONG).show()
-                else { s.place = a; keep(); build() }
-            }
-        }.start()
     }
 
     @Suppress("DEPRECATION")
@@ -394,7 +368,6 @@ class DiaryEditActivity : Activity() {
             MAP -> if (resultCode == RESULT_OK && data != null) {
                 stop(data.getStringExtra("stop"))?.let { s ->
                     s.lat = data.getDoubleExtra("lat", 0.0); s.lon = data.getDoubleExtra("lon", 0.0)
-                    if (s.place.isBlank()) addressFromPin(s)
                 }
             }
             TAKE_PHOTO -> {
