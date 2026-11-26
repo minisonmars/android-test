@@ -2,10 +2,8 @@ package com.caravanlevel
 
 import android.app.Activity
 import android.app.AlertDialog
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageInstaller
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Build
@@ -129,65 +127,6 @@ object Updater {
         val current = installedVersion(ctx)
         val v = available(ctx)
         return if (v != null) "Version $v is ready to install (you have $current)" else "Version $current"
-    }
-
-    // ---------- Download and install ----------
-
-    private fun download(url: String, dest: File, onProgress: (Int) -> Unit) {
-        val conn = URL(url).openConnection() as HttpURLConnection
-        try {
-            conn.connectTimeout = 15_000
-            conn.readTimeout = 30_000
-            conn.instanceFollowRedirects = true
-            conn.setRequestProperty("User-Agent", APK_PREFIX)
-            if (conn.responseCode != 200) throw IOException("Download failed (${conn.responseCode})")
-            val total = conn.contentLengthLong
-            conn.inputStream.use { input ->
-                dest.outputStream().use { out ->
-                    val buffer = ByteArray(32 * 1024)
-                    var done = 0L
-                    var last = -1
-                    while (true) {
-                        val n = input.read(buffer)
-                        if (n < 0) break
-                        out.write(buffer, 0, n)
-                        done += n
-                        if (total > 0) {
-                            val p = (done * 100 / total).toInt()
-                            if (p != last) { last = p; onProgress(p) }
-                        }
-                    }
-                }
-            }
-        } finally {
-            conn.disconnect()
-        }
-    }
-
-    /**
-     * Gives the APK to Android's installer. On Android 12 and later, once this app installed
-     * the previous version itself, the update goes straight in with no confirm screen;
-     * otherwise Android shows its own "Update?" screen (see InstallReceiver).
-     */
-    private fun install(ctx: Context, apk: File) {
-        val installer = ctx.packageManager.packageInstaller
-        val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
-        // Android decides whether to skip the confirm screen before it reads the APK, so it
-        // needs to be told up front which app this is an update for
-        params.setAppPackageName(ctx.packageName)
-        if (Build.VERSION.SDK_INT >= 31) params.setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
-        val id = installer.createSession(params)
-        installer.openSession(id).use { session ->
-            apk.inputStream().use { input ->
-                session.openWrite("update.apk", 0, apk.length()).use { out ->
-                    input.copyTo(out)
-                    session.fsync(out)
-                }
-            }
-            val flags = PendingIntent.FLAG_UPDATE_CURRENT or (if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0)
-            val pending = PendingIntent.getBroadcast(ctx, id, Intent(ctx, InstallReceiver::class.java), flags)
-            session.commit(pending.intentSender)
-        }
     }
 
     // ---------- The versions screen ----------
@@ -327,40 +266,22 @@ object Updater {
             .setNegativeButton("Cancel", null).show()
     }
 
+    /**
+     * The app no longer installs APKs itself: Play Protect blocks apps from outside the
+     * Play Store that can install packages ("Harmful app blocked"). Instead the APK is
+     * downloaded by the browser, and Android's own installer takes over when it is opened.
+     */
     private fun start(activity: Activity, r: Release) {
-        if (Build.VERSION.SDK_INT >= 26 && !activity.packageManager.canRequestPackageInstalls()) {
-            AlertDialog.Builder(activity).setTitle("Allow updates")
-                .setMessage("Android needs you to allow $APP_NAME to install updates. Tap Open settings, switch on " +
-                    "\"Allow from this source\", come back and try again.")
-                .setPositiveButton("Open settings") { _, _ ->
-                    try {
-                        activity.startActivity(Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
-                            Uri.parse("package:${activity.packageName}")))
-                    } catch (e: Exception) {}
-                }
-                .setNegativeButton("Cancel", null).show()
-            return
-        }
-        val status = TextView(activity).apply {
-            text = "Downloading ${r.version}..."
-            textSize = 16f
-            val pad = dp(activity, 24)
-            setPadding(pad, pad, pad, pad)
-        }
-        val dialog = AlertDialog.Builder(activity).setTitle("Updating").setView(status).setCancelable(false).show()
-        val file = File(activity.cacheDir, "update.apk")
-        Thread {
-            try {
-                download(r.apkUrl, file) { p -> activity.runOnUiThread { status.text = "Downloading ${r.version}... $p%" } }
-                activity.runOnUiThread { status.text = "Installing ${r.version}... The app will close by itself when it is done. Open it again to carry on. (If Android asks, tap Update.)" }
-                install(activity, file)
-                activity.runOnUiThread { status.postDelayed({ if (dialog.isShowing) dialog.dismiss() }, 4000) }
-            } catch (e: Exception) {
-                activity.runOnUiThread {
-                    dialog.dismiss()
-                    Toast.makeText(activity, "Download failed: ${e.message}", Toast.LENGTH_LONG).show()
+        AlertDialog.Builder(activity).setTitle("Install version ${r.version}")
+            .setMessage("Your browser will download the new version. When it has finished, tap the download " +
+                "(or open it from Files > Downloads) and tap Update. Your saved data is kept.")
+            .setPositiveButton("Download") { _, _ ->
+                try {
+                    activity.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(r.apkUrl)))
+                } catch (e: Exception) {
+                    Toast.makeText(activity, "No browser found", Toast.LENGTH_LONG).show()
                 }
             }
-        }.start()
+            .setNegativeButton("Cancel", null).show()
     }
 }

@@ -104,7 +104,7 @@ The app updates itself from this repo's GitHub releases, the same way as all the
   2. **Installed: version Y** in green, with its notes.
   3. **Show older versions (n)**: pick one from the list to read its notes. **Go back to this version** explains how (Android won't install an older version over a newer one, so you download it, uninstall, then install it; your saved data is lost).
   4. **Reinstall version Y**.
-- The first time, Android asks you to allow Caravan Leveller to install apps ("Allow from this source"). On Android 12 and later, once the app has installed one update itself, later updates go straight in without Android's confirm screen (the app declares `UPDATE_PACKAGES_WITHOUT_USER_ACTION`). The app closes when the update is in; open it again.
+- **Install version X** downloads the APK in your browser; open the download and tap Update. The app doesn't install updates itself any more (no `REQUEST_INSTALL_PACKAGES`), because Play Protect blocks apps from outside the Play Store that can install packages ("Harmful app blocked").
 
 This works because every build is signed with the same key (`app/debug.keystore`) and the repo and its releases are public.
 
@@ -128,7 +128,7 @@ All in `app/src/main/java/com/caravanlevel/`:
 - `Prefs.kt` – app settings, units and dates, mileage estimate, when reminders are due
 - `Ui.kt` – shared screen pieces: icons drawn in code, buttons, vehicle picker, page layout
 - `Store.kt` – old caravan profiles (read once to make the first vehicles) and number formatting
-- `Updater.kt` and `InstallReceiver.kt` – automatic update check, versions screen, download and install
+- `Updater.kt` – automatic update check, versions screen; Install opens the APK download in the browser
 
 Other files:
 

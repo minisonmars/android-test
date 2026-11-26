@@ -5,7 +5,7 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Test: the app no longer installs updates itself, to see whether that stops Play Protect's "Harmful app blocked" warning. It still checks for new versions and shows what's new; Install now downloads the new version in your browser, and you open the download to update
 
 ## v0.3.26
 
