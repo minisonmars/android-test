@@ -74,6 +74,9 @@ class SitesMapActivity : Activity() {
             addView(mapButton(Icon.LOCATE, "") { goToMe() }, LinearLayout.LayoutParams(ui.dp(56), ui.dp(56)).apply {
                 setMargins(ui.dp(2), ui.dp(8), ui.dp(2), 0)
             })
+            if (!picking) addView(mapButton(Icon.FILTER, "") { filters() }, LinearLayout.LayoutParams(ui.dp(56), ui.dp(56)).apply {
+                setMargins(ui.dp(2), ui.dp(8), ui.dp(2), 0)
+            })
         }
         val frame = FrameLayout(this).apply {
             addView(map)
@@ -103,9 +106,69 @@ class SitesMapActivity : Activity() {
             showPick()
             return
         }
-        val pins = GarageStore.load(this).trips.flatMap { t -> t.placed.map { SiteMapView.Pin(t, it) } }
-        map.setPins(pins, Here.last(this))
+        showPins()
         info.visibility = View.GONE
+    }
+
+    private fun prefs() = getSharedPreferences("map", MODE_PRIVATE)
+    private var allPins: List<SiteMapView.Pin> = emptyList()
+
+    /** "Any time", "Last 12 months", then each year with a visit, newest first. */
+    private fun whenChoices(): List<String> =
+        listOf("Any time", "Last 12 months") + allPins.map { java.util.Calendar.getInstance().apply { timeInMillis = it.stop.startMs }.get(java.util.Calendar.YEAR) }
+            .distinct().sortedDescending().map { it.toString() }
+
+    private fun showPins() {
+        allPins = GarageStore.load(this).trips.flatMap { t -> t.placed.map { SiteMapView.Pin(t, it) } }
+        val minStars = prefs().getInt("minStars", 0)
+        val period = prefs().getString("when", "Any time") ?: "Any time"
+        val yearAgo = Units.addMonths(System.currentTimeMillis(), -12)
+        val shown = allPins.filter { p ->
+            val s = p.stop
+            val year = java.util.Calendar.getInstance().apply { timeInMillis = s.startMs }.get(java.util.Calendar.YEAR).toString()
+            s.rating >= minStars && when (period) {
+                "Any time" -> true
+                "Last 12 months" -> (s.endMs ?: s.startMs) >= yearAgo
+                else -> year == period
+            }
+        }
+        map.showLines = prefs().getBoolean("lines", true)
+        map.setPins(shown, Here.last(this))
+    }
+
+    /** Route lines on or off, and which sites to show. Remembered for next time. */
+    private fun filters() {
+        val box = ui.column(20)
+        val lines = android.widget.Switch(this).apply {
+            text = "Lines between a trip's stops"
+            textSize = 18f
+            setTextColor(Colours.TEXT)
+            isChecked = prefs().getBoolean("lines", true)
+        }
+        box.addView(lines)
+        box.addView(ui.label("Rating"))
+        val stars = listOf("Any rating", "1 star or more", "2 stars or more", "3 stars or more", "4 stars or more", "5 stars only")
+        var minStars = prefs().getInt("minStars", 0)
+        box.addView(ui.spinner(stars, minStars) { minStars = it })
+        box.addView(ui.label("Visited"))
+        val periods = whenChoices()
+        var period = prefs().getString("when", "Any time") ?: "Any time"
+        box.addView(ui.spinner(periods, periods.indexOf(period).coerceAtLeast(0)) { period = periods[it] })
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Show on the map")
+            .setView(box)
+            .setPositiveButton("Show") { _, _ ->
+                prefs().edit().putBoolean("lines", lines.isChecked).putInt("minStars", minStars).putString("when", period).apply()
+                showPins()
+                info.visibility = View.GONE
+            }
+            .setNeutralButton("Show everything") { _, _ ->
+                prefs().edit().putBoolean("lines", lines.isChecked).putInt("minStars", 0).putString("when", "Any time").apply()
+                showPins()
+                info.visibility = View.GONE
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     /** The "my location" button: centre the map on where the phone is. */
@@ -167,6 +230,9 @@ class SitesMapActivity : Activity() {
  */
 class SiteMapView(context: Context) : View(context) {
     class Pin(val trip: Trip, val stop: Stop)
+
+    var showLines = true
+        set(v) { field = v; invalidate() }
 
     var onPick: ((Pin?) -> Unit)? = null
     /** In "place the pin" mode: called with the tapped spot. */
@@ -339,7 +405,7 @@ class SiteMapView(context: Context) : View(context) {
         line.color = Colours.ACCENT
         line.alpha = 170
         line.strokeWidth = 4 * d
-        trips.groupBy { it.trip.id }.values.filter { it.size > 1 }.forEach { stops ->
+        if (showLines) trips.groupBy { it.trip.id }.values.filter { it.size > 1 }.forEach { stops ->
             val path = android.graphics.Path()
             stops.sortedBy { it.stop.startMs }.forEachIndexed { i, p ->
                 val x = screenX(p.stop.lon!!); val y = screenY(p.stop.lat!!)

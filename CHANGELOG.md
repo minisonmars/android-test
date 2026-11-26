@@ -5,7 +5,7 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Sites map: new filter button to turn the route lines off or on, and to show only sites with a certain star rating or visited in a certain year or the last 12 months. The map remembers your choice.
 
 ## v0.3.49
 
