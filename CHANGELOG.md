@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.21
+
 - Test update: this one should install without Android's "Do you want to update this app?" screen
 - Clearer message while an update installs
 
