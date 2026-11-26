@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.45
+
 - Sites map: pinching now zooms smoothly instead of in steps, and the map stays filled in while the closer view loads.
 
 ## v0.3.44
