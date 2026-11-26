@@ -32,6 +32,9 @@ class BubbleView(context: Context) : View(context) {
     var hint = ""
     var profileLabel = ""
 
+    /** false = one round bubble for both directions; true = two straight vials, one per direction. */
+    var separate = false
+
     private val maxDisplayDeg = 5f // tilt at which the bubble hits the edge
     private val d = resources.displayMetrics.density
     private val green = Colours.LEVEL_GREEN
@@ -98,20 +101,24 @@ class BubbleView(context: Context) : View(context) {
         bubble.color = if (isLevel) green else orange
         ring.color = if (isLevel) green else Colours.MUTED
 
-        canvas.drawCircle(cx, cy, radius, ring)
-        canvas.drawCircle(cx, cy, bubbleR * 1.6f, cross)
-        canvas.drawLine(cx - radius, cy, cx + radius, cy, cross)
-        canvas.drawLine(cx, cy - radius, cx, cy + radius, cross)
+        if (separate) {
+            drawVials(canvas, w, cy, radius)
+        } else {
+            canvas.drawCircle(cx, cy, radius, ring)
+            canvas.drawCircle(cx, cy, bubbleR * 1.6f, cross)
+            canvas.drawLine(cx - radius, cy, cx + radius, cy, cross)
+            canvas.drawLine(cx, cy - radius, cx, cy + radius, cross)
 
-        val maxOffset = radius - bubbleR
-        var dx = rollDeg / maxDisplayDeg * maxOffset
-        var dy = -pitchDeg / maxDisplayDeg * maxOffset // screen y grows downward
-        val dist = sqrt(dx * dx + dy * dy)
-        if (dist > maxOffset) {
-            dx *= maxOffset / dist
-            dy *= maxOffset / dist
+            val maxOffset = radius - bubbleR
+            var dx = rollDeg / maxDisplayDeg * maxOffset
+            var dy = -pitchDeg / maxDisplayDeg * maxOffset // screen y grows downward
+            val dist = sqrt(dx * dx + dy * dy)
+            if (dist > maxOffset) {
+                dx *= maxOffset / dist
+                dy *= maxOffset / dist
+            }
+            canvas.drawCircle(cx + dx, cy + dy, bubbleR, bubble)
         }
-        canvas.drawCircle(cx + dx, cy + dy, bubbleR, bubble)
 
         // Angles
         var y = cy + radius + 34 * d
@@ -149,5 +156,61 @@ class BubbleView(context: Context) : View(context) {
             text.color = Colours.MUTED
             canvas.drawText(hint, cx, y, text)
         }
+    }
+
+    /**
+     * Two spirit-level vials in the same space as the circle: a long one across for side to
+     * side, and an upright one on the right for front to back. Each bubble moves toward the
+     * high side and turns green when that direction is level.
+     */
+    private fun drawVials(canvas: Canvas, w: Float, cy: Float, radius: Float) {
+        val tube = 48 * d
+        val bubbleR = tube * 0.36f
+        val margin = 20 * d
+        val gap = 28 * d
+
+        // Upright vial on the right (front to back)
+        val vx = w - margin - tube / 2f
+        val vTop = cy - radius
+        val vBottom = cy + radius
+        // Long vial across the rest (side to side)
+        val hLeft = margin
+        val hRight = vx - tube / 2f - gap
+        val hy = cy
+        val hcx = (hLeft + hRight) / 2f
+
+        fun vial(l: Float, t: Float, r: Float, b: Float, level: Boolean) {
+            ring.color = if (level) green else Colours.MUTED
+            canvas.drawRoundRect(l, t, r, b, tube / 2f, tube / 2f, ring)
+        }
+
+        val sideLevel = abs(rollDeg) <= LEVEL_DEG
+        val frontLevel = abs(pitchDeg) <= LEVEL_DEG
+
+        // Side to side
+        vial(hLeft, hy - tube / 2f, hRight, hy + tube / 2f, sideLevel)
+        canvas.drawLine(hcx - bubbleR * 1.3f, hy - tube / 2f, hcx - bubbleR * 1.3f, hy + tube / 2f, cross)
+        canvas.drawLine(hcx + bubbleR * 1.3f, hy - tube / 2f, hcx + bubbleR * 1.3f, hy + tube / 2f, cross)
+        val hMax = (hRight - hLeft) / 2f - tube / 2f
+        val dx = (rollDeg / maxDisplayDeg * hMax).coerceIn(-hMax, hMax)
+        bubble.color = if (sideLevel) green else orange
+        canvas.drawCircle(hcx + dx, hy, bubbleR, bubble)
+
+        // Front to back
+        vial(vx - tube / 2f, vTop, vx + tube / 2f, vBottom, frontLevel)
+        canvas.drawLine(vx - tube / 2f, cy - bubbleR * 1.3f, vx + tube / 2f, cy - bubbleR * 1.3f, cross)
+        canvas.drawLine(vx - tube / 2f, cy + bubbleR * 1.3f, vx + tube / 2f, cy + bubbleR * 1.3f, cross)
+        val vMax = radius - tube / 2f
+        val dy = (-pitchDeg / maxDisplayDeg * vMax).coerceIn(-vMax, vMax)
+        bubble.color = if (frontLevel) green else orange
+        canvas.drawCircle(vx, cy + dy, bubbleR, bubble)
+
+        // Labels
+        text.typeface = Typeface.DEFAULT
+        text.textSize = 13 * d
+        text.color = Colours.MUTED
+        canvas.drawText("Side to side", hcx, hy + tube / 2f + 20 * d, text)
+        canvas.drawText("Front", vx, vTop - 8 * d, text)
+        canvas.drawText("Back", vx, vBottom + 18 * d, text)
     }
 }

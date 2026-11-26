@@ -93,6 +93,14 @@ class LevelActivity : Activity(), SensorEventListener {
                 if (!voiceOn) tts?.stop()
             }
         }
+        bubbleView.separate = AppPrefs.separateBubbles(this)
+        val style = makeButton(if (bubbleView.separate) "One bubble" else "Two bubbles") {}
+        style.setOnClickListener {
+            bubbleView.separate = !bubbleView.separate
+            AppPrefs.setSeparateBubbles(this, bubbleView.separate)
+            style.text = if (bubbleView.separate) "One bubble" else "Two bubbles"
+            bubbleView.invalidate()
+        }
         val settings = makeButton("Sizes") {
             startActivity(Intent(this, VehicleActivity::class.java))
         }
@@ -100,6 +108,7 @@ class LevelActivity : Activity(), SensorEventListener {
         val bar = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             addView(calibrate)
+            addView(style)
             addView(voiceButton)
             addView(settings)
         }

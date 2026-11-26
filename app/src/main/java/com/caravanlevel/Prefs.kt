@@ -63,6 +63,10 @@ object AppPrefs {
     fun setChecklist(ctx: Context, vehicleId: String, listId: String) =
         p(ctx).edit().putString("list_$vehicleId", listId).apply()
 
+    /** Level shown as two separate vials instead of one round bubble. */
+    fun separateBubbles(ctx: Context) = p(ctx).getBoolean("separateBubbles", false)
+    fun setSeparateBubbles(ctx: Context, v: Boolean) = p(ctx).edit().putBoolean("separateBubbles", v).apply()
+
     /** We only ask for the notification permission once by ourselves. */
     fun askedNotifications(ctx: Context) = p(ctx).getBoolean("askedNotif", false)
     fun setAskedNotifications(ctx: Context) = p(ctx).edit().putBoolean("askedNotif", true).apply()

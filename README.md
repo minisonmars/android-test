@@ -62,6 +62,7 @@ The phone's position on the caravan doesn't matter, because a rigid body tilts b
 
 ### Buttons
 
+- **Two bubbles / One bubble** switches between the round bubble and two separate vials (a long one for side to side, an upright one for front to back, each green when that direction is level). The choice is remembered.
 - **Calibrate** zeroes the reading against a surface you know is level (saved per vehicle; clear it on Vehicle info).
 - **Voice: ON/OFF** switches spoken instructions on. It is off each time the page opens. When on, the phone repeats the current adjustment every 3 seconds (it waits if the last message is still being spoken). It says "Level" once when you reach level, then stays quiet until you move out of level again.
 - **Sizes** opens Vehicle info.
