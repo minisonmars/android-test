@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.40
+
 - Level: Calibrate now asks first, reminding you to do it on a surface you know is level (checked with a proper spirit level).
 - Level: the Sizes button and the "add the levelling sizes" note only show until the vehicle's levelling sizes are set.
 - Compass: the sun markers say Sunrise and Sunset, and the Sun today section shows how high the sun gets and when.
