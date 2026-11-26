@@ -81,15 +81,15 @@ class BubbleView(context: Context) : View(context) {
         canvas.drawPath(arrow, arrowPaint)
 
         text.typeface = Typeface.DEFAULT_BOLD
-        text.textSize = 18 * d
+        text.textSize = 20 * d
         text.color = Colours.TEXT
         canvas.drawText("FRONT", cx, ay + 90 * d, text)
         text.typeface = Typeface.DEFAULT
-        text.textSize = 12 * d
+        text.textSize = 14 * d
         text.color = Colours.MUTED
-        canvas.drawText("Point the top of the phone toward the front", cx, ay + 108 * d, text)
+        canvas.drawText("Point the top of the phone toward the front", cx, ay + 110 * d, text)
 
-        rightText.textSize = 12 * d
+        rightText.textSize = 14 * d
         canvas.drawText(profileLabel, w - 12 * d, 22 * d, rightText)
 
         // Level
@@ -101,8 +101,10 @@ class BubbleView(context: Context) : View(context) {
         bubble.color = if (isLevel) green else orange
         ring.color = if (isLevel) green else Colours.MUTED
 
+        // Two vials: let the upright one reach further down when there's room for the text below
+        val extra = if (separate) ((height - (cy + radius) - 250 * d).coerceIn(0f, 70 * d)) else 0f
         if (separate) {
-            drawVials(canvas, w, cy, radius)
+            drawVials(canvas, w, cy, radius, extra)
         } else {
             canvas.drawCircle(cx, cy, radius, ring)
             canvas.drawCircle(cx, cy, bubbleR * 1.6f, cross)
@@ -121,38 +123,38 @@ class BubbleView(context: Context) : View(context) {
         }
 
         // Angles
-        var y = cy + radius + 34 * d
+        var y = cy + radius + extra + 38 * d
         val rollSide = if (abs(shownRoll) < 0.05f) "" else if (shownRoll > 0) " (right high)" else " (left high)"
         val pitchSide = if (abs(shownPitch) < 0.05f) "" else if (shownPitch > 0) " (front high)" else " (rear high)"
         text.typeface = Typeface.DEFAULT
-        text.textSize = 16 * d
+        text.textSize = 21 * d
         text.color = Colours.TEXT
         canvas.drawText("Side: %.1f°%s".format(abs(shownRoll), rollSide), cx, y, text)
-        y += 24 * d
+        y += 30 * d
         canvas.drawText("Front/back: %.1f°%s".format(abs(shownPitch), pitchSide), cx, y, text)
-        y += 42 * d
+        y += 44 * d
 
         // Instructions
         text.typeface = Typeface.DEFAULT_BOLD
-        text.textSize = 22 * d
+        text.textSize = 24 * d
         text.color = orange
         if (sideText.isNotEmpty()) {
             canvas.drawText(sideText, cx, y, text)
-            y += 32 * d
+            y += 34 * d
         }
         if (frontText.isNotEmpty()) {
             canvas.drawText(frontText, cx, y, text)
-            y += 32 * d
+            y += 34 * d
         }
         if (abs(shownRoll) <= LEVEL_DEG && abs(shownPitch) <= LEVEL_DEG) {
             text.color = green
-            text.textSize = 34 * d
+            text.textSize = 36 * d
             canvas.drawText("LEVEL", cx, y, text)
             y += 40 * d
         }
         if (hint.isNotEmpty()) {
             text.typeface = Typeface.DEFAULT
-            text.textSize = 13 * d
+            text.textSize = 15 * d
             text.color = Colours.MUTED
             canvas.drawText(hint, cx, y, text)
         }
@@ -163,13 +165,13 @@ class BubbleView(context: Context) : View(context) {
      * horizontal one for side to side on top, and an upright one for front to back below it
      * (front at the top). Each bubble moves toward the high side and turns green when level.
      */
-    private fun drawVials(canvas: Canvas, w: Float, cy: Float, radius: Float) {
+    private fun drawVials(canvas: Canvas, w: Float, cy: Float, radius: Float, extra: Float) {
         val tube = 48 * d
         val bubbleR = tube * 0.36f
         val margin = 20 * d
         val cx = w / 2f
         text.typeface = Typeface.DEFAULT
-        text.textSize = 13 * d
+        text.textSize = 15 * d
 
         fun tubeOutline(l: Float, t: Float, r: Float, b: Float, level: Boolean) {
             ring.color = if (level) green else Colours.MUTED
@@ -177,7 +179,7 @@ class BubbleView(context: Context) : View(context) {
         }
 
         // Side to side: horizontal, near the top
-        val hy = cy - radius + 30 * d
+        val hy = cy - radius + 20 * d
         val left = margin
         val right = w - margin
         val sideLevel = abs(rollDeg) <= LEVEL_DEG
@@ -196,8 +198,8 @@ class BubbleView(context: Context) : View(context) {
         canvas.drawText("Side to side", cx, hy + tube / 2f + 18 * d, text)
 
         // Front to back: upright, below, front at the top
-        val vTop = hy + tube / 2f + 46 * d
-        val vBottom = cy + radius
+        val vTop = hy + tube / 2f + 40 * d
+        val vBottom = cy + radius + extra
         val vcy = (vTop + vBottom) / 2f
         val frontLevel = abs(pitchDeg) <= LEVEL_DEG
         tubeOutline(cx - tube / 2f, vTop, cx + tube / 2f, vBottom, frontLevel)
