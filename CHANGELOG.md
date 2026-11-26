@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.52
+
 - Trip diary: Search and Sort are now small icon tiles next to Add and Map. Search shows the search box (tap again to close it and clear the search), and Sort lists the ways to sort.
 
 ## v0.3.51
