@@ -38,7 +38,7 @@ class CompassView(context: Context) : View(context) {
     override fun onDraw(c: Canvas) {
         val cx = width / 2f
         val cy = height / 2f
-        val r = min(width, height) / 2f - 34 * d
+        val r = min(width, height) / 2f - 40 * d
 
         // Fixed pointer: where the phone is pointing
         fill.color = Colours.ACCENT

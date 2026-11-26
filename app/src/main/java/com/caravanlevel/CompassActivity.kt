@@ -205,8 +205,8 @@ class CompassActivity : Page(), SensorEventListener {
 
         val view = CompassView(this).apply { heading = smoothed ?: 0f }
         view.markers = listOfNotNull(
-            sun?.riseAz?.let { CompassView.Marker(it, "Rise", Colours.AMBER) },
-            sun?.setAz?.let { CompassView.Marker(it, "Set", Colours.AMBER) },
+            sun?.riseAz?.let { CompassView.Marker(it, "Sunrise", Colours.AMBER) },
+            sun?.setAz?.let { CompassView.Marker(it, "Sunset", Colours.AMBER) },
             masts.firstOrNull()?.takeIf { showTv }?.let { CompassView.Marker(Geo.bearing(l!!.latitude, l.longitude, it.lat, it.lon), "TV", Colours.GREEN) },
             sat?.takeIf { showSat }?.let { CompassView.Marker(it.azimuth, "Sat", SAT_COLOUR) }
         )
@@ -242,8 +242,24 @@ class CompassActivity : Page(), SensorEventListener {
             else {
                 card.addView(ui.text("Rises ${time(sun.riseMs)}, towards ${Geo.dirText(sun.riseAz!!)}", 18f))
                 card.addView(ui.text("Sets ${time(sun.setMs!!)}, towards ${Geo.dirText(sun.setAz!!)}", 18f))
+                card.addView(ui.text("Highest %.1f° above the horizon, at ${time(sun.noonMs)} (due ${if (l!!.latitude >= 0) "south" else "north"})".format(sun.maxHeight), 18f))
                 card.addView(ui.text("Handy for where to put the awning or solar panel.", 15f, Colours.MUTED))
             }
+            content.addView(card)
+        }
+
+        // Mobile signal
+        collapsible("Mobile signal", "signal")
+        signalView = null
+        if (shown("signal")) {
+            val card = ui.card()
+            val sig = ui.text(signalText(), 18f)
+            signalView = sig
+            card.addView(sig)
+            card.addView(ui.text("Phones count bars in their own way, so this can differ a little from the status bar.", 14f, Colours.MUTED))
+            card.addView(ui.button("Check coverage on Ofcom's map") {
+                try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.ofcom.org.uk/mobile-coverage-checker"))) } catch (_: Exception) {}
+            })
             content.addView(card)
         }
 
@@ -284,17 +300,6 @@ class CompassActivity : Page(), SensorEventListener {
             content.addView(card)
         }
 
-        // Mobile signal
-        content.addView(ui.heading("Mobile signal"))
-        val card = ui.card()
-        val sig = ui.text(signalText(), 18f)
-        signalView = sig
-        card.addView(sig)
-        card.addView(ui.text("Phones count bars in their own way, so this can differ a little from the status bar.", 14f, Colours.MUTED))
-        card.addView(ui.button("Check coverage on Ofcom's map") {
-            try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.ofcom.org.uk/mobile-coverage-checker"))) } catch (_: Exception) {}
-        })
-        content.addView(card)
     }
 
     private fun shown(key: String) = getSharedPreferences("compass", MODE_PRIVATE).getBoolean("show_$key", true)

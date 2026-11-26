@@ -34,6 +34,7 @@ class LevelActivity : Activity(), SensorEventListener {
     private lateinit var bubbleView: BubbleView
     private lateinit var voiceButton: LevelButton
     private lateinit var styleButton: LevelButton
+    private lateinit var sizesButton: LevelButton
     private lateinit var ui: Ui
     private lateinit var garage: Garage
     private lateinit var vehicle: Vehicle
@@ -78,10 +79,18 @@ class LevelActivity : Activity(), SensorEventListener {
         }
 
         val calibrate = makeButton("Calibrate", Icon.CALIBRATE) {
-            vehicle.rollOffset = rawRoll
-            vehicle.pitchOffset = rawPitch
-            GarageStore.save(this, garage)
-            Toast.makeText(this, "Zeroed", Toast.LENGTH_SHORT).show()
+            ui.confirm(
+                "Calibrate the level?",
+                "This sets the phone's current position as level for ${vehicle.name}.\n\n" +
+                    "Only do it with the phone lying flat in its usual place on a surface you know is level, " +
+                    "checked with a proper spirit level. Otherwise every reading afterwards will be out.",
+                "Calibrate"
+            ) {
+                vehicle.rollOffset = rawRoll
+                vehicle.pitchOffset = rawPitch
+                GarageStore.save(this, garage)
+                Toast.makeText(this, "Calibrated", Toast.LENGTH_SHORT).show()
+            }
         }
         voiceButton = makeButton("Voice off", Icon.VOICE) {
             if (!voiceOn && !ttsReady) {
@@ -102,7 +111,7 @@ class LevelActivity : Activity(), SensorEventListener {
             bubbleView.invalidate()
         }
         showStyle()
-        val settings = makeButton("Sizes", Icon.SIZES) {
+        sizesButton = makeButton("Sizes", Icon.SIZES) {
             startActivity(Intent(this, VehicleActivity::class.java))
         }
 
@@ -111,7 +120,7 @@ class LevelActivity : Activity(), SensorEventListener {
             addView(calibrate.view)
             addView(styleButton.view)
             addView(voiceButton.view)
-            addView(settings.view)
+            addView(sizesButton.view)
         }
 
         val root = FrameLayout(this)
@@ -143,6 +152,9 @@ class LevelActivity : Activity(), SensorEventListener {
         garage = GarageStore.load(this)
         vehicle = GarageStore.active(this, garage)
         inches = AppPrefs.inches(this)
+        // The Sizes button is only needed until the levelling sizes are set
+        sizesButton.view.visibility = if (vehicle.trackCm > 0f && vehicle.lengthForLevel > 0f) View.GONE else View.VISIBLE
+        bubbleView.hint = ""
         barHolder.removeAllViews()
         barHolder.addView(VehicleBar.make(ui, garage, vehicle) {
             AppPrefs.setActiveVehicle(this, it.id)

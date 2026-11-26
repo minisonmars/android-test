@@ -4,6 +4,7 @@ import android.content.Context
 import java.util.Calendar
 import java.util.TimeZone
 import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.acos
 import kotlin.math.asin
 import kotlin.math.atan
@@ -20,7 +21,8 @@ private fun norm(d: Double) = ((d % 360.0) + 360.0) % 360.0
 /** Sunrise and sunset for a day and place (standard sunrise equation, good to a minute or two). */
 object Sun {
     /** Times in ms and directions in degrees from true north; null times = no sunrise/sunset that day. */
-    class Day(val riseMs: Long?, val setMs: Long?, val riseAz: Double?, val setAz: Double?)
+    class Day(val riseMs: Long?, val setMs: Long?, val riseAz: Double?, val setAz: Double?,
+              val noonMs: Long, val maxHeight: Double)
 
     fun day(lat: Double, lon: Double, dayMs: Long): Day {
         val local = Calendar.getInstance().apply { timeInMillis = dayMs }
@@ -37,12 +39,14 @@ object Sun {
         val sinDec = sin(rad(lambda)) * sin(rad(23.4397))
         val cosDec = cos(asin(sinDec))
         val cosW = (sin(rad(-0.833)) - sin(rad(lat)) * sinDec) / (cos(rad(lat)) * cosDec)
-        if (cosW < -1 || cosW > 1) return Day(null, null, null, null)
-        val w = deg(acos(cosW))
         fun ms(j: Double) = ((j - 2440587.5) * 86_400_000.0).toLong()
+        // Highest the sun gets, at solar noon, in degrees above the horizon
+        val maxHeight = 90.0 - abs(lat - deg(asin(sinDec)))
+        if (cosW < -1 || cosW > 1) return Day(null, null, null, null, ms(transit), maxHeight)
+        val w = deg(acos(cosW))
         val cosAz = (sinDec / cos(rad(lat))).coerceIn(-1.0, 1.0)
         val riseAz = deg(acos(cosAz))
-        return Day(ms(transit - w / 360.0), ms(transit + w / 360.0), riseAz, 360.0 - riseAz)
+        return Day(ms(transit - w / 360.0), ms(transit + w / 360.0), riseAz, 360.0 - riseAz, ms(transit), maxHeight)
     }
 }
 
