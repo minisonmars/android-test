@@ -5,7 +5,7 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Sites map: the stops of a multi-stop trip are joined by a dashed line in date order, to show the route.
 
 ## v0.3.48
 

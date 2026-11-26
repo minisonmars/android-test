@@ -187,6 +187,12 @@ class SiteMapView(context: Context) : View(context) {
     private var fitted = false
 
     private val pin = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val line = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.STROKE
+        strokeCap = Paint.Cap.ROUND
+        strokeJoin = Paint.Join.ROUND
+        pathEffect = android.graphics.DashPathEffect(floatArrayOf(18f, 12f), 0f)
+    }
     private val text = Paint(Paint.ANTI_ALIAS_FLAG).apply { textSize = 12 * d; typeface = Typeface.DEFAULT_BOLD }
     private val tilePaint = Paint(Paint.FILTER_BITMAP_FLAG)
     private val cache = LruCache<String, Bitmap>(80)
@@ -327,6 +333,19 @@ class SiteMapView(context: Context) : View(context) {
             c.drawCircle(screenX(it.longitude), screenY(it.latitude), 9 * d, pin)
             pin.color = android.graphics.Color.WHITE
             c.drawCircle(screenX(it.longitude), screenY(it.latitude), 4 * d, pin)
+        }
+
+        // Multi-stop trips: a line joining the stops in date order (straight, not the roads taken)
+        line.color = Colours.ACCENT
+        line.alpha = 170
+        line.strokeWidth = 4 * d
+        trips.groupBy { it.trip.id }.values.filter { it.size > 1 }.forEach { stops ->
+            val path = android.graphics.Path()
+            stops.sortedBy { it.stop.startMs }.forEachIndexed { i, p ->
+                val x = screenX(p.stop.lon!!); val y = screenY(p.stop.lat!!)
+                if (i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+            }
+            c.drawPath(path, line)
         }
 
         // Site pins, best rated drawn last so they're on top
