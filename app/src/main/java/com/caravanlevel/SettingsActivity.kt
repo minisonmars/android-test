@@ -37,6 +37,15 @@ class SettingsActivity : Activity() {
         })
         col.addView(ui.text("Follow the phone switches between light and dark when your phone does.", 16f, Colours.MUTED))
 
+        // Colour
+        col.addView(ui.heading("Colour"))
+        val names = Colours.choices.map { it.first }
+        col.addView(ui.spinner(names, names.indexOf(Theme.colour(this)).coerceAtLeast(0)) {
+            Theme.setColour(this, names[it])
+            recreate()
+        })
+        col.addView(ui.text("Used for buttons, icons and the vehicle pictures, with a light tint in the background.", 16f, Colours.MUTED))
+
         // Start page
         col.addView(ui.heading("Open the app on"))
         val choices = listOf(AppPrefs.OPEN_HOME to "The home page", AppPrefs.OPEN_LAST to "Where I left off") +

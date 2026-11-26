@@ -299,15 +299,62 @@ class Vehicle(
     }
 }
 
-class Garage(val vehicles: MutableList<Vehicle>) {
+class Garage(val vehicles: MutableList<Vehicle>, val trips: MutableList<Trip> = mutableListOf()) {
     fun json() = JSONObject().put("version", 1)
         .put("vehicles", JSONArray().apply { vehicles.forEach { put(it.json()) } })
+        .put("trips", JSONArray().apply { trips.forEach { put(it.json()) } })
 
     fun find(id: String?) = vehicles.firstOrNull { it.id == id }
 
     companion object {
         fun from(o: JSONObject) = Garage(
-            o.optJSONArray("vehicles").objects().map { Vehicle.from(it) }.toMutableList()
+            o.optJSONArray("vehicles").objects().map { Vehicle.from(it) }.toMutableList(),
+            o.optJSONArray("trips").objects().map { Trip.from(it) }.toMutableList()
+        )
+    }
+}
+
+/** One stay in the trip diary. Kept for all vehicles together, noting which one was used. */
+class Trip(
+    var startMs: Long,
+    var endMs: Long? = null,
+    var site: String = "",
+    var place: String = "",        // address or town, as typed
+    var lat: Double? = null,
+    var lon: Double? = null,
+    var pitch: String = "",
+    var rating: Int = 0,           // 0 = not rated, 1 to 5 stars
+    var notes: String = "",
+    var phone: String = "",
+    var email: String = "",
+    var website: String = "",
+    var cost: String = "",
+    var vehicleId: String? = null,
+    val photos: MutableList<String> = mutableListOf(),
+    val id: String = newId()
+) {
+    val hasPlace get() = lat != null && lon != null
+
+    fun json() = JSONObject().put("id", id).put("start", startMs).put("end", endMs ?: JSONObject.NULL)
+        .put("site", site).put("place", place).put("lat", lat ?: JSONObject.NULL).put("lon", lon ?: JSONObject.NULL)
+        .put("pitch", pitch).put("rating", rating).put("notes", notes)
+        .put("phone", phone).put("email", email).put("website", website).put("cost", cost)
+        .put("vehicle", vehicleId ?: JSONObject.NULL)
+        .put("photos", JSONArray().apply { photos.forEach { put(it) } })
+
+    /** Everything searchable, in lower case. */
+    fun searchText() = listOf(site, place, pitch, notes, phone, email, website).joinToString(" ").lowercase()
+
+    companion object {
+        fun from(o: JSONObject) = Trip(
+            o.optLong("start"), o.optLongOrNull("end"), o.optString("site"), o.optString("place"),
+            if (o.isNull("lat") || !o.has("lat")) null else o.optDouble("lat"),
+            if (o.isNull("lon") || !o.has("lon")) null else o.optDouble("lon"),
+            o.optString("pitch"), o.optInt("rating"), o.optString("notes"),
+            o.optString("phone"), o.optString("email"), o.optString("website"), o.optString("cost"),
+            if (o.isNull("vehicle")) null else o.optString("vehicle").ifBlank { null },
+            o.optJSONArray("photos").strings().toMutableList(),
+            o.optString("id", newId())
         )
     }
 }

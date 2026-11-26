@@ -15,6 +15,8 @@
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
     <!-- Rough location, only for the compass (sun, TV mast and satellite directions) -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Precise location, only if you allow it, to pin a trip's site on the map -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <uses-feature
         android:name="android.hardware.sensor.accelerometer"
@@ -78,6 +80,18 @@
             android:exported="false"
             android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize" />
 
+        <activity
+            android:name=".DiaryActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".DiaryEditActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".SitesMapActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".CompassActivity"
             android:exported="false"

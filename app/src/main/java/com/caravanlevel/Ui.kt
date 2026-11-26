@@ -57,24 +57,48 @@ object Colours {
     var dark = true
         private set
     var BG = 0; var CARD = 0; var TILE = 0; var TEXT = 0; var MUTED = 0
-    val ACCENT = Color.rgb(46, 158, 107)
+    /** Buttons, icons and highlights: the colour chosen in Settings. */
+    var ACCENT = Color.rgb(46, 158, 107)
+        private set
     val RED = Color.rgb(198, 40, 40)
     val AMBER = Color.rgb(230, 140, 0)
     val GREEN = Color.rgb(46, 125, 50)
     var RED_CARD = 0; var AMBER_CARD = 0   // backgrounds for overdue / due-soon cards
     var LEVEL_GREEN = 0; var LEVEL_ORANGE = 0
 
+    /** The colours offered in Settings: name and accent colour. */
+    val choices = listOf(
+        "Green" to Color.rgb(46, 158, 107),
+        "Blue" to Color.rgb(30, 110, 200),
+        "Teal" to Color.rgb(0, 137, 140),
+        "Purple" to Color.rgb(123, 70, 180),
+        "Pink" to Color.rgb(200, 60, 130),
+        "Red" to Color.rgb(196, 48, 48),
+        "Orange" to Color.rgb(222, 110, 20),
+        "Brown" to Color.rgb(130, 90, 60),
+        "Grey" to Color.rgb(100, 110, 120)
+    )
+
+    /** a mixed toward b: amount 0 = all a, 1 = all b. */
+    private fun mix(a: Int, b: Int, amount: Float): Int {
+        fun ch(x: Int, y: Int) = (x + (y - x) * amount).toInt().coerceIn(0, 255)
+        return Color.rgb(ch(Color.red(a), Color.red(b)), ch(Color.green(a), Color.green(b)), ch(Color.blue(a), Color.blue(b)))
+    }
+
     init { set(true) }
 
-    fun set(dark: Boolean) {
+    fun set(dark: Boolean, accent: Int = ACCENT) {
         this.dark = dark
+        ACCENT = accent
         if (dark) {
-            BG = Color.rgb(18, 18, 18); CARD = Color.rgb(38, 44, 48); TILE = Color.rgb(36, 60, 52)
+            BG = mix(Color.rgb(18, 18, 18), accent, 0.04f); CARD = mix(Color.rgb(38, 44, 48), accent, 0.06f)
+            TILE = mix(Color.rgb(30, 30, 30), accent, 0.28f)
             TEXT = Color.WHITE; MUTED = Color.rgb(176, 184, 188)
             RED_CARD = RED; AMBER_CARD = AMBER
             LEVEL_GREEN = Color.rgb(60, 220, 90); LEVEL_ORANGE = Color.rgb(255, 170, 0)
         } else {
-            BG = Color.rgb(246, 247, 248); CARD = Color.rgb(226, 231, 234); TILE = Color.rgb(205, 234, 219)
+            BG = mix(Color.rgb(246, 247, 248), accent, 0.04f); CARD = mix(Color.rgb(226, 231, 234), accent, 0.06f)
+            TILE = mix(Color.WHITE, accent, 0.24f)
             TEXT = Color.rgb(25, 28, 30); MUTED = Color.rgb(84, 94, 100)
             RED_CARD = Color.rgb(255, 205, 210); AMBER_CARD = Color.rgb(255, 224, 178)
             LEVEL_GREEN = Color.rgb(30, 150, 60); LEVEL_ORANGE = Color.rgb(214, 120, 0)
@@ -97,6 +121,20 @@ object Theme {
     fun setChoice(ctx: Context, v: String) =
         ctx.getSharedPreferences("app", Context.MODE_PRIVATE).edit().putString("theme", v).apply()
 
+    /** The chosen colour's name (see Colours.choices). */
+    fun colour(ctx: Context): String =
+        ctx.getSharedPreferences("app", Context.MODE_PRIVATE).getString("colour", "Green") ?: "Green"
+
+    fun setColour(ctx: Context, v: String) =
+        ctx.getSharedPreferences("app", Context.MODE_PRIVATE).edit().putString("colour", v).apply()
+
+    private fun accent(ctx: Context) =
+        Colours.choices.firstOrNull { it.first == colour(ctx) }?.second ?: Colours.choices[0].second
+
+    /** What each open screen was drawn with, so it can redraw after a change in Settings. */
+    private val drawnWith = java.util.WeakHashMap<Activity, String>()
+    private fun signature(ctx: Context) = "${isDark(ctx)}/${colour(ctx)}"
+
     fun isDark(ctx: Context): Boolean = when (choice(ctx)) {
         LIGHT -> false
         DARK -> true
@@ -107,7 +145,8 @@ object Theme {
     /** Call before super.onCreate. Returns whether dark was used, to spot a change later. */
     fun apply(a: Activity): Boolean {
         val dark = isDark(a)
-        Colours.set(dark)
+        Colours.set(dark, accent(a))
+        drawnWith[a] = signature(a)
         a.setTheme(if (dark) android.R.style.Theme_Material_NoActionBar else android.R.style.Theme_Material_Light_NoActionBar)
         return dark
     }
@@ -129,12 +168,12 @@ object Theme {
 
     /** In onResume: if the theme setting changed while this screen was open, redraw it. */
     fun recreateIfChanged(a: Activity, wasDark: Boolean) {
-        if (isDark(a) != wasDark) a.recreate()
+        if (isDark(a) != wasDark || drawnWith[a] != signature(a)) a.recreate()
     }
 }
 
 /** Icons drawn in code, so they look the same on every phone. */
-enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS, CARAVAN, CAMPERVAN, MOTORHOME, CAR, COMPASS, CALIBRATE, BUBBLE, VIALS, VOICE, SIZES }
+enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS, CARAVAN, CAMPERVAN, MOTORHOME, CAR, COMPASS, CALIBRATE, BUBBLE, VIALS, VOICE, SIZES, DIARY, STAR, STAR_EMPTY }
 
 class IconView(context: Context, var icon: Icon, var colour: Int = Colours.TEXT) : View(context) {
     private val painter = IconPainter()
@@ -194,6 +233,33 @@ class IconPainter {
                     c.drawPath(tick, stroke)
                     c.drawLine(50f, y, 72f, y, stroke)
                 }
+            }
+            Icon.DIARY -> {
+                // An open book with a map pin on the right page
+                c.drawPath(Path().apply {
+                    moveTo(50f, 26f); quadTo(30f, 16f, 8f, 20f); lineTo(8f, 80f); quadTo(30f, 76f, 50f, 86f)
+                    quadTo(70f, 76f, 92f, 80f); lineTo(92f, 20f); quadTo(70f, 16f, 50f, 26f); close()
+                }, stroke)
+                c.drawLine(50f, 26f, 50f, 86f, stroke)
+                c.drawLine(18f, 40f, 40f, 42f, stroke.apply { strokeWidth = 5f })
+                c.drawLine(18f, 54f, 40f, 56f, stroke)
+                stroke.strokeWidth = 7f
+                c.drawCircle(71f, 44f, 9f, fill)
+                c.drawPath(Path().apply { moveTo(63f, 48f); lineTo(79f, 48f); lineTo(71f, 66f); close() }, fill)
+            }
+            Icon.STAR, Icon.STAR_EMPTY -> {
+                val star = Path()
+                for (i in 0 until 10) {
+                    val r = if (i % 2 == 0) 44f else 19f
+                    val a = Math.toRadians(-90.0 + i * 36.0)
+                    val x = 50f + r * cos(a).toFloat(); val y = 54f + r * sin(a).toFloat()
+                    if (i == 0) star.moveTo(x, y) else star.lineTo(x, y)
+                }
+                star.close()
+                stroke.strokeWidth = 6f
+                if (icon == Icon.STAR) c.drawPath(star, fill)
+                c.drawPath(star, stroke)
+                stroke.strokeWidth = 7f
             }
             Icon.CALIBRATE -> {
                 // A target: ring, cross hairs and a centre dot
