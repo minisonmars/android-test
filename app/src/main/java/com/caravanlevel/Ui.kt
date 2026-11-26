@@ -390,10 +390,13 @@ class IconPainter {
                 stroke.strokeWidth = 7f
             }
             Icon.COMPASS -> {
-                // A ring with a needle: the north half filled
+                // A ring with a needle pointing to the top right: the north half filled
                 c.drawCircle(50f, 50f, 40f, stroke)
+                c.save()
+                c.rotate(45f, 50f, 50f)
                 c.drawPath(Path().apply { moveTo(50f, 18f); lineTo(60f, 50f); lineTo(40f, 50f); close() }, fill)
                 c.drawPath(Path().apply { moveTo(50f, 82f); lineTo(60f, 50f); lineTo(40f, 50f); close() }, stroke)
+                c.restore()
             }
             Icon.CAMPERVAN -> {
                 // A van from the side, facing right: sloping bonnet, two windows, two wheels
@@ -446,9 +449,16 @@ class IconPainter {
             }
             Icon.SERVICE -> {
                 // A spanner: open jaw at the top right, handle down to the bottom left
-                c.drawLine(24f, 76f, 58f, 42f, stroke.apply { strokeWidth = 14f })
-                stroke.strokeWidth = 9f
-                c.drawArc(RectF(52f, 14f, 86f, 48f), 135f, 270f, false, stroke)
+                c.save()
+                c.rotate(45f, 50f, 50f)
+                val body = Path().apply {
+                    addRoundRect(RectF(42f, 34f, 58f, 96f), 8f, 8f, Path.Direction.CW)
+                    addCircle(50f, 24f, 20f, Path.Direction.CW)
+                }
+                val jaw = Path().apply { addRect(RectF(43f, 0f, 57f, 24f), Path.Direction.CW) }
+                body.op(jaw, Path.Op.DIFFERENCE)
+                c.drawPath(body, fill)
+                c.restore()
             }
             Icon.REMINDER -> {
                 // A bell
@@ -465,18 +475,16 @@ class IconPainter {
                 c.drawCircle(50f, 82f, 7f, fill)
             }
             Icon.SETTINGS -> {
-                // A cog: ring with eight teeth
-                stroke.strokeWidth = 10f
+                // A gear: a solid wheel with eight square teeth and a hole in the middle
+                val gear = Path()
+                gear.addCircle(50f, 50f, 31f, Path.Direction.CW)
                 for (i in 0 until 8) {
-                    val a = Math.toRadians(i * 45.0)
-                    c.drawLine(
-                        50f + 26f * cos(a).toFloat(), 50f + 26f * sin(a).toFloat(),
-                        50f + 40f * cos(a).toFloat(), 50f + 40f * sin(a).toFloat(), stroke
-                    )
+                    val tooth = Path().apply { addRect(RectF(43f, 6f, 57f, 24f), Path.Direction.CW) }
+                    tooth.transform(android.graphics.Matrix().apply { setRotate(i * 45f, 50f, 50f) })
+                    gear.op(tooth, Path.Op.UNION)
                 }
-                c.drawCircle(50f, 50f, 24f, stroke)
-                stroke.strokeWidth = 7f
-                c.drawCircle(50f, 50f, 9f, stroke)
+                gear.op(Path().apply { addCircle(50f, 50f, 12f, Path.Direction.CW) }, Path.Op.DIFFERENCE)
+                c.drawPath(gear, fill)
             }
         }
         c.restore()
