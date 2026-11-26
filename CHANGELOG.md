@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.14
+
 - New home page with big buttons for Level, Checklists, Vehicle info, Service records, Reminders and Settings
 - Settings > Open the app on: the home page, where you left off, or a page of your choice
 - More than one vehicle: caravan, campervan, motorhome or tow car. The vehicle is shown at the top of every page; pick another from the drop-down. Your caravan profiles have become vehicles, with their sizes and calibration kept
