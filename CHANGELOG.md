@@ -5,7 +5,16 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- New home page with big buttons for Level, Checklists, Vehicle info, Service records, Reminders and Settings
+- Settings > Open the app on: the home page, where you left off, or a page of your choice
+- More than one vehicle: caravan, campervan, motorhome or tow car. The vehicle is shown at the top of every page; pick another from the drop-down. Your caravan profiles have become vehicles, with their sizes and calibration kept
+- The level works for campervans and motorhomes too: set the wheelbase and it tells you which wheels to raise on ramps
+- Checklists for setting up, packing away and before towing or driving, with starting lists for each vehicle type. Change the wording, reorder, add or remove items, or make new lists. "Start again" unticks everything, and a finished list starts fresh by itself 12 hours later
+- Vehicle info: make, model, CRiS or registration, sizes, equipment (models and serial numbers), notes and mileage
+- Service records with date, who did it, cost, mileage, notes and photos or files (take a photo or pick a file)
+- Reminders by date, by mileage or both, with repeats and common ones to start from (habitation service, MOT, tax, insurance and more). You get a notification 2 weeks before and on the day
+- Mileage reminders are estimated from your last reading, your yearly mileage and when you use the vehicle (all year, mostly spring and summer, or only spring and summer)
+- Settings: distances in miles or km
 
 ## v0.3.13
 

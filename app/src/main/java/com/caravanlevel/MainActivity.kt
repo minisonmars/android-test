@@ -1,136 +1,148 @@
 package com.caravanlevel
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.hardware.Sensor
-import android.hardware.SensorEvent
-import android.hardware.SensorEventListener
-import android.hardware.SensorManager
 import android.os.Bundle
-import android.os.SystemClock
-import android.speech.tts.TextToSpeech
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowManager
-import android.widget.Button
-import android.widget.FrameLayout
 import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.TextView
-import android.widget.Toast
-import java.util.Locale
-import kotlin.math.abs
-import kotlin.math.atan2
-import kotlin.math.roundToInt
-import kotlin.math.sqrt
-import kotlin.math.tan
 
-class MainActivity : Activity(), SensorEventListener {
+/**
+ * The home page: the chosen vehicle at the top, then a big tile for each section.
+ * Settings can make the app open straight on a section, or where you left off.
+ */
+class MainActivity : Activity() {
 
-    private lateinit var sensorManager: SensorManager
-    private lateinit var bubbleView: BubbleView
-    private lateinit var voiceButton: Button
-    private lateinit var state: State
+    private lateinit var ui: Ui
     private lateinit var updateBanner: TextView
+    private lateinit var body: LinearLayout
 
-    // Smoothed raw angles in degrees, before calibration offsets are applied
-    private var rawRoll = 0f
-    private var rawPitch = 0f
-    private var hasReading = false
-
-    // Voice: off every time the app starts, switched on with the button
-    private var tts: TextToSpeech? = null
-    private var ttsReady = false
-    private var voiceOn = false
-    private var lastSpokenAt = 0L
-    private var levelAnnounced = false
-    private val SPEAK_EVERY_MS = 3000L
-
-    // How often the written figures refresh (the bubble itself stays smooth)
-    private val TEXT_UPDATE_MS = 1000L
-    private var lastTextUpdate = 0L
-
-    private fun dp(v: Int) = (v * resources.displayMetrics.density).toInt()
+    companion object {
+        const val EXTRA_SECTION = "section"
+        const val EXTRA_VEHICLE = "vehicle"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+        ui = Ui(this)
 
-        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
-        state = Store.load(this)
-        bubbleView = BubbleView(this)
-
-        tts = TextToSpeech(this) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                tts?.language = Locale.UK
-                ttsReady = true
-            }
-        }
-
-        val calibrate = makeButton("Calibrate") {
-            val p = state.profiles[state.active]
-            p.rollOffset = rawRoll
-            p.pitchOffset = rawPitch
-            Store.save(this, state)
-            Toast.makeText(this, "Zeroed", Toast.LENGTH_SHORT).show()
-        }
-        voiceButton = makeButton("Voice: OFF") {
-            if (!voiceOn && !ttsReady) {
-                Toast.makeText(this, "Voice not available on this phone", Toast.LENGTH_LONG).show()
-            } else {
-                voiceOn = !voiceOn
-                lastSpokenAt = 0L
-                levelAnnounced = false
-                voiceButton.text = if (voiceOn) "Voice: ON" else "Voice: OFF"
-                if (!voiceOn) tts?.stop()
-            }
-        }
-        val settings = makeButton("Settings") {
-            startActivity(Intent(this, SettingsActivity::class.java))
-        }
-
-        val bar = LinearLayout(this).apply {
-            orientation = LinearLayout.HORIZONTAL
-            addView(calibrate)
-            addView(voiceButton)
-            addView(settings)
-        }
-
-        val root = FrameLayout(this)
-        root.addView(
-            bubbleView,
-            FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
-        )
-        root.addView(
-            bar,
-            FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT).apply {
-                gravity = Gravity.BOTTOM
-                setMargins(dp(8), dp(8), dp(8), dp(24))
-            }
-        )
         updateBanner = TextView(this).apply {
             textSize = 17f
             setTextColor(Color.WHITE)
             setBackgroundColor(Updater.RED)
             gravity = Gravity.CENTER
-            setPadding(dp(12), dp(14), dp(12), dp(14))
+            setPadding(ui.dp(12), ui.dp(14), ui.dp(12), ui.dp(14))
             visibility = View.GONE
             setOnClickListener { Updater.showDialog(this@MainActivity) { refreshUpdateBanner() } }
         }
-        val page = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            addView(updateBanner, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT))
-            addView(root, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
+        body = ui.column(16)
+        val page = ui.column().apply {
+            setBackgroundColor(Colours.BG)
+            addView(updateBanner)
+            addView(ScrollView(this@MainActivity).apply { addView(body) },
+                LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         }
         setContentView(page)
 
-        // Quietly look for a newer version (at most every 6 hours); the banner shows if there is one
+        Reminders.schedule(this)
+        Reminders.checkNow(this)
         Updater.checkInBackground(this) { refreshUpdateBanner() }
+
+        if (savedInstanceState == null) openStartPage(intent, fromLauncher = true)
     }
 
-    /** A line at the top of the screen when a newer version is ready. Tapping it opens the versions screen. */
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        openStartPage(intent, fromLauncher = false)
+    }
+
+    /** A notification can ask for a page; otherwise follow the "Open the app on" setting. */
+    private fun openStartPage(i: Intent, fromLauncher: Boolean) {
+        i.getStringExtra(EXTRA_VEHICLE)?.let { AppPrefs.setActiveVehicle(this, it) }
+        val asked = Section.of(i.getStringExtra(EXTRA_SECTION))
+        val target = asked ?: if (fromLauncher) {
+            when (val o = AppPrefs.openOn(this)) {
+                AppPrefs.OPEN_LAST -> Section.of(AppPrefs.lastSection(this))
+                else -> Section.of(o)
+            }
+        } else null
+        if (target != null) startActivity(Intent(this, target.activity))
+    }
+
+    override fun onResume() {
+        super.onResume()
+        AppPrefs.setLastSection(this, AppPrefs.OPEN_HOME)
+        refreshUpdateBanner()
+        build()
+    }
+
+    private fun build() {
+        body.removeAllViews()
+        val garage = GarageStore.load(this)
+        val vehicle = GarageStore.active(this, garage)
+
+        body.addView(ui.text("Caravan Leveller", 26f, bold = true))
+        body.addView(VehicleBar.make(ui, garage, vehicle) {
+            AppPrefs.setActiveVehicle(this, it.id)
+            build()
+        })
+
+        // What needs attention for this vehicle
+        summary(vehicle)?.let { (line, colour) ->
+            body.addView(ui.text(line, 17f, colour).apply {
+                setPadding(ui.dp(4), ui.dp(8), ui.dp(4), ui.dp(4))
+                setOnClickListener { go(Section.REMINDERS) }
+            })
+        }
+
+        val tiles = Section.values().map { s -> tile(s.label, s.icon) { go(s) } } +
+            tile("Settings", Icon.SETTINGS) { startActivity(Intent(this, SettingsActivity::class.java)) }
+        tiles.chunked(2).forEach { pair ->
+            body.addView(LinearLayout(this).apply {
+                orientation = LinearLayout.HORIZONTAL
+                pair.forEach { addView(it) }
+            })
+        }
+    }
+
+    /** The most urgent reminder, if any is due within 30 days. */
+    private fun summary(v: Vehicle): Pair<String, Int>? {
+        val next = v.reminders.mapNotNull { r -> Due.days(v, r)?.let { r to it } }
+            .minByOrNull { it.second } ?: return null
+        val (r, days) = next
+        return when {
+            days < 0 -> "${r.title} is overdue (${Units.inDays(days)})" to Colours.RED
+            days <= 30 -> "${r.title} is due ${Units.inDays(days)}" to Colours.AMBER
+            else -> null
+        }
+    }
+
+    private fun go(s: Section) = startActivity(Intent(this, s.activity))
+
+    private fun tile(label: String, icon: Icon, onClick: () -> Unit): View {
+        val col = ui.column(12).apply {
+            gravity = Gravity.CENTER
+            background = ui.rounded(Colours.TILE, 16)
+            isClickable = true
+            setOnClickListener { onClick() }
+            layoutParams = LinearLayout.LayoutParams(0, ui.dp(150), 1f).apply {
+                setMargins(ui.dp(6), ui.dp(6), ui.dp(6), ui.dp(6))
+            }
+        }
+        col.addView(IconView(this, icon).apply {
+            layoutParams = LinearLayout.LayoutParams(ui.dp(64), ui.dp(64))
+        })
+        col.addView(ui.text(label, 19f, bold = true).apply {
+            gravity = Gravity.CENTER
+            setPadding(0, ui.dp(8), 0, 0)
+        })
+        return col
+    }
+
     private fun refreshUpdateBanner() {
         if (Updater.available(this) != null) {
             updateBanner.text = Updater.statusLine(this) + ". Tap to see what's new."
@@ -139,149 +151,4 @@ class MainActivity : Activity(), SensorEventListener {
             updateBanner.visibility = View.GONE
         }
     }
-
-    private fun makeButton(label: String, onClick: () -> Unit): Button =
-        Button(this).apply {
-            text = label
-            isAllCaps = false
-            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-            setOnClickListener { onClick() }
-        }
-
-    override fun onResume() {
-        super.onResume()
-        state = Store.load(this) // pick up changes made in Settings
-        refreshUpdateBanner()
-        lastSpokenAt = 0L
-        levelAnnounced = false
-        val accel = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
-        if (accel == null) {
-            Toast.makeText(this, "No accelerometer found", Toast.LENGTH_LONG).show()
-        } else {
-            sensorManager.registerListener(this, accel, SensorManager.SENSOR_DELAY_GAME)
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        sensorManager.unregisterListener(this)
-        tts?.stop()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        tts?.shutdown()
-    }
-
-    override fun onSensorChanged(event: SensorEvent) {
-        val ax = event.values[0]
-        val ay = event.values[1]
-        val az = event.values[2]
-
-        // Phone flat, screen up, top edge toward the front of the caravan.
-        // The accelerometer reads "up", so right edge raised gives positive ax.
-        val roll = Math.toDegrees(atan2(ax.toDouble(), sqrt((ay * ay + az * az).toDouble()))).toFloat()
-        val pitch = Math.toDegrees(atan2(ay.toDouble(), sqrt((ax * ax + az * az).toDouble()))).toFloat()
-
-        // Low-pass filter so the bubble doesn't jitter
-        val alpha = 0.1f
-        if (!hasReading) {
-            rawRoll = roll
-            rawPitch = pitch
-            hasReading = true
-        } else {
-            rawRoll += alpha * (roll - rawRoll)
-            rawPitch += alpha * (pitch - rawPitch)
-        }
-
-        val p = state.profiles[state.active]
-        val r = rawRoll - p.rollOffset
-        val pt = rawPitch - p.pitchOffset
-        bubbleView.rollDeg = r
-        bubbleView.pitchDeg = pt
-        bubbleView.profileLabel = p.name
-
-        val result = work(p, r, pt)
-
-        // The written figures only refresh every TEXT_UPDATE_MS so they can be read
-        val now = SystemClock.elapsedRealtime()
-        if (now - lastTextUpdate >= TEXT_UPDATE_MS) {
-            lastTextUpdate = now
-            bubbleView.shownRoll = r
-            bubbleView.shownPitch = pt
-            bubbleView.sideText = result.side
-            bubbleView.frontText = result.front
-            bubbleView.hint = result.hint
-        }
-
-        if (voiceOn && ttsReady && result.spoken.isNotEmpty()) speakRepeating(result.spoken)
-        bubbleView.invalidate()
-    }
-
-    /** Round to a sensible step for the chosen unit: 0.5 cm or 0.25 in. */
-    private fun snap(valueInUnit: Float): Float {
-        val step = if (state.inches) 0.25f else 0.5f
-        return (valueInUnit / step).roundToInt() * step
-    }
-
-    private class Result(val side: String, val front: String, val hint: String, val spoken: String)
-
-    private fun work(p: Profile, roll: Float, pitch: Float): Result {
-        val levelSide = abs(roll) <= BubbleView.LEVEL_DEG
-        val levelFront = abs(pitch) <= BubbleView.LEVEL_DEG
-
-        if (p.trackCm <= 0f || p.hitchCm <= 0f) {
-            return Result("", "", "Set caravan size in Settings for amounts", "")
-        }
-
-        val unitShort = if (state.inches) "in" else "cm"
-        val unitSpoken = if (state.inches) "inches" else "centimetres"
-        val perUnit = if (state.inches) Store.CM_PER_INCH else 1f
-
-        var sideText = ""
-        var frontText = ""
-        val spoken = mutableListOf<String>()
-
-        if (!levelSide) {
-            val cm = p.trackCm * tan(Math.toRadians(abs(roll).toDouble())).toFloat()
-            val amount = snap(cm / perUnit)
-            val which = if (roll > 0) "left" else "right" // raise the low side
-            sideText = "Raise ${which.uppercase()} side ${Store.fixed(amount)} $unitShort"
-            spoken.add("Raise $which side ${Store.num(amount)} $unitSpoken")
-        }
-        if (!levelFront) {
-            val cm = p.hitchCm * tan(Math.toRadians(abs(pitch).toDouble())).toFloat()
-            val amount = snap(cm / perUnit)
-            val verb = if (pitch > 0) "Lower" else "Raise" // front high -> lower the front
-            frontText = "$verb FRONT ${Store.fixed(amount)} $unitShort"
-            spoken.add("$verb front ${Store.num(amount)} $unitSpoken")
-        }
-        if (levelSide && levelFront) spoken.add("Level")
-
-        return Result(sideText, frontText, "", spoken.joinToString(". "))
-    }
-
-    /**
-     * Repeat the current adjustment every SPEAK_EVERY_MS (start to start). If the last
-     * message is still being spoken it waits rather than cutting itself off.
-     * "Level" is announced once, then it goes quiet until you move out of level again.
-     */
-    private fun speakRepeating(message: String) {
-        val t = tts ?: return
-        val now = SystemClock.elapsedRealtime()
-        if (message == "Level") {
-            if (!levelAnnounced) {
-                t.speak(message, TextToSpeech.QUEUE_FLUSH, null, "level")
-                levelAnnounced = true
-            }
-            return
-        }
-        levelAnnounced = false
-        if (now - lastSpokenAt >= SPEAK_EVERY_MS && !t.isSpeaking) {
-            t.speak(message, TextToSpeech.QUEUE_FLUSH, null, "level")
-            lastSpokenAt = now
-        }
-    }
-
-    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
 }

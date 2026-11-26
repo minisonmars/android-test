@@ -4,6 +4,9 @@
     <!-- Used only to check for and download app updates from GitHub -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- Reminder notifications, checked once a day and after the phone restarts -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <uses-feature
         android:name="android.hardware.sensor.accelerometer"
@@ -13,6 +16,9 @@
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE" />
         </intent>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
     </queries>
 
     <application
@@ -20,10 +26,11 @@
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher"
         android:label="Caravan Leveller"
-        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+        android:theme="@android:style/Theme.Material.NoActionBar">
         <activity
             android:name=".MainActivity"
             android:exported="true"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -37,8 +44,45 @@
         <activity
             android:name=".SettingsActivity"
             android:exported="false"
-            android:label="Settings"
+            android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".LevelActivity"
+            android:exported="false"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ChecklistActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".VehicleActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ServiceActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ServiceEditActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".RemindersActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize" />
+
+        <receiver
+            android:name=".ReminderReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <provider
+            android:name=".AttachmentProvider"
+            android:authorities="com.caravanlevel.files"
+            android:exported="false"
+            android:grantUriPermissions="true" />
     </application>
 
 </manifest>

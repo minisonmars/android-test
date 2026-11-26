@@ -27,6 +27,17 @@ enum class VehicleType(val label: String) {
     }
 }
 
+/** How the vehicle is used through the year, to spread the annual mileage over the months. */
+enum class Usage(val label: String) {
+    ALL_YEAR("All year round"),
+    MOSTLY_SUMMER("Mostly spring and summer"),
+    SUMMER_ONLY("Only spring and summer (April to September)");
+
+    companion object {
+        fun of(s: String?) = values().firstOrNull { it.name == s } ?: ALL_YEAR
+    }
+}
+
 fun newId(): String = UUID.randomUUID().toString()
 
 /** A named detail, e.g. "Fridge" = "Thetford N4112E, serial 1234". */
@@ -47,17 +58,29 @@ class CheckItem(var text: String, var ticked: Boolean = false, val id: String = 
     }
 }
 
-class Checklist(var name: String, val items: MutableList<CheckItem>, val id: String = newId()) {
-    fun json() = JSONObject().put("id", id).put("name", name)
+class Checklist(
+    var name: String,
+    val items: MutableList<CheckItem>,
+    val id: String = newId(),
+    var completedAt: Long = 0L   // when the last item was ticked, 0 if not finished
+) {
+    fun json() = JSONObject().put("id", id).put("name", name).put("completedAt", completedAt)
         .put("items", JSONArray().apply { items.forEach { put(it.json()) } })
 
-    fun resetTicks() = items.forEach { it.ticked = false }
+    val done get() = items.count { it.ticked }
+    val finished get() = items.isNotEmpty() && done == items.size
+
+    fun resetTicks() {
+        items.forEach { it.ticked = false }
+        completedAt = 0L
+    }
 
     companion object {
         fun from(o: JSONObject) = Checklist(
             o.optString("name"),
             o.optJSONArray("items").objects().map { CheckItem.from(it) }.toMutableList(),
-            o.optString("id", newId())
+            o.optString("id", newId()),
+            o.optLong("completedAt", 0L)
         )
     }
 }
@@ -95,17 +118,20 @@ class Reminder(
     var repeatMonths: Int = 0,
     var repeatMiles: Int = 0,
     var notes: String = "",
-    val id: String = newId()
+    val id: String = newId(),
+    var notifiedSoon: Boolean = false,   // "due in 2 weeks" notification already shown
+    var notifiedDue: Boolean = false     // "due today / overdue" notification already shown
 ) {
     fun json() = JSONObject().put("id", id).put("title", title)
         .put("due", dueMs ?: JSONObject.NULL).put("dueMiles", dueMiles ?: JSONObject.NULL)
         .put("repeatMonths", repeatMonths).put("repeatMiles", repeatMiles).put("notes", notes)
+        .put("notifiedSoon", notifiedSoon).put("notifiedDue", notifiedDue)
 
     companion object {
         fun from(o: JSONObject) = Reminder(
             o.optString("title"), o.optLongOrNull("due"), o.optIntOrNull("dueMiles"),
             o.optInt("repeatMonths"), o.optInt("repeatMiles"), o.optString("notes"),
-            o.optString("id", newId())
+            o.optString("id", newId()), o.optBoolean("notifiedSoon"), o.optBoolean("notifiedDue")
         )
     }
 }
@@ -124,7 +150,6 @@ class Vehicle(
     var name: String,
     var type: VehicleType,
     val details: MutableList<Detail> = mutableListOf(),      // make, model, year, CRiS...
-    val dimensions: MutableList<Detail> = mutableListOf(),   // length, width, height (cm)
     val equipment: MutableList<Detail> = mutableListOf(),    // fridge, heater, mover...
     val checklists: MutableList<Checklist> = mutableListOf(),
     val services: MutableList<ServiceRecord> = mutableListOf(),
@@ -133,37 +158,70 @@ class Vehicle(
     var notes: String = "",
     val id: String = newId()
 ) {
-    /** Latest known odometer reading, or null. */
-    val latestMiles get() = mileage.maxByOrNull { it.dateMs }?.miles
+    // Sizes, always in cm; 0 = not set
+    var lengthCm = 0f       // overall length
+    var bodyLengthCm = 0f   // caravan: body without the A-frame
+    var widthCm = 0f
+    var heightCm = 0f
+    var trackCm = 0f        // wheel centre to wheel centre (levelling side to side)
+    var hitchCm = 0f        // caravan: hitch coupling to axle centre (levelling front to back)
+    var wheelbaseCm = 0f    // motorised: front axle to rear axle (levelling front to back)
+
+    // Level calibration, degrees
+    var rollOffset = 0f
+    var pitchOffset = 0f
+
+    // Mileage estimate (miles)
+    var annualMiles = 0
+    var usage = Usage.ALL_YEAR
+
+    /** Latest odometer reading, or null. */
+    val latestReading get() = mileage.maxByOrNull { it.dateMs }
+
+    /** The size used for front-to-back levelling. */
+    val lengthForLevel get() = if (type == VehicleType.CARAVAN) hitchCm else wheelbaseCm
 
     fun json(): JSONObject {
         fun list(l: List<Detail>) = JSONArray().apply { l.forEach { put(it.json()) } }
         return JSONObject().put("id", id).put("name", name).put("type", type.name)
-            .put("details", list(details)).put("dimensions", list(dimensions))
-            .put("equipment", list(equipment))
+            .put("details", list(details)).put("equipment", list(equipment))
             .put("checklists", JSONArray().apply { checklists.forEach { put(it.json()) } })
             .put("services", JSONArray().apply { services.forEach { put(it.json()) } })
             .put("reminders", JSONArray().apply { reminders.forEach { put(it.json()) } })
             .put("mileage", JSONArray().apply { mileage.forEach { put(it.json()) } })
             .put("notes", notes)
+            .put("length", lengthCm.toDouble()).put("bodyLength", bodyLengthCm.toDouble())
+            .put("width", widthCm.toDouble()).put("height", heightCm.toDouble())
+            .put("track", trackCm.toDouble()).put("hitch", hitchCm.toDouble())
+            .put("wheelbase", wheelbaseCm.toDouble())
+            .put("roll", rollOffset.toDouble()).put("pitch", pitchOffset.toDouble())
+            .put("annualMiles", annualMiles).put("usage", usage.name)
     }
 
     companion object {
         fun from(o: JSONObject): Vehicle {
             fun details(k: String) =
                 o.optJSONArray(k).objects().map { Detail.from(it) }.toMutableList()
+            fun f(k: String) = o.optDouble(k, 0.0).toFloat()
             return Vehicle(
                 o.optString("name", "My caravan"), VehicleType.of(o.optString("type")),
-                details("details"), details("dimensions"), details("equipment"),
+                details("details"), details("equipment"),
                 o.optJSONArray("checklists").objects().map { Checklist.from(it) }.toMutableList(),
                 o.optJSONArray("services").objects().map { ServiceRecord.from(it) }.toMutableList(),
                 o.optJSONArray("reminders").objects().map { Reminder.from(it) }.toMutableList(),
                 o.optJSONArray("mileage").objects().map { MileageEntry.from(it) }.toMutableList(),
                 o.optString("notes"), o.optString("id", newId())
-            )
+            ).apply {
+                lengthCm = f("length"); bodyLengthCm = f("bodyLength")
+                widthCm = f("width"); heightCm = f("height")
+                trackCm = f("track"); hitchCm = f("hitch"); wheelbaseCm = f("wheelbase")
+                rollOffset = f("roll"); pitchOffset = f("pitch")
+                annualMiles = o.optInt("annualMiles", 0)
+                usage = Usage.of(o.optString("usage"))
+            }
         }
 
-        /** A new vehicle with the default checklists for its type. */
+        /** A new vehicle with the default checklists and detail lines for its type. */
         fun create(name: String, type: VehicleType) = Vehicle(name, type).apply {
             checklists.addAll(DefaultLists.forType(type))
             details.addAll(listOf("Make", "Model", "Year").map { Detail(it, "") })
@@ -173,16 +231,15 @@ class Vehicle(
     }
 }
 
-class Garage(val vehicles: MutableList<Vehicle>, var milesUnit: Boolean = true) {
-    fun json() = JSONObject().put("version", 1).put("miles", milesUnit)
+class Garage(val vehicles: MutableList<Vehicle>) {
+    fun json() = JSONObject().put("version", 1)
         .put("vehicles", JSONArray().apply { vehicles.forEach { put(it.json()) } })
 
     fun find(id: String?) = vehicles.firstOrNull { it.id == id }
 
     companion object {
         fun from(o: JSONObject) = Garage(
-            o.optJSONArray("vehicles").objects().map { Vehicle.from(it) }.toMutableList(),
-            o.optBoolean("miles", true)
+            o.optJSONArray("vehicles").objects().map { Vehicle.from(it) }.toMutableList()
         )
     }
 }
@@ -192,17 +249,41 @@ object GarageStore {
 
     fun attachmentsDir(ctx: Context) = File(ctx.filesDir, "attachments").apply { mkdirs() }
 
+    /** Always returns at least one vehicle. */
     fun load(ctx: Context): Garage {
         val f = File(ctx.filesDir, FILE)
+        var g: Garage? = null
         if (f.exists()) {
             try {
-                return Garage.from(JSONObject(f.readText()))
+                g = Garage.from(JSONObject(f.readText()))
             } catch (_: Exception) {
-                // fall through to an empty garage; the bad file is kept as a backup
+                // keep the unreadable file so nothing is lost for good
                 f.copyTo(File(ctx.filesDir, "$FILE.bad"), overwrite = true)
             }
         }
-        return Garage(mutableListOf())
+        if (g == null) {
+            // First run of this version: turn the old level profiles into caravans
+            g = Garage(Store.load(ctx).profiles.map { p ->
+                Vehicle.create(p.name, VehicleType.CARAVAN).apply {
+                    trackCm = p.trackCm; hitchCm = p.hitchCm
+                    rollOffset = p.rollOffset; pitchOffset = p.pitchOffset
+                }
+            }.toMutableList())
+            save(ctx, g)
+        }
+        if (g.vehicles.isEmpty()) {
+            g.vehicles.add(Vehicle.create("My caravan", VehicleType.CARAVAN))
+            save(ctx, g)
+        }
+        return g
+    }
+
+    /** The vehicle picked in the bar at the top of each page. */
+    fun active(ctx: Context, g: Garage): Vehicle =
+        g.find(AppPrefs.activeVehicle(ctx)) ?: g.vehicles[0]
+
+    fun deleteAttachment(ctx: Context, name: String) {
+        File(attachmentsDir(ctx), name).delete()
     }
 
     /** Write to a temporary file first so a crash never leaves a half-written file. */
