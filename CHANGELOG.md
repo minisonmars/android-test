@@ -5,7 +5,8 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Now a proper release build (signed with the same key, so it installs over the old version), which should cut down Play Protect "harmful app" warnings
+- Updates can now install without Android's extra "Do you want to install this update?" screen (Android 12 and later). This starts working from the update after this one, because Android only allows it when the app installed the previous version itself
 
 ## v0.3.15
 

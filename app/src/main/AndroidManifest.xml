@@ -4,6 +4,9 @@
     <!-- Used only to check for and download app updates from GitHub -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <!-- Lets the app update itself without Android's extra confirm screen (Android 12+),
+         once it installed the previous version itself -->
+    <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
     <!-- Reminder notifications, checked once a day and after the phone restarts -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />

@@ -20,7 +20,7 @@ You can have several vehicles: caravan, campervan, motorhome or tow car. The cho
 - Mileage: odometer readings (a caravan has none, so start from 0), estimated miles per year and when you use it
 - Notes
 
-Everything is saved as soon as you leave the page.
+The page is read-only until you tap **Edit**; then names, values, sizes, mileage settings and notes can be changed, and lines added or removed. Tap **Done editing** when finished. Everything is saved as soon as you leave the page.
 
 ## Checklists
 
@@ -73,7 +73,7 @@ The phone's position on the caravan doesn't matter, because a rigid body tilts b
 
 ## Getting the APK
 
-The app is built automatically by GitHub Actions on every push to `main`.
+The app is built automatically by GitHub Actions on every push to `main`, as a release (not debuggable) build signed with the fixed key, which Play Protect treats less suspiciously than a debug build.
 
 Every successful build publishes a **Release** named with its version number (for example `v0.3.12`) with the APK attached.
 
@@ -94,7 +94,7 @@ The app updates itself from this repo's GitHub releases, the same way as all the
   2. **Installed: version Y** in green, with its notes.
   3. **Show older versions (n)**: pick one from the list to read its notes. **Go back to this version** explains how (Android won't install an older version over a newer one, so you download it, uninstall, then install it; your saved data is lost).
   4. **Reinstall version Y**.
-- The first time, Android asks you to allow Caravan Leveller to install apps ("Allow from this source"); after that you just confirm the update on Android's own screen.
+- The first time, Android asks you to allow Caravan Leveller to install apps ("Allow from this source"). On Android 12 and later, once the app has installed one update itself, later updates go straight in without Android's confirm screen (the app declares `UPDATE_PACKAGES_WITHOUT_USER_ACTION`). The app closes when the update is in; open it again.
 
 This works because every build is signed with the same key (`app/debug.keystore`) and the repo and its releases are public.
 
