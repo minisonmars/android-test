@@ -93,6 +93,10 @@
             android:exported="false"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".TroubleshootActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".CompassActivity"
             android:exported="false"
             android:screenOrientation="portrait" />

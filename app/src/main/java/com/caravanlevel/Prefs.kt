@@ -15,7 +15,8 @@ enum class Section(val label: String, val icon: Icon) {
     VEHICLE("Vehicle info", Icon.VEHICLE),
     SERVICE("Service records", Icon.SERVICE),
     REMINDERS("Reminders", Icon.REMINDER),
-    DIARY("Trip diary", Icon.DIARY);
+    DIARY("Trip diary", Icon.DIARY),
+    HELP("Troubleshooting", Icon.HELP);
 
     val activity: Class<*>
         get() = when (this) {
@@ -25,6 +26,7 @@ enum class Section(val label: String, val icon: Icon) {
             SERVICE -> ServiceActivity::class.java
             REMINDERS -> RemindersActivity::class.java
             DIARY -> DiaryActivity::class.java
+            HELP -> TroubleshootActivity::class.java
             COMPASS -> CompassActivity::class.java
         }
 

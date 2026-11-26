@@ -173,7 +173,7 @@ object Theme {
 }
 
 /** Icons drawn in code, so they look the same on every phone. */
-enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS, CARAVAN, CAMPERVAN, MOTORHOME, CAR, COMPASS, CALIBRATE, BUBBLE, VIALS, VOICE, SIZES, DIARY, STAR, STAR_EMPTY, LOCATE, EDIT, PHONE, EMAIL, WEB, NAVIGATE, FILTER, ADD, MAP, SEARCH, SORT }
+enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS, CARAVAN, CAMPERVAN, MOTORHOME, CAR, COMPASS, CALIBRATE, BUBBLE, VIALS, VOICE, SIZES, DIARY, STAR, STAR_EMPTY, LOCATE, EDIT, PHONE, EMAIL, WEB, NAVIGATE, FILTER, ADD, MAP, SEARCH, SORT, HELP }
 
 class IconView(context: Context, var icon: Icon, var colour: Int = Colours.TEXT) : View(context) {
     private val painter = IconPainter()
@@ -233,6 +233,14 @@ class IconPainter {
                     c.drawPath(tick, stroke)
                     c.drawLine(50f, y, 72f, y, stroke)
                 }
+            }
+            Icon.HELP -> {
+                // A first aid box with a cross
+                c.drawRoundRect(RectF(10f, 26f, 90f, 86f), 10f, 10f, stroke)
+                c.drawRoundRect(RectF(36f, 12f, 64f, 26f), 4f, 4f, stroke)
+                c.drawLine(50f, 40f, 50f, 72f, stroke.apply { strokeWidth = 11f })
+                c.drawLine(34f, 56f, 66f, 56f, stroke)
+                stroke.strokeWidth = 7f
             }
             Icon.SEARCH -> {
                 // A magnifying glass

@@ -5,7 +5,9 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Home page: Settings is now a small cog at the top right instead of a tile.
+- New Troubleshooting page: step-by-step beginner's guides for common problems, such as no 12 V or mains power, no water, fridge, gas, hot water, road lights, snaking, motor mover, battery, toilet, damp, punctures and alarms. It shows the guides that suit the chosen vehicle. The advice is general, so check your handbook too.
+- Settings: the unit switches now say what they change.
 
 ## v0.3.52
 

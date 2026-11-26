@@ -56,8 +56,8 @@ class SettingsActivity : Activity() {
 
         // Units
         col.addView(ui.heading("Units"))
-        col.addView(switch("Inches for levelling amounts and new sizes (instead of cm)", AppPrefs.inches(this)) { AppPrefs.setInches(this, it) })
-        col.addView(switch("Distances in km instead of miles", AppPrefs.km(this)) { AppPrefs.setKm(this, it) })
+        col.addView(switch("Inches instead of cm: for the Level page's raise/lower amounts, and the starting unit for sizes not entered yet", AppPrefs.inches(this)) { AppPrefs.setInches(this, it) })
+        col.addView(switch("Km instead of miles: for mileage, reminders, and distances on the Compass and Trip diary", AppPrefs.km(this)) { AppPrefs.setKm(this, it) })
 
         // Backup
         col.addView(ui.heading("Backup"))

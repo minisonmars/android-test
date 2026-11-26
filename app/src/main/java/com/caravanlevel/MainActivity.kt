@@ -91,7 +91,19 @@ class MainActivity : Activity() {
         val garage = GarageStore.load(this)
         val vehicle = GarageStore.active(this, garage)
 
-        body.addView(ui.text("Caravan Leveller", 26f, bold = true))
+        // Title with a small Settings cog at the top right
+        val title = ui.text("Caravan Leveller", 26f, bold = true).apply {
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+        }
+        val cog = IconView(this, Icon.SETTINGS, Colours.ACCENT).apply {
+            setPadding(ui.dp(8), ui.dp(8), ui.dp(8), ui.dp(8))
+            background = ui.rounded(Colours.CARD, 12)
+            isClickable = true
+            contentDescription = "Settings"
+            setOnClickListener { startActivity(Intent(this@MainActivity, SettingsActivity::class.java)) }
+            layoutParams = LinearLayout.LayoutParams(ui.dp(48), ui.dp(48))
+        }
+        body.addView(ui.row(title, cog))
         body.addView(VehicleBar.make(ui, garage, vehicle) {
             AppPrefs.setActiveVehicle(this, it.id)
             build()
@@ -105,8 +117,7 @@ class MainActivity : Activity() {
             })
         }
 
-        val tiles = Section.values().map { s -> tile(s.label, s.icon) { go(s) } } +
-            tile("Settings", Icon.SETTINGS) { startActivity(Intent(this, SettingsActivity::class.java)) }
+        val tiles = Section.values().map { s -> tile(s.label, s.icon) { go(s) } }
         tiles.chunked(2).forEach { pair ->
             body.addView(LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
