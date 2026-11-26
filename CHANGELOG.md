@@ -5,7 +5,7 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Settings > Updates shows which app Android thinks installed Caravan Leveller. Updates can only skip Android's confirm screen when it says this app
 
 ## v0.3.18
 
