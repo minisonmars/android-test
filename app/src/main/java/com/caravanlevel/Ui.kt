@@ -16,6 +16,7 @@ import android.text.InputType
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AbsListView
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
@@ -210,20 +211,27 @@ class Ui(val ctx: Activity) {
 
     /** A drop-down list with big text. */
     fun spinner(items: List<String>, selected: Int, onPick: (Int) -> Unit) = Spinner(ctx).apply {
+        // Our own rows, so big text is never cut off (the built-in rows have a fixed height)
         val ad = object : ArrayAdapter<String>(ctx, android.R.layout.simple_spinner_item, items) {
-            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
-                (super.getView(position, convertView, parent) as TextView).apply {
-                    textSize = 20f; setTextColor(Colours.TEXT)
-                    setPadding(dp(8), dp(12), dp(8), dp(12))
+            private fun row(position: Int, convertView: View?, padV: Int, colour: Int): View =
+                ((convertView as? TextView) ?: TextView(ctx)).apply {
+                    text = getItem(position)
+                    textSize = 20f
+                    setTextColor(colour)
+                    minHeight = dp(52)
+                    gravity = Gravity.CENTER_VERTICAL
+                    setPadding(dp(16), dp(padV), dp(16), dp(padV))
+                    layoutParams = AbsListView.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
                 }
 
+            override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
+                row(position, convertView, 10, Colours.TEXT)
+
             override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View =
-                (super.getDropDownView(position, convertView, parent) as TextView).apply {
-                    textSize = 20f
-                    setPadding(dp(16), dp(16), dp(16), dp(16))
-                }
+                row(position, convertView, 14, Colours.TEXT)
         }
-        ad.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         adapter = ad
         setSelection(selected.coerceIn(0, (items.size - 1).coerceAtLeast(0)))
         onItemSelectedListener = object : AdapterView.OnItemSelectedListener {

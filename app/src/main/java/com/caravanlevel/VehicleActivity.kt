@@ -45,7 +45,7 @@ class VehicleActivity : Page() {
 
         // Details
         content.addView(ui.heading("Details"))
-        detailList(v.details, "For example: Chassis number")
+        detailList(v.details, "For example: Chassis number", "Type it here")
 
         // Sizes
         content.addView(ui.heading("Sizes ($unit)"))
@@ -78,7 +78,7 @@ class VehicleActivity : Page() {
         // Equipment
         content.addView(ui.heading("Equipment"))
         content.addView(ui.text("Makes, models and serial numbers, handy for spares and repairs.", 16f, Colours.MUTED))
-        detailList(v.equipment, "For example: Fridge")
+        detailList(v.equipment, "For example: Fridge", "Make, model, serial number")
         if (v.equipment.isEmpty()) {
             content.addView(ui.button("Add the usual items (fridge, heater, water heater...)") {
                 save()
@@ -97,30 +97,37 @@ class VehicleActivity : Page() {
         commits.add { v.notes = notes.text.toString() }
     }
 
-    /** Label and value pairs that can be added to and removed. */
-    private fun detailList(list: MutableList<Detail>, hint: String) {
+    /**
+     * Named lines such as "Make" or "Fridge": the name is shown above a box to type in.
+     * Rename or remove a line with the buttons under it.
+     */
+    private fun detailList(list: MutableList<Detail>, example: String, valueHint: String) {
         list.toList().forEach { d ->
             val card = ui.card()
-            val label = ui.field(d.label, "What").apply { textSize = 16f; setTextColor(Colours.MUTED) }
-            val value = ui.field(d.value, "Value")
-            card.addView(label)
+            card.addView(ui.text(d.label.ifBlank { "(no name)" }, 17f, Colours.MUTED, bold = true))
+            val value = ui.field(d.value, valueHint)
             card.addView(value)
-            card.addView(ui.button("Remove", Colours.RED) {
-                save()
-                list.remove(d)
-                saveAndRebuild()
-            })
+            card.addView(ui.row(
+                ui.rowButton("Rename") { askName("Rename this line", d.label) { save(); d.label = it; saveAndRebuild() } },
+                ui.rowButton("Remove", Colours.RED) {
+                    save()
+                    list.remove(d)
+                    saveAndRebuild()
+                }
+            ))
             content.addView(card)
-            commits.add {
-                d.label = label.text.toString().trim()
-                d.value = value.text.toString().trim()
-            }
+            commits.add { d.value = value.text.toString().trim() }
         }
         content.addView(ui.button("Add a line", Colours.TILE) {
-            save()
-            list.add(Detail("", ""))
-            saveAndRebuild()
-        }.apply { contentDescription = hint })
+            askName("What is it?", "", example) { save(); list.add(Detail(it, "")); saveAndRebuild() }
+        })
+    }
+
+    private fun askName(title: String, current: String, hint: String = "", done: (String) -> Unit) {
+        val f = ui.field(current, hint)
+        AlertDialog.Builder(this).setTitle(title).setView(ui.column(20).apply { addView(f) })
+            .setPositiveButton("OK") { _, _ -> f.text.toString().trim().takeIf { it.isNotEmpty() }?.let(done) }
+            .setNegativeButton("Cancel", null).show()
     }
 
     private fun mileage(v: Vehicle) {
