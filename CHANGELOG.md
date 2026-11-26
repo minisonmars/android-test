@@ -5,7 +5,8 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Home page: Compass is now the second tile, next to Level.
+- Compass: the compass stays on screen and the text underneath scrolls. The TV aerial and satellite dish parts each have a Hide button, which also takes their marker off the compass. Tap Show to bring them back.
 
 ## v0.3.35
 

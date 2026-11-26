@@ -10,11 +10,11 @@ import kotlin.math.roundToInt
 /** The app's sections, as shown on the home page. */
 enum class Section(val label: String, val icon: Icon) {
     LEVEL("Level", Icon.LEVEL),
+    COMPASS("Compass", Icon.COMPASS),
     CHECKLISTS("Checklists", Icon.CHECKLIST),
     VEHICLE("Vehicle info", Icon.VEHICLE),
     SERVICE("Service records", Icon.SERVICE),
-    REMINDERS("Reminders", Icon.REMINDER),
-    COMPASS("Compass", Icon.COMPASS);
+    REMINDERS("Reminders", Icon.REMINDER);
 
     val activity: Class<*>
         get() = when (this) {

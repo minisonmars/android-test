@@ -148,6 +148,8 @@ class CompassActivity : Page(), SensorEventListener {
     override fun build() {
         val l = location
         val sun = l?.let { Sun.day(it.latitude, it.longitude, System.currentTimeMillis()) }
+        val showTv = shown("tv")
+        val showSat = shown("sat")
         val masts = l?.let { Transmitters.nearest(this, it.latitude, it.longitude) } ?: emptyList()
         val sat = l?.let { Satellite.aim(it.latitude, it.longitude) }
 
@@ -155,11 +157,11 @@ class CompassActivity : Page(), SensorEventListener {
         view.markers = listOfNotNull(
             sun?.riseAz?.let { CompassView.Marker(it, "Rise", Colours.AMBER) },
             sun?.setAz?.let { CompassView.Marker(it, "Set", Colours.AMBER) },
-            masts.firstOrNull()?.let { CompassView.Marker(Geo.bearing(l!!.latitude, l.longitude, it.lat, it.lon), "TV", Colours.GREEN) },
-            sat?.let { CompassView.Marker(it.azimuth, "Sat", SAT_COLOUR) }
+            masts.firstOrNull()?.takeIf { showTv }?.let { CompassView.Marker(Geo.bearing(l!!.latitude, l.longitude, it.lat, it.lon), "TV", Colours.GREEN) },
+            sat?.takeIf { showSat }?.let { CompassView.Marker(it.azimuth, "Sat", SAT_COLOUR) }
         )
         compass = view
-        content.addView(view)
+        fixed.addView(view) // stays on screen while the text below scrolls
         content.addView(ui.text(
             "Lay the phone flat, or hold it upright facing the way you want to check. The arrow at the top is where the phone points. North is true north.",
             15f, Colours.MUTED
@@ -197,7 +199,9 @@ class CompassActivity : Page(), SensorEventListener {
 
         // TV mast
         if (l != null && masts.isNotEmpty()) {
-            content.addView(ui.heading("TV aerial (Freeview)"))
+            collapsible("TV aerial (Freeview)", "tv")
+        }
+        if (l != null && masts.isNotEmpty() && showTv) {
             val card = ui.card()
             masts.forEachIndexed { i, m ->
                 val km = Geo.km(l.latitude, l.longitude, m.lat, m.lon)
@@ -214,7 +218,9 @@ class CompassActivity : Page(), SensorEventListener {
 
         // Satellite
         if (sat != null) {
-            content.addView(ui.heading("Satellite dish (Freesat / Sky)"))
+            collapsible("Satellite dish (Freesat / Sky)", "sat")
+        }
+        if (sat != null && showSat) {
             val card = ui.card()
             card.addView(ui.text("Astra 2 satellites at 28.2° East", 16f, Colours.MUTED))
             card.addView(ui.text("Point it towards ${Geo.dirText(sat.azimuth)}", 18f, bold = true))
@@ -236,6 +242,23 @@ class CompassActivity : Page(), SensorEventListener {
             try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.ofcom.org.uk/mobile-coverage-checker"))) } catch (_: Exception) {}
         })
         content.addView(card)
+    }
+
+    private fun shown(key: String) = getSharedPreferences("compass", MODE_PRIVATE).getBoolean("show_$key", true)
+
+    /** A heading with a Hide/Show button; hiding also takes its marker off the compass. */
+    private fun collapsible(title: String, key: String) {
+        val on = shown(key)
+        val h = ui.heading(title).apply {
+            layoutParams = android.widget.LinearLayout.LayoutParams(0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+        }
+        val b = ui.rowButton(if (on) "Hide" else "Show") {
+            getSharedPreferences("compass", MODE_PRIVATE).edit().putBoolean("show_$key", !on).apply()
+            rebuild()
+        }.apply {
+            layoutParams = android.widget.LinearLayout.LayoutParams(ui.dp(100), android.view.ViewGroup.LayoutParams.WRAP_CONTENT)
+        }
+        content.addView(ui.row(h, b))
     }
 
     private fun time(ms: Long) = java.text.SimpleDateFormat("HH:mm", java.util.Locale.UK).format(java.util.Date(ms))

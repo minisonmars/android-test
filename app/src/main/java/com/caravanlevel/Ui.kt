@@ -439,6 +439,8 @@ abstract class Page : Activity() {
     lateinit var garage: Garage
     lateinit var vehicle: Vehicle
     lateinit var content: LinearLayout
+    /** Content that stays put above the scrolling part (empty on most pages). */
+    lateinit var fixed: LinearLayout
     private lateinit var scroll: ScrollView
     private lateinit var barHolder: LinearLayout
 
@@ -462,6 +464,8 @@ abstract class Page : Activity() {
         })
         barHolder = ui.column().apply { setPadding(ui.dp(12), 0, ui.dp(12), 0) }
         page.addView(barHolder)
+        fixed = ui.column().apply { setPadding(ui.dp(16), 0, ui.dp(16), 0) }
+        page.addView(fixed)
         content = ui.column().apply { setPadding(ui.dp(16), ui.dp(4), ui.dp(16), ui.dp(32)) }
         scroll = ScrollView(this).apply { addView(content); isFillViewport = true }
         page.addView(scroll, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
@@ -498,6 +502,7 @@ abstract class Page : Activity() {
     /** Redraw the content, keeping the scroll position. */
     fun rebuild() {
         val y = scroll.scrollY
+        fixed.removeAllViews()
         content.removeAllViews()
         build()
         scroll.post { scroll.scrollTo(0, y) }

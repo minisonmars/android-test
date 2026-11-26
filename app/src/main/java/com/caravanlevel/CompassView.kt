@@ -30,7 +30,9 @@ class CompassView(context: Context) : View(context) {
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val w = MeasureSpec.getSize(widthMeasureSpec)
-        setMeasuredDimension(w, min(w, (360 * d).toInt()))
+        // Leave most of the screen for the scrolling text underneath
+        val maxH = (resources.displayMetrics.heightPixels * 0.40f).toInt()
+        setMeasuredDimension(w, min(min(w, (360 * d).toInt()), maxH))
     }
 
     override fun onDraw(c: Canvas) {
