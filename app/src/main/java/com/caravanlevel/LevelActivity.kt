@@ -32,7 +32,8 @@ class LevelActivity : Activity(), SensorEventListener {
 
     private lateinit var sensorManager: SensorManager
     private lateinit var bubbleView: BubbleView
-    private lateinit var voiceButton: Button
+    private lateinit var voiceButton: LevelButton
+    private lateinit var styleButton: LevelButton
     private lateinit var ui: Ui
     private lateinit var garage: Garage
     private lateinit var vehicle: Vehicle
@@ -76,41 +77,41 @@ class LevelActivity : Activity(), SensorEventListener {
             }
         }
 
-        val calibrate = makeButton("Calibrate") {
+        val calibrate = makeButton("Calibrate", Icon.CALIBRATE) {
             vehicle.rollOffset = rawRoll
             vehicle.pitchOffset = rawPitch
             GarageStore.save(this, garage)
             Toast.makeText(this, "Zeroed", Toast.LENGTH_SHORT).show()
         }
-        voiceButton = makeButton("Voice: OFF") {
+        voiceButton = makeButton("Voice off", Icon.VOICE) {
             if (!voiceOn && !ttsReady) {
                 Toast.makeText(this, "Voice not available on this phone", Toast.LENGTH_LONG).show()
             } else {
                 voiceOn = !voiceOn
                 lastSpokenAt = 0L
                 levelAnnounced = false
-                voiceButton.text = if (voiceOn) "Voice: ON" else "Voice: OFF"
+                showVoice()
                 if (!voiceOn) tts?.stop()
             }
         }
         bubbleView.separate = AppPrefs.separateBubbles(this)
-        val style = makeButton(if (bubbleView.separate) "One bubble" else "Two bubbles") {}
-        style.setOnClickListener {
+        styleButton = makeButton("", Icon.VIALS) {
             bubbleView.separate = !bubbleView.separate
             AppPrefs.setSeparateBubbles(this, bubbleView.separate)
-            style.text = if (bubbleView.separate) "One bubble" else "Two bubbles"
+            showStyle()
             bubbleView.invalidate()
         }
-        val settings = makeButton("Sizes") {
+        showStyle()
+        val settings = makeButton("Sizes", Icon.SIZES) {
             startActivity(Intent(this, VehicleActivity::class.java))
         }
 
         val bar = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
-            addView(calibrate)
-            addView(style)
-            addView(voiceButton)
-            addView(settings)
+            addView(calibrate.view)
+            addView(styleButton.view)
+            addView(voiceButton.view)
+            addView(settings.view)
         }
 
         val root = FrameLayout(this)
@@ -151,13 +152,39 @@ class LevelActivity : Activity(), SensorEventListener {
         })
     }
 
-    private fun makeButton(label: String, onClick: () -> Unit): Button =
-        Button(this).apply {
-            text = label
-            isAllCaps = false
-            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-            setOnClickListener { onClick() }
+    /** A small tile like the home page ones: an icon with its name underneath. */
+    private class LevelButton(val view: LinearLayout, val icon: IconView, val label: TextView)
+
+    private fun makeButton(label: String, icon: Icon, onClick: () -> Unit): LevelButton {
+        val iv = IconView(this, icon).apply { layoutParams = LinearLayout.LayoutParams(dp(34), dp(34)) }
+        val tv = ui.text(label, 14f, bold = true).apply {
+            gravity = Gravity.CENTER
+            setPadding(0, dp(4), 0, 0)
+            maxLines = 1
         }
+        val col = ui.column(6).apply {
+            gravity = Gravity.CENTER
+            background = ui.rounded(Colours.TILE, 14)
+            isClickable = true
+            setOnClickListener { onClick() }
+            addView(iv); addView(tv)
+            layoutParams = LinearLayout.LayoutParams(0, dp(78), 1f).apply { setMargins(dp(4), 0, dp(4), 0) }
+        }
+        return LevelButton(col, iv, tv)
+    }
+
+    private fun showVoice() {
+        voiceButton.label.text = if (voiceOn) "Voice on" else "Voice off"
+        voiceButton.icon.colour = if (voiceOn) Colours.ACCENT else Colours.TEXT
+        voiceButton.icon.invalidate()
+    }
+
+    /** The button offers the other style, so it shows that one's picture. */
+    private fun showStyle() {
+        styleButton.label.text = if (bubbleView.separate) "One bubble" else "Two bubbles"
+        styleButton.icon.icon = if (bubbleView.separate) Icon.BUBBLE else Icon.VIALS
+        styleButton.icon.invalidate()
+    }
 
     override fun onResume() {
         super.onResume()
@@ -241,9 +268,25 @@ class LevelActivity : Activity(), SensorEventListener {
         val levelSide = abs(roll) <= BubbleView.LEVEL_DEG
         val levelFront = abs(pitch) <= BubbleView.LEVEL_DEG
         val caravan = v.type == VehicleType.CARAVAN
+        val unitWord = if (inches) "inches" else "cm"
 
         if (v.trackCm <= 0f || v.lengthForLevel <= 0f) {
-            return Result("", "", "Tap Sizes to set the levelling sizes for amounts", "")
+            // No sizes yet: say which way and how many degrees instead of an amount
+            val spoken = mutableListOf<String>()
+            var sideText = ""
+            var frontText = ""
+            if (!levelSide) {
+                val which = if (roll > 0) "left" else "right"
+                sideText = "${which.uppercase()} side low ${String.format(Locale.UK, "%.1f", abs(roll))}°"
+                spoken.add("$which side low, ${Store.num(abs(roll), 1)} degrees")
+            }
+            if (!levelFront) {
+                val end = if (pitch > 0) "rear" else "front"
+                frontText = "${end.uppercase()} low ${String.format(Locale.UK, "%.1f", abs(pitch))}°"
+                spoken.add("$end low, ${Store.num(abs(pitch), 1)} degrees")
+            }
+            if (levelSide && levelFront) spoken.add("Level")
+            return Result(sideText, frontText, "Tap Sizes and add the levelling sizes to get amounts in $unitWord", spoken.joinToString(". "))
         }
 
         val unitShort = if (inches) "in" else "cm"

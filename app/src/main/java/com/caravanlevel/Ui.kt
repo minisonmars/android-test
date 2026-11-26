@@ -134,7 +134,7 @@ object Theme {
 }
 
 /** Icons drawn in code, so they look the same on every phone. */
-enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS, CARAVAN, CAMPERVAN, MOTORHOME, CAR, COMPASS }
+enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS, CARAVAN, CAMPERVAN, MOTORHOME, CAR, COMPASS, CALIBRATE, BUBBLE, VIALS, VOICE, SIZES }
 
 class IconView(context: Context, var icon: Icon, var colour: Int = Colours.TEXT) : View(context) {
     private val painter = IconPainter()
@@ -194,6 +194,46 @@ class IconPainter {
                     c.drawPath(tick, stroke)
                     c.drawLine(50f, y, 72f, y, stroke)
                 }
+            }
+            Icon.CALIBRATE -> {
+                // A target: ring, cross hairs and a centre dot
+                c.drawCircle(50f, 50f, 30f, stroke)
+                c.drawLine(50f, 8f, 50f, 30f, stroke); c.drawLine(50f, 70f, 50f, 92f, stroke)
+                c.drawLine(8f, 50f, 30f, 50f, stroke); c.drawLine(70f, 50f, 92f, 50f, stroke)
+                c.drawCircle(50f, 50f, 7f, fill)
+            }
+            Icon.BUBBLE -> {
+                // A round bubble level
+                c.drawCircle(50f, 50f, 38f, stroke)
+                stroke.strokeWidth = 4f
+                c.drawCircle(50f, 50f, 16f, stroke)
+                stroke.strokeWidth = 7f
+                c.drawCircle(58f, 44f, 10f, fill)
+            }
+            Icon.VIALS -> {
+                // Two vials: one across, one upright
+                c.drawRoundRect(RectF(8f, 10f, 92f, 36f), 13f, 13f, stroke)
+                c.drawCircle(56f, 23f, 6f, fill)
+                c.drawRoundRect(RectF(37f, 46f, 63f, 94f), 13f, 13f, stroke)
+                c.drawCircle(50f, 66f, 6f, fill)
+            }
+            Icon.VOICE -> {
+                // A loudspeaker with sound waves
+                c.drawPath(Path().apply {
+                    moveTo(10f, 38f); lineTo(26f, 38f); lineTo(46f, 20f); lineTo(46f, 80f); lineTo(26f, 62f); lineTo(10f, 62f); close()
+                }, stroke)
+                c.drawArc(RectF(42f, 32f, 70f, 68f), -50f, 100f, false, stroke)
+                c.drawArc(RectF(46f, 18f, 90f, 82f), -50f, 100f, false, stroke)
+            }
+            Icon.SIZES -> {
+                // A ruler with marks
+                c.drawRoundRect(RectF(6f, 32f, 94f, 68f), 6f, 6f, stroke)
+                stroke.strokeWidth = 5f
+                for (i in 0..6) {
+                    val x = 18f + i * 11f
+                    c.drawLine(x, 32f, x, if (i % 2 == 0) 52f else 44f, stroke)
+                }
+                stroke.strokeWidth = 7f
             }
             Icon.COMPASS -> {
                 // A ring with a needle: the north half filled

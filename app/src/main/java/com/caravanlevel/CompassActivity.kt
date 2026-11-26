@@ -41,6 +41,10 @@ class CompassActivity : Page(), SensorEventListener {
     private var lowAccuracy = false
     private var location: Location? = null
     private var listener: LocationListener? = null
+    private var signalView: android.widget.TextView? = null
+    private var lastStrength: android.telephony.SignalStrength? = null
+    private var displayType: Int? = null // TelephonyDisplayInfo override type (5G shown over 4G)
+    private var phoneCallback: Any? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         sensors = getSystemService(Context.SENSOR_SERVICE) as SensorManager
@@ -54,12 +58,58 @@ class CompassActivity : Page(), SensorEventListener {
             sensors.registerListener(this, it, SensorManager.SENSOR_DELAY_UI)
         }
         if (locationAllowed()) startLocation()
+        startSignal()
     }
 
     override fun onPause() {
         super.onPause()
         sensors.unregisterListener(this)
         stopLocation()
+        stopSignal()
+    }
+
+    // ---- Mobile signal, kept up to date while the page is open ----
+
+    private fun startSignal() {
+        if (Build.VERSION.SDK_INT < 31 || phoneCallback != null) return
+        val tm = getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager ?: return
+        val cb = SignalCallback()
+        try {
+            tm.registerTelephonyCallback(mainExecutor, cb)
+            phoneCallback = cb
+        } catch (_: Exception) {
+            // Some phones want phone-state permission for the 5G display info: just the signal then
+            try {
+                val only = SignalOnlyCallback()
+                tm.registerTelephonyCallback(mainExecutor, only)
+                phoneCallback = only
+            } catch (_: Exception) {}
+        }
+    }
+
+    private fun stopSignal() {
+        if (Build.VERSION.SDK_INT < 31) return
+        val cb = phoneCallback as? android.telephony.TelephonyCallback ?: return
+        try { (getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager).unregisterTelephonyCallback(cb) } catch (_: Exception) {}
+        phoneCallback = null
+    }
+
+    private fun showSignal() { signalView?.text = signalText() }
+
+    @android.annotation.TargetApi(31)
+    private inner class SignalCallback : android.telephony.TelephonyCallback(),
+        android.telephony.TelephonyCallback.SignalStrengthsListener,
+        android.telephony.TelephonyCallback.DisplayInfoListener {
+        override fun onSignalStrengthsChanged(s: android.telephony.SignalStrength) { lastStrength = s; showSignal() }
+        override fun onDisplayInfoChanged(info: android.telephony.TelephonyDisplayInfo) {
+            displayType = info.overrideNetworkType; showSignal()
+        }
+    }
+
+    @android.annotation.TargetApi(31)
+    private inner class SignalOnlyCallback : android.telephony.TelephonyCallback(),
+        android.telephony.TelephonyCallback.SignalStrengthsListener {
+        override fun onSignalStrengthsChanged(s: android.telephony.SignalStrength) { lastStrength = s; showSignal() }
     }
 
     // ---- Heading ----
@@ -237,7 +287,10 @@ class CompassActivity : Page(), SensorEventListener {
         // Mobile signal
         content.addView(ui.heading("Mobile signal"))
         val card = ui.card()
-        card.addView(ui.text(signalText(), 18f))
+        val sig = ui.text(signalText(), 18f)
+        signalView = sig
+        card.addView(sig)
+        card.addView(ui.text("Phones count bars in their own way, so this can differ a little from the status bar.", 14f, Colours.MUTED))
         card.addView(ui.button("Check coverage on Ofcom's map") {
             try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.ofcom.org.uk/mobile-coverage-checker"))) } catch (_: Exception) {}
         })
@@ -268,12 +321,13 @@ class CompassActivity : Page(), SensorEventListener {
         val tm = getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager ?: return "No mobile network on this device."
         val operator = tm.networkOperatorName?.takeIf { it.isNotBlank() } ?: "No network"
         if (Build.VERSION.SDK_INT < 28) return "Network: $operator"
-        val s = try { tm.signalStrength } catch (_: Exception) { null } ?: return "Network: $operator"
-        val bars = s.level // 0 to 4
-        val words = arrayOf("none or very poor", "poor", "fair", "good", "very good")[bars.coerceIn(0, 4)]
+        val s = lastStrength ?: try { tm.signalStrength } catch (_: Exception) { null } ?: return "Network: $operator"
+        var bars = s.level // 0 to 4
         var type = ""
         if (Build.VERSION.SDK_INT >= 29) {
             val c = s.cellSignalStrengths
+            // The status bar shows the best of the connections in use (4G and 5G together on "5G")
+            c.maxOfOrNull { it.level }?.let { bars = maxOf(bars, it) }
             type = when {
                 c.any { it is CellSignalStrengthNr } -> "5G"
                 c.any { it is CellSignalStrengthLte } -> "4G"
@@ -282,6 +336,17 @@ class CompassActivity : Page(), SensorEventListener {
                 else -> ""
             }
         }
-        return "$operator${if (type.isNotEmpty()) " $type" else ""}: $words ($bars of 4 bars)"
+        if (Build.VERSION.SDK_INT >= 30) {
+            type = when (displayType) {
+                android.telephony.TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_NSA -> "5G"
+                android.telephony.TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_NR_ADVANCED -> "5G+"
+                android.telephony.TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_LTE_ADVANCED_PRO,
+                android.telephony.TelephonyDisplayInfo.OVERRIDE_NETWORK_TYPE_LTE_CA -> if (type == "4G") "4G+" else type
+                else -> type
+            }
+        }
+        bars = bars.coerceIn(0, 4)
+        val words = arrayOf("none or very poor", "poor", "fair", "good", "very good")[bars]
+        return "$operator${if (type.isNotEmpty()) " $type" else ""}: $bars of 4 bars ($words)"
     }
 }

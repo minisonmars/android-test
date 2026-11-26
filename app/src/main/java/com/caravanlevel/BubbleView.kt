@@ -102,7 +102,7 @@ class BubbleView(context: Context) : View(context) {
         ring.color = if (isLevel) green else Colours.MUTED
 
         // Two vials: let the upright one reach further down when there's room for the text below
-        val extra = if (separate) ((height - (cy + radius) - 250 * d).coerceIn(0f, 70 * d)) else 0f
+        val extra = if (separate) ((height - (cy + radius) - 280 * d).coerceIn(0f, 70 * d)) else 0f
         if (separate) {
             drawVials(canvas, w, cy, radius, extra)
         } else {

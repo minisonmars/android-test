@@ -5,7 +5,9 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Level: the buttons at the bottom are now small tiles with pictures, like the home page.
+- Level: before the vehicle's levelling sizes are set, the level (and the voice) tells you which side or end is low and by how many degrees.
+- Compass: the mobile signal now updates live, shows 5G when the phone is on 5G, and counts bars the way the status bar does as far as Android allows.
 
 ## v0.3.38
 
