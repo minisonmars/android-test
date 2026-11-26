@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.24
+
 - Vehicle info: add a photo of the vehicle (take one or choose one from your gallery, in Edit). Tap it to see it full size
 - Each size can be typed in mm, cm, m, inches, feet or yards, and is shown in the unit you used (for example 6.40 m, 205.00 cm)
 - Standard lines now depend on the type: caravans have CRiS number and VIN (chassis number); campervans, motorhomes and cars have Registration and VIN
