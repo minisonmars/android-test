@@ -173,7 +173,7 @@ object Theme {
 }
 
 /** Icons drawn in code, so they look the same on every phone. */
-enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS, CARAVAN, CAMPERVAN, MOTORHOME, CAR, COMPASS, CALIBRATE, BUBBLE, VIALS, VOICE, SIZES, DIARY, STAR, STAR_EMPTY, LOCATE, EDIT, PHONE, EMAIL, WEB, NAVIGATE, FILTER, ADD, MAP }
+enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS, CARAVAN, CAMPERVAN, MOTORHOME, CAR, COMPASS, CALIBRATE, BUBBLE, VIALS, VOICE, SIZES, DIARY, STAR, STAR_EMPTY, LOCATE, EDIT, PHONE, EMAIL, WEB, NAVIGATE, FILTER, ADD, MAP, SEARCH, SORT }
 
 class IconView(context: Context, var icon: Icon, var colour: Int = Colours.TEXT) : View(context) {
     private val painter = IconPainter()
@@ -233,6 +233,20 @@ class IconPainter {
                     c.drawPath(tick, stroke)
                     c.drawLine(50f, y, 72f, y, stroke)
                 }
+            }
+            Icon.SEARCH -> {
+                // A magnifying glass
+                c.drawCircle(42f, 42f, 26f, stroke)
+                c.drawLine(61f, 61f, 88f, 88f, stroke.apply { strokeWidth = 11f })
+                stroke.strokeWidth = 7f
+            }
+            Icon.SORT -> {
+                // Lines getting shorter, with an arrow down
+                c.drawLine(10f, 24f, 62f, 24f, stroke)
+                c.drawLine(10f, 50f, 48f, 50f, stroke)
+                c.drawLine(10f, 76f, 34f, 76f, stroke)
+                c.drawLine(80f, 18f, 80f, 82f, stroke)
+                c.drawPath(Path().apply { moveTo(68f, 70f); lineTo(80f, 84f); lineTo(92f, 70f) }, stroke)
             }
             Icon.ADD -> {
                 // A plus in a circle

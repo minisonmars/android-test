@@ -20,6 +20,7 @@ class DiaryActivity : Page() {
 
     private var search = ""
     private var sort = 0
+    private var showSearch = false
     private lateinit var listBox: LinearLayout
 
     override fun build() {
@@ -36,25 +37,46 @@ class DiaryActivity : Page() {
             return
         }
 
-        content.addView(ui.label("Search"))
-        val box = ui.field(search, "Site, place, pitch or notes")
-        box.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
-            override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
-            override fun afterTextChanged(s: Editable?) { search = s.toString(); fillList() }
+        // Search and Sort tiles only show their box or choices when tapped
+        icons.addView(iconButton(Icon.SEARCH, "Search") {
+            showSearch = !showSearch
+            if (!showSearch && search.isNotEmpty()) search = ""
+            rebuild()
         })
-        content.addView(box)
-        content.addView(ui.label("Sort"))
-        content.addView(ui.spinner(SORTS, sort) {
-            sort = it
-            if (SORTS[it] == "Nearest to me" && !Here.allowed(this)) {
-                requestPermissions(arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION)
+        icons.addView(iconButton(Icon.SORT, "Sort") { chooseSort() })
+        if (showSearch || search.isNotEmpty()) {
+            val box = ui.field(search, "Site, place, pitch or notes")
+            box.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
+                override fun onTextChanged(s: CharSequence?, a: Int, b: Int, c: Int) {}
+                override fun afterTextChanged(s: Editable?) { search = s.toString(); fillList() }
+            })
+            content.addView(box)
+            if (search.isEmpty()) box.post {
+                box.requestFocus()
+                (getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager)
+                    .showSoftInput(box, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT)
             }
-            fillList()
-        })
+        }
+        content.addView(ui.text("Sorted by: ${SORTS[sort].lowercase()}", 15f, Colours.MUTED).apply { setPadding(0, ui.dp(6), 0, 0) })
         listBox = ui.column()
         content.addView(listBox)
         fillList()
+    }
+
+    private fun chooseSort() {
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Sort trips")
+            .setSingleChoiceItems(SORTS.toTypedArray(), sort) { d, i ->
+                d.dismiss()
+                sort = i
+                if (SORTS[i] == "Nearest to me" && !Here.allowed(this)) {
+                    requestPermissions(arrayOf(android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION)
+                }
+                rebuild()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
