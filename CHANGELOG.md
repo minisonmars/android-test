@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.35
+
 - Level, Two bubbles: side to side is a horizontal vial at the top, and front to back is an upright vial below it, front at the top.
 - Checklists: every vehicle now has a Packing list of things to take, which you can edit like the others. Tap "Choose countries" on it for a trip abroad and the kit and paperwork those countries need is added at the top. That covers hi-vis jackets, warning triangles, the French breathalyser, beam deflectors, the UK sticker, vignettes and so on, each marked required or recommended. It's general information as the rules were understood in 2026, so check gov.uk and the AA or RAC guides before you go.
 
