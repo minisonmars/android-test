@@ -103,10 +103,9 @@ The app updates itself from this repo's GitHub releases, the same way as all the
 
 - When you open the app it quietly checks GitHub (at most every 6 hours, and every time you open Settings). If a newer version exists, a red line at the top of the home page says "Version X is ready to install (you have Y)". Tap it to open the versions screen.
 - **Settings > Updates** shows your version (red when a new one is ready). **App versions and updates** opens the versions screen:
-  1. New versions first, newest at the top, each with its date, size and what changed, and an **Install version X** button.
-  2. **Installed: version Y** in green, with its notes.
-  3. **Show older versions (n)**: pick one from the list to read its notes. **Go back to this version** explains how (Android won't install an older version over a newer one, so you download it, uninstall, then install it; your saved data is lost).
-  4. **Reinstall version Y**.
+  1. New versions first, newest at the top, each with its date, size, what changed and its own **Install version X** button (so you don't have to jump to the latest).
+  2. **Installed: version Y** in green, with its notes and **Reinstall version Y**.
+  3. **Show older versions (n)**: every older version with its notes and its own **Go back to version X** button, which explains how (Android won't install an older version over a newer one, so you download it, uninstall, then install it; your saved data is lost).
 - The first time, Android asks you to allow Caravan Leveller to install apps ("Allow from this source"). On Android 12 and later, once the app has installed one update itself, later updates go straight in without Android's confirm screen (the app declares `UPDATE_PACKAGES_WITHOUT_USER_ACTION`). The app closes when the update is in; open it again.
 
 This works because every build is signed with the same key (`app/debug.keystore`) and the repo and its releases are public.
