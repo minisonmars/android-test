@@ -134,9 +134,36 @@ object Theme {
 }
 
 /** Icons drawn in code, so they look the same on every phone. */
-enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS }
+enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS, CARAVAN, CAMPERVAN, MOTORHOME, CAR }
 
 class IconView(context: Context, var icon: Icon, var colour: Int = Colours.TEXT) : View(context) {
+    private val painter = IconPainter()
+
+    override fun onDraw(c: Canvas) {
+        painter.draw(c, icon, colour, width.toFloat(), height.toFloat())
+    }
+}
+
+/** An icon as a Drawable, for drop-down rows. */
+class IconDrawable(private val icon: Icon, private val colour: Int, private val sizePx: Int) : android.graphics.drawable.Drawable() {
+    private val painter = IconPainter()
+    init { setBounds(0, 0, sizePx, sizePx) }
+    override fun draw(c: Canvas) {
+        c.save()
+        c.translate(bounds.left.toFloat(), bounds.top.toFloat())
+        painter.draw(c, icon, colour, bounds.width().toFloat(), bounds.height().toFloat())
+        c.restore()
+    }
+    override fun getIntrinsicWidth() = sizePx
+    override fun getIntrinsicHeight() = sizePx
+    override fun setAlpha(alpha: Int) {}
+    override fun setColorFilter(cf: android.graphics.ColorFilter?) {}
+    @Deprecated("Deprecated in Java")
+    override fun getOpacity() = android.graphics.PixelFormat.TRANSLUCENT
+}
+
+/** Draws the app's icons on a 100 x 100 grid. */
+class IconPainter {
     private val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
         strokeCap = Paint.Cap.ROUND
@@ -144,8 +171,8 @@ class IconView(context: Context, var icon: Icon, var colour: Int = Colours.TEXT)
     }
     private val fill = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.FILL }
 
-    override fun onDraw(c: Canvas) {
-        val s = min(width, height).toFloat()
+    fun draw(c: Canvas, icon: Icon, colour: Int, width: Float, height: Float) {
+        val s = min(width, height)
         c.save()
         c.translate((width - s) / 2f, (height - s) / 2f)
         c.scale(s / 100f, s / 100f) // draw on a 100 x 100 grid
@@ -168,7 +195,48 @@ class IconView(context: Context, var icon: Icon, var colour: Int = Colours.TEXT)
                     c.drawLine(50f, y, 72f, y, stroke)
                 }
             }
-            Icon.VEHICLE -> {
+            Icon.CAMPERVAN -> {
+                // A van from the side, facing right: sloping bonnet, two windows, two wheels
+                val body = Path().apply {
+                    moveTo(8f, 70f); lineTo(8f, 30f); quadTo(8f, 24f, 14f, 24f)
+                    lineTo(64f, 24f); lineTo(78f, 42f); lineTo(88f, 46f)
+                    quadTo(94f, 48f, 94f, 56f); lineTo(94f, 70f); close()
+                }
+                c.drawPath(body, stroke)
+                c.drawRoundRect(RectF(16f, 32f, 36f, 46f), 3f, 3f, stroke)
+                c.drawLine(44f, 32f, 62f, 32f, stroke)
+                c.drawLine(62f, 32f, 70f, 44f, stroke)
+                c.drawCircle(26f, 74f, 9f, stroke)
+                c.drawCircle(76f, 74f, 9f, stroke)
+            }
+            Icon.MOTORHOME -> {
+                // A coachbuilt motorhome: tall box, bed over the cab, lower cab at the front
+                c.drawRoundRect(RectF(6f, 14f, 70f, 70f), 8f, 8f, stroke)
+                c.drawRoundRect(RectF(66f, 14f, 90f, 30f), 6f, 6f, stroke)
+                val cab = Path().apply {
+                    moveTo(70f, 36f); lineTo(82f, 36f); lineTo(94f, 52f); lineTo(94f, 70f); lineTo(70f, 70f)
+                }
+                c.drawPath(cab, stroke)
+                c.drawRoundRect(RectF(14f, 24f, 32f, 38f), 3f, 3f, stroke)
+                c.drawRect(RectF(44f, 36f, 56f, 70f), stroke)
+                c.drawCircle(22f, 76f, 9f, stroke)
+                c.drawCircle(80f, 76f, 9f, stroke)
+            }
+            Icon.CAR -> {
+                // A car facing right with a tow ball at the back
+                val body = Path().apply {
+                    moveTo(10f, 66f); lineTo(10f, 54f); quadTo(10f, 48f, 18f, 47f)
+                    lineTo(28f, 45f); lineTo(40f, 30f); quadTo(42f, 28f, 48f, 28f)
+                    lineTo(66f, 28f); quadTo(70f, 28f, 72f, 32f); lineTo(80f, 45f)
+                    lineTo(88f, 47f); quadTo(95f, 49f, 94f, 57f); lineTo(94f, 66f); close()
+                }
+                c.drawPath(body, stroke)
+                c.drawLine(10f, 62f, 3f, 62f, stroke)
+                c.drawCircle(3f, 56f, 4f, fill)
+                c.drawCircle(30f, 70f, 9f, stroke)
+                c.drawCircle(74f, 70f, 9f, stroke)
+            }
+            Icon.CARAVAN, Icon.VEHICLE -> {
                 // A caravan from the side: body, window, door, wheel and A-frame
                 c.drawRoundRect(RectF(10f, 26f, 80f, 70f), 12f, 12f, stroke)
                 c.drawRoundRect(RectF(20f, 36f, 42f, 50f), 3f, 3f, stroke)
@@ -300,7 +368,7 @@ class Ui(val ctx: Activity) {
     }
 
     /** A drop-down list with big text. */
-    fun spinner(items: List<String>, selected: Int, onPick: (Int) -> Unit) = Spinner(ctx).apply {
+    fun spinner(items: List<String>, selected: Int, icons: List<Icon>? = null, onPick: (Int) -> Unit) = Spinner(ctx).apply {
         // Our own rows, so big text is never cut off (the built-in rows have a fixed height)
         val ad = object : ArrayAdapter<String>(ctx, android.R.layout.simple_spinner_item, items) {
             private fun row(position: Int, convertView: View?, padV: Int, colour: Int, oneLine: Boolean): View =
@@ -309,6 +377,9 @@ class Ui(val ctx: Activity) {
                     // The chosen item stays on one line; the open list can wrap long items
                     isSingleLine = oneLine
                     ellipsize = if (oneLine) android.text.TextUtils.TruncateAt.END else null
+                    val ic = icons?.getOrNull(position)
+                    setCompoundDrawablesRelative(ic?.let { IconDrawable(it, Colours.ACCENT, dp(32)) }, null, null, null)
+                    compoundDrawablePadding = dp(12)
                     textSize = 20f
                     setTextColor(colour)
                     minHeight = dp(52)
@@ -443,12 +514,11 @@ abstract class Page : Activity() {
 object VehicleBar {
     fun make(ui: Ui, garage: Garage, current: Vehicle, onPick: (Vehicle) -> Unit): View {
         val names = garage.vehicles.map { "${it.name}  (${it.type.label})" }
-        val icon = IconView(ui.ctx, Icon.VEHICLE, Colours.ACCENT).apply {
-            layoutParams = LinearLayout.LayoutParams(ui.dp(40), ui.dp(40))
+        val spin = ui.spinner(names, garage.vehicles.indexOf(current), garage.vehicles.map { it.type.icon }) {
+            onPick(garage.vehicles[it])
         }
-        val spin = ui.spinner(names, garage.vehicles.indexOf(current)) { onPick(garage.vehicles[it]) }
         spin.layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
-        return ui.row(icon, spin).apply {
+        return ui.row(spin).apply {
             background = ui.rounded(Colours.CARD)
             setPadding(ui.dp(10), ui.dp(2), ui.dp(4), ui.dp(2))
             layoutParams = LinearLayout.LayoutParams(

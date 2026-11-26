@@ -1,14 +1,21 @@
 package com.caravanlevel
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.widget.ScrollView
 import android.widget.Switch
 import android.widget.TextView
+import android.widget.Toast
 
 /** App-wide settings. Every change applies straight away. */
 class SettingsActivity : Activity() {
+    companion object {
+        private const val BACKUP = 1
+        private const val RESTORE = 2
+    }
 
     private lateinit var ui: Ui
     private lateinit var updateStatus: TextView
@@ -43,6 +50,21 @@ class SettingsActivity : Activity() {
         col.addView(switch("Inches for levelling amounts and new sizes (instead of cm)", AppPrefs.inches(this)) { AppPrefs.setInches(this, it) })
         col.addView(switch("Distances in km instead of miles", AppPrefs.km(this)) { AppPrefs.setKm(this, it) })
 
+        // Backup
+        col.addView(ui.heading("Backup"))
+        col.addView(ui.text("Saves everything (vehicles, checklists, service records with their photos and files, reminders and settings) in one file. You choose where: Google Drive, OneDrive, the phone or anywhere else the phone offers.", 16f, Colours.MUTED))
+        col.addView(ui.button("Back up to a file", Colours.ACCENT) {
+            val i = Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
+                .setType("application/zip").putExtra(Intent.EXTRA_TITLE, Backup.fileName())
+            try { startActivityForResult(i, BACKUP) } catch (_: Exception) { toast("No file picker found") }
+        })
+        col.addView(ui.button("Restore from a backup") {
+            ui.confirm("Restore from a backup?", "Everything in the app now will be replaced by what's in the backup file.", "Choose file") {
+                val i = Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*")
+                try { startActivityForResult(i, RESTORE) } catch (_: Exception) { toast("No file picker found") }
+            }
+        })
+
         // App updates: same layout as in all the other apps
         col.addView(ui.heading("Updates"))
         updateStatus = ui.text("", 17f)
@@ -62,6 +84,41 @@ class SettingsActivity : Activity() {
         // Opening Settings always checks for a new version straight away
         refreshUpdateStatus()
         Updater.checkInBackground(this, force = true) { refreshUpdateStatus() }
+    }
+
+    private fun toast(t: String) = Toast.makeText(this, t, Toast.LENGTH_LONG).show()
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        val uri = data?.data
+        if (resultCode != RESULT_OK || uri == null) return
+        val busy = AlertDialog.Builder(this).setMessage(if (requestCode == BACKUP) "Backing up..." else "Restoring...")
+            .setCancelable(false).show()
+        Thread {
+            val result = try {
+                if (requestCode == BACKUP) {
+                    val n = Backup.write(this, uri)
+                    "Backup saved, with $n photo${if (n == 1) "" else "s"} and file${if (n == 1) "" else "s"}."
+                } else {
+                    Backup.restore(this, uri)
+                    null
+                }
+            } catch (e: Exception) {
+                (if (requestCode == BACKUP) "Couldn't save the backup: " else "Couldn't restore: ") + (e.message ?: "unknown problem")
+            }
+            runOnUiThread {
+                busy.dismiss()
+                if (requestCode == RESTORE && result == null) {
+                    // Start again from the home page with the restored data and settings
+                    startActivity(Intent(this, MainActivity::class.java)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
+                    toast("Backup restored")
+                } else {
+                    AlertDialog.Builder(this).setMessage(result).setPositiveButton("OK", null).show()
+                }
+            }
+        }.start()
     }
 
     private fun switch(label: String, on: Boolean, set: (Boolean) -> Unit) = Switch(this).apply {

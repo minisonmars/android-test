@@ -63,7 +63,7 @@ class VehicleActivity : Page() {
             commits.add { name.text.toString().trim().takeIf { it.isNotEmpty() }?.let { v.name = it } }
             content.addView(ui.label("Type"))
             val types = VehicleType.values()
-            content.addView(ui.spinner(types.map { it.label }, types.indexOf(v.type)) { changeType(types[it]) })
+            content.addView(ui.spinner(types.map { it.label }, types.indexOf(v.type), types.map { it.icon }) { changeType(types[it]) })
         } else {
             show("Name", v.name)
             show("Type", v.type.label)
@@ -293,7 +293,7 @@ class VehicleActivity : Page() {
         var type = VehicleType.CARAVAN
         val box = ui.column(20).apply {
             addView(name)
-            addView(ui.spinner(types.map { it.label }, 0) { type = types[it] })
+            addView(ui.spinner(types.map { it.label }, 0, types.map { it.icon }) { type = types[it] })
         }
         AlertDialog.Builder(this).setTitle("Add a vehicle").setView(box)
             .setPositiveButton("Add") { _, _ ->

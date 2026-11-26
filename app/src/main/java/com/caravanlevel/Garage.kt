@@ -22,6 +22,13 @@ enum class VehicleType(val label: String) {
     /** Has its own engine and odometer (and MOT, tax and so on). */
     val motorised get() = this != CARAVAN
 
+    val icon get() = when (this) {
+        CARAVAN -> Icon.CARAVAN
+        CAMPERVAN -> Icon.CAMPERVAN
+        MOTORHOME -> Icon.MOTORHOME
+        CAR -> Icon.CAR
+    }
+
     companion object {
         fun of(s: String?) = values().firstOrNull { it.name == s } ?: CARAVAN
     }
@@ -364,6 +371,7 @@ object GarageStore {
         val tmp = File(ctx.filesDir, "$FILE.tmp")
         tmp.writeText(g.json().toString(2))
         tmp.renameTo(File(ctx.filesDir, FILE))
+        CalendarSync.syncLater(ctx) // keep the phone calendar matching the reminders
     }
 }
 

@@ -5,7 +5,9 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Each vehicle now has a picture of its type in the drop-downs: caravan, campervan, motorhome or tow car.
+- Settings: new Backup section. "Back up to a file" saves everything (vehicles, checklists, service records with their photos and files, reminders and settings) in one file, and you choose where to keep it: Google Drive, OneDrive, the phone and so on. "Restore from a backup" puts it all back.
+- Reminders: new button to show reminders that have a date in a phone calendar, either one you already have or a new "Caravan Leveller" calendar. The calendar entries change when you change a reminder and go when you delete it. The app asks for calendar access only when you turn this on.
 
 ## v0.3.31
 

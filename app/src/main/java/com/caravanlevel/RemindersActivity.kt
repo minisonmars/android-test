@@ -13,6 +13,10 @@ import android.provider.Settings
 class RemindersActivity : Page() {
     override val section = Section.REMINDERS
 
+    companion object {
+        private const val CALENDAR_PERMISSION = 2
+    }
+
     override fun onResume() {
         super.onResume()
         askForNotifications()
@@ -29,6 +33,13 @@ class RemindersActivity : Page() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == CALENDAR_PERMISSION) {
+            if (CalendarSync.allowed(this)) chooseCalendar()
+            else ui.confirm("Calendar not allowed", "To show reminders in a calendar, allow Calendar for Caravan Leveller in the phone's settings.", "Open settings") {
+                startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:$packageName")))
+            }
+            return
+        }
         Reminders.checkNow(this)
         reload()
     }
@@ -47,6 +58,13 @@ class RemindersActivity : Page() {
                 16f, Colours.MUTED
             ).apply { setPadding(0, ui.dp(6), 0, ui.dp(6)) })
         }
+
+        // Phone calendar
+        val calName = CalendarSync.currentName(this)
+        content.addView(ui.button(
+            if (CalendarSync.enabled(this) && calName != null) "Reminders with a date also go in your \"$calName\" calendar. Tap to change."
+            else "Show reminders with a date in a phone calendar"
+        ) { calendarTapped() })
 
         if (v.reminders.isEmpty()) {
             content.addView(ui.text("No reminders yet for ${v.name}.", 18f, Colours.MUTED).apply {
@@ -85,6 +103,36 @@ class RemindersActivity : Page() {
             ))
             content.addView(card)
         }
+    }
+
+    private fun calendarTapped() {
+        if (!CalendarSync.allowed(this)) {
+            requestPermissions(arrayOf(android.Manifest.permission.READ_CALENDAR, android.Manifest.permission.WRITE_CALENDAR), CALENDAR_PERMISSION)
+        } else chooseCalendar()
+    }
+
+    /** Pick a calendar: a new one of the app's own, or one already on the phone. */
+    private fun chooseCalendar() {
+        val cals = try { CalendarSync.writableCalendars(this) } catch (_: Exception) { emptyList() }
+        val items = mutableListOf("A new \"Caravan Leveller\" calendar on this phone")
+        items += cals.map { if (it.account.isNotBlank() && it.account != it.name) "${it.name} (${it.account})" else it.name }
+        val on = CalendarSync.enabled(this)
+        if (on) items += "Stop adding reminders to a calendar"
+        AlertDialog.Builder(this)
+            .setTitle("Which calendar?")
+            .setItems(items.toTypedArray()) { _, i ->
+                when {
+                    i == 0 -> {
+                        val id = try { CalendarSync.makeOwnCalendar(this) } catch (_: Exception) { null }
+                        if (id == null) ui.confirm("Couldn't make the calendar", "Try choosing one of your existing calendars instead.", "OK") {}
+                        else CalendarSync.choose(this, id) { reload() }
+                    }
+                    i <= cals.size -> CalendarSync.choose(this, cals[i - 1].id) { reload() }
+                    else -> CalendarSync.turnOff(this) { reload() }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun done(r: Reminder) {
