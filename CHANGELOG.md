@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.43
+
 - Settings: new Colour choice (green, blue, teal, purple, pink, red, orange, brown or grey) for buttons, icons and vehicle pictures, with a light tint in the background.
 - New Trip diary: save each stay with dates, site name, address, map position, pitch number, a star rating, cost, notes, photos and the site's phone, email and website. Call, email or open the website from the trip. Search all trips and sort them by most recent, nearest to you, highest rated or oldest.
 - Trip diary map: "Show all sites on a map" shows every site as a pin on an OpenStreetMap map. Drag, pinch or use + and - to zoom, and tap a pin to open the trip or get directions in your maps app.
