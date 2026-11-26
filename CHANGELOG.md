@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.54
+
 - New pictures: Settings is a proper gear, Service records a spanner, and the Compass needle points to the top right.
 
 ## v0.3.53
