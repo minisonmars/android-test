@@ -5,7 +5,8 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Test update: this one should install without the "Update this app?" pop-up
+- Settings > Updates also shows which Android version the phone has
 
 ## v0.3.22
 

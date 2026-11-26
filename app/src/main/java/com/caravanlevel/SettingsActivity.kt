@@ -36,7 +36,7 @@ class SettingsActivity : Activity() {
         col.addView(ui.heading("Updates"))
         updateStatus = ui.text("", 17f)
         col.addView(updateStatus)
-        col.addView(ui.text(installedBy(), 16f, Colours.MUTED).apply { setPadding(0, ui.dp(4), 0, ui.dp(4)) })
+        col.addView(ui.text(installedBy() + "\nThis phone: Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})", 16f, Colours.MUTED).apply { setPadding(0, ui.dp(4), 0, ui.dp(4)) })
         col.addView(ui.button("App versions and updates") {
             Updater.showDialog(this) { refreshUpdateStatus() }
         })
