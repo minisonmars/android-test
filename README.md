@@ -16,6 +16,8 @@ You can have several vehicles: caravan, campervan, motorhome or tow car. The cho
 - A photo of the vehicle (take one or choose one in Edit; tap it to see it full size)
 - Name and type, and the standard lines for the type: Make, Model, Year, VIN (chassis number), plus CRiS number for a caravan or Registration for a campervan, motorhome or car. Add your own lines too. Changing the type swaps the standard lines and offers that type's starting checklists
 - Sizes: overall length, body length (caravans), width and height. Each size is typed in its own unit (mm, cm, m, in, ft or yd) and shown in that unit
+- Weights: MRO (mass in running order) and MTPLM (plated maximum), with the payload worked out
+- **Fill in from a known model** (caravans, in Edit): pick make, year and model to fill in Make, Model, Year, sizes and weights from the makers' published figures in `app/src/main/assets/caravan_models.csv` (each line names its source document; figures are approximate)
 - Levelling sizes used by the level: track width, plus hitch to axle (caravan) or wheelbase (campervan, motorhome)
 - Equipment: fridge, heaters, pump, battery and so on, with makes, models and serial numbers
 - Mileage (campervans, motorhomes and cars only): odometer readings, estimated miles per year and when you use it. Caravans have no mileage, and their reminders are by date only
@@ -128,6 +130,7 @@ All in `app/src/main/java/com/caravanlevel/`:
 - `Garage.kt` – vehicles and everything in them, saved as one file (`garage.json`); starting checklists
 - `Prefs.kt` – app settings, units and dates, mileage estimate, when reminders are due
 - `Ui.kt` – shared screen pieces: icons drawn in code, buttons, vehicle picker, page layout
+- `KnownModels.kt` and `assets/caravan_models.csv` – makers' published sizes and weights for the "Fill in from a known model" picker
 - `Store.kt` – old caravan profiles (read once to make the first vehicles) and number formatting
 - `Updater.kt` and `InstallReceiver.kt` – automatic update check, versions screen, download and install
 

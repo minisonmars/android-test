@@ -71,6 +71,9 @@ class VehicleActivity : Page() {
 
         // Details
         content.addView(ui.heading("Details"))
+        if (editing && v.type == VehicleType.CARAVAN && KnownModels.all(this).isNotEmpty()) {
+            content.addView(ui.button("Fill in from a known model", Colours.TILE) { pickKnownMake() })
+        }
         detailList(v.details, "For example: Chassis number", "For example: Swift")
 
         // Sizes: each one in the unit it was typed in
@@ -116,6 +119,26 @@ class VehicleActivity : Page() {
             save()
             Toast.makeText(this, "Calibration cleared", Toast.LENGTH_SHORT).show()
         })
+
+        // Weights
+        content.addView(ui.heading("Weights (kg)"))
+        fun weight(label: String, get: () -> Int, set: (Int) -> Unit) {
+            if (!editing) {
+                show(label, if (get() > 0) "${get()} kg" else "")
+                return
+            }
+            content.addView(ui.label(label))
+            val f = ui.wholeNumberField(if (get() > 0) get().toString() else "")
+            content.addView(f)
+            commits.add { set(f.text.toString().trim().toIntOrNull() ?: 0) }
+        }
+        weight(if (v.type == VehicleType.CARAVAN) "MRO / MIRO (empty weight as built)" else "Mass in running order",
+            { v.mroKg }) { v.mroKg = it }
+        weight("MTPLM (maximum laden weight, on the plate)", { v.mtplmKg }) { v.mtplmKg = it }
+        if (v.mroKg > 0 && v.mtplmKg > v.mroKg) {
+            content.addView(ui.text("Payload for your kit: about ${v.mtplmKg - v.mroKg} kg", 17f, Colours.ACCENT)
+                .apply { setPadding(0, ui.dp(8), 0, 0) })
+        }
 
         // Equipment
         content.addView(ui.heading("Equipment"))
@@ -308,6 +331,63 @@ class VehicleActivity : Page() {
                 Toast.makeText(this, "Checklists replaced", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    // ---------- Known models ----------
+
+    private fun pickKnownMake() {
+        val makes = KnownModels.makes(this)
+        AlertDialog.Builder(this).setTitle("Which make?")
+            .setItems(makes.toTypedArray()) { _, i -> pickKnownYear(makes[i]) }
+            .setNegativeButton("Cancel", null).show()
+    }
+
+    private fun pickKnownYear(make: String) {
+        val years = KnownModels.years(this, make)
+        AlertDialog.Builder(this).setTitle("$make: which model year?")
+            .setItems(years.map { it.toString() }.toTypedArray()) { _, i -> pickKnownModel(make, years[i]) }
+            .setNegativeButton("Cancel", null).show()
+    }
+
+    private fun pickKnownModel(make: String, year: Int) {
+        val models = KnownModels.models(this, make, year)
+        AlertDialog.Builder(this).setTitle("$make $year: which model?")
+            .setItems(models.map { it.name }.toTypedArray()) { _, i -> confirmKnown(models[i]) }
+            .setNegativeButton("Cancel", null).show()
+    }
+
+    private fun confirmKnown(m: KnownModel) {
+        val msg = "Length ${Store.fixed(m.lengthM)} m, width ${Store.fixed(m.widthM)} m, height ${Store.fixed(m.heightM)} m\n" +
+            "MRO ${m.mroKg} kg, MTPLM ${m.mtplmKg} kg" +
+            (if (m.mtplmUpgradeKg > m.mtplmKg) " (upgradable to ${m.mtplmUpgradeKg} kg)" else "") + "\n" +
+            "${m.axles} axle${if (m.axles == 1) "" else "s"}\n\n" +
+            "From: ${m.source}. These are the maker's approximate figures for a standard model; options, " +
+            "dealer specials and weight upgrades change them, so check your own plate and handbook.\n\n" +
+            "This fills in Make, Model, Year, the sizes and the weights, replacing what's there."
+        AlertDialog.Builder(this).setTitle("${m.make} ${m.name} (${m.year})").setMessage(msg)
+            .setPositiveButton("Fill in") { _, _ ->
+                save()
+                val v = vehicle
+                fun line(name: String, value: String) {
+                    val d = v.details.firstOrNull { it.label == name }
+                    if (d != null) d.value = value else v.details.add(Detail(name, value))
+                }
+                line("Make", m.make)
+                line("Model", m.name)
+                line("Year", m.year.toString())
+                v.lengthCm = m.lengthM * 100f
+                v.widthCm = m.widthM * 100f
+                v.heightCm = m.heightM * 100f
+                listOf("length", "width", "height").forEach { v.sizeUnits[it] = SizeUnit.M.name }
+                v.mroKg = m.mroKg
+                v.mtplmKg = m.mtplmKg
+                val note = "Sizes and weights filled in from ${m.source} (approximate)."
+                if (!v.notes.contains(note)) v.notes = (v.notes.trim() + "\n" + note).trim()
+                commits.clear() // don't let the old boxes overwrite what was just filled in
+                GarageStore.save(this, garage)
+                rebuild()
+            }
+            .setNegativeButton("Cancel", null).show()
     }
 
     // ---------- Photo of the vehicle ----------

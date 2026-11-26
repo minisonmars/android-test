@@ -170,6 +170,10 @@ class Vehicle(
     /** The unit each size was typed in (key -> SizeUnit name), so it's shown the same way. */
     val sizeUnits = mutableMapOf<String, String>()
 
+    // Weights in kg; 0 = not set
+    var mroKg = 0      // mass in running order (MIRO / MRO), empty weight as built
+    var mtplmKg = 0    // maximum technically permissible laden mass (the plated maximum)
+
     /** Photo of the vehicle: a file name in the attachments folder. */
     var photo: String? = null
 
@@ -204,6 +208,7 @@ class Vehicle(
             .put("annualMiles", annualMiles).put("usage", usage.name)
             .put("sizeUnits", JSONObject(sizeUnits.toMap()))
             .put("photo", photo ?: JSONObject.NULL)
+            .put("mro", mroKg).put("mtplm", mtplmKg)
     }
 
     /**
@@ -242,6 +247,7 @@ class Vehicle(
                 annualMiles = o.optInt("annualMiles", 0)
                 usage = Usage.of(o.optString("usage"))
                 o.optJSONObject("sizeUnits")?.let { u -> u.keys().forEach { k -> sizeUnits[k] = u.optString(k) } }
+                mroKg = o.optInt("mro", 0); mtplmKg = o.optInt("mtplm", 0)
                 photo = if (o.isNull("photo")) null else o.optString("photo").ifBlank { null }
             }
         }
