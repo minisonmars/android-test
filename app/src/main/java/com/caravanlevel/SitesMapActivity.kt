@@ -146,6 +146,8 @@ class SiteMapView(context: Context) : View(context) {
     private var trips: List<Trip> = emptyList()
     private var here: android.location.Location? = null
     private var zoom = 6
+    /** Stretch of the current tiles (0.75 to 1.5) so pinching zooms smoothly between levels. */
+    private var scale = 1.0
     // Centre of the view in world pixels at the current zoom
     private var cxW = 0.0
     private var cyW = 0.0
@@ -201,43 +203,42 @@ class SiteMapView(context: Context) : View(context) {
     }
 
     private fun centreOn(lat: Double, lon: Double, z: Int) {
-        zoom = z; cxW = worldX(lon, z); cyW = worldY(lat, z); invalidate()
+        zoom = z; scale = 1.0; cxW = worldX(lon, z); cyW = worldY(lat, z); invalidate()
     }
 
-    fun zoomBy(step: Int, fx: Float = width / 2f, fy: Float = height / 2f) {
-        val nz = (zoom + step).coerceIn(2, 18)
-        if (nz == zoom) return
-        // Keep the point under the finger where it is
-        val lat = latOf(cyW + (fy - height / 2f), zoom)
-        val lon = lonOf(cxW + (fx - width / 2f), zoom)
-        zoom = nz
-        cxW = worldX(lon, zoom) - (fx - width / 2f)
-        cyW = worldY(lat, zoom) - (fy - height / 2f)
+    fun zoomBy(step: Int, fx: Float = width / 2f, fy: Float = height / 2f) = zoomAt(2.0.pow(step), fx, fy)
+
+    /** Zoom by any amount, keeping the point under the finger where it is. */
+    fun zoomAt(factor: Double, fx: Float, fy: Float) {
+        val lat = latOf(cyW + (fy - height / 2f) / scale, zoom)
+        val lon = lonOf(cxW + (fx - width / 2f) / scale, zoom)
+        scale *= factor
+        while (scale >= 1.5 && zoom < 18) { zoom++; scale /= 2 }
+        while (scale < 0.75 && zoom > 2) { zoom--; scale *= 2 }
+        scale = scale.coerceIn(0.5, 2.0)
+        cxW = worldX(lon, zoom) - (fx - width / 2f) / scale
+        cyW = worldY(lat, zoom) - (fy - height / 2f) / scale
         invalidate()
     }
 
     private val gestures = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
         override fun onDown(e: MotionEvent) = true
         override fun onScroll(e1: MotionEvent?, e2: MotionEvent, dx: Float, dy: Float): Boolean {
-            cxW += dx; cyW += dy; invalidate(); return true
+            cxW += dx / scale; cyW += dy / scale; invalidate(); return true
         }
         override fun onDoubleTap(e: MotionEvent): Boolean { zoomBy(1, e.x, e.y); return true }
         override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
             onTapPoint?.let { cb ->
-                cb(latOf(cyW + (e.y - height / 2f), zoom), lonOf(cxW + (e.x - width / 2f), zoom)); return true
+                cb(latOf(cyW + (e.y - height / 2f) / scale, zoom), lonOf(cxW + (e.x - width / 2f) / scale, zoom)); return true
             }
             val hit = trips.minByOrNull { t -> dist(t, e.x, e.y) }?.takeIf { dist(it, e.x, e.y) < 36 * d }
             onPick?.invoke(hit); return true
         }
     })
 
-    private var scaleAcc = 1f
     private val scaler = ScaleGestureDetector(context, object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
-        override fun onScaleBegin(detector: ScaleGestureDetector): Boolean { scaleAcc = 1f; return true }
         override fun onScale(det: ScaleGestureDetector): Boolean {
-            scaleAcc *= det.scaleFactor
-            if (scaleAcc > 1.6f) { zoomBy(1, det.focusX, det.focusY); scaleAcc = 1f }
-            if (scaleAcc < 0.62f) { zoomBy(-1, det.focusX, det.focusY); scaleAcc = 1f }
+            zoomAt(det.scaleFactor.toDouble(), det.focusX, det.focusY)
             return true
         }
     })
@@ -248,8 +249,8 @@ class SiteMapView(context: Context) : View(context) {
         return true
     }
 
-    private fun screenX(lon: Double) = (worldX(lon, zoom) - cxW + width / 2.0).toFloat()
-    private fun screenY(lat: Double) = (worldY(lat, zoom) - cyW + height / 2.0).toFloat()
+    private fun screenX(lon: Double) = ((worldX(lon, zoom) - cxW) * scale + width / 2.0).toFloat()
+    private fun screenY(lat: Double) = ((worldY(lat, zoom) - cyW) * scale + height / 2.0).toFloat()
     private fun dist(t: Trip, x: Float, y: Float): Float {
         val dx = screenX(t.lon!!) - x; val dy = screenY(t.lat!!) - y + 18 * d
         return kotlin.math.sqrt(dx * dx + dy * dy)
@@ -259,15 +260,23 @@ class SiteMapView(context: Context) : View(context) {
         if (!fitted) fit()
         c.drawColor(if (Colours.dark) 0xFF2A2F33.toInt() else 0xFFE8E4DC.toInt())
         val n = 1 shl zoom
-        val left = cxW - width / 2.0
-        val top = cyW - height / 2.0
-        val tx0 = floor(left / TILE).toInt(); val tx1 = floor((left + width) / TILE).toInt()
-        val ty0 = max(0, floor(top / TILE).toInt()); val ty1 = min(n - 1, floor((top + height) / TILE).toInt())
+        val left = cxW - width / 2.0 / scale
+        val top = cyW - height / 2.0 / scale
+        val tx0 = floor(left / TILE).toInt(); val tx1 = floor((left + width / scale) / TILE).toInt()
+        val ty0 = max(0, floor(top / TILE).toInt()); val ty1 = min(n - 1, floor((top + height / scale) / TILE).toInt())
+        val size = (TILE * scale).toFloat()
         for (ty in ty0..ty1) for (tx in tx0..tx1) {
             val wx = ((tx % n) + n) % n
-            val bmp = tile(zoom, wx, ty) ?: continue
-            val x = (tx * TILE - left).toFloat(); val y = (ty * TILE - top).toFloat()
-            c.drawBitmap(bmp, null, android.graphics.RectF(x, y, x + TILE, y + TILE), tilePaint)
+            val x = ((tx * TILE - left) * scale).toFloat(); val y = ((ty * TILE - top) * scale).toFloat()
+            val dst = android.graphics.RectF(x, y, x + size + 0.5f, y + size + 0.5f)
+            val bmp = tile(zoom, wx, ty)
+            if (bmp != null) { c.drawBitmap(bmp, null, dst, tilePaint); continue }
+            // While it loads, stretch the matching quarter of the tile one level out, if we have it
+            if (zoom > 0) cache.get("${zoom - 1}/${wx / 2}/${ty / 2}")?.let { parent ->
+                val half = TILE / 2
+                val sx = (wx % 2) * half; val sy = (ty % 2) * half
+                c.drawBitmap(parent, android.graphics.Rect(sx, sy, sx + half, sy + half), dst, tilePaint)
+            }
         }
 
         // You are here
