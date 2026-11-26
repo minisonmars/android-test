@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.48
+
 - Trip diary: Edit is now a small pencil at the top of a finished trip, and call, email, website and navigate are small icons in a row.
 
 ## v0.3.47
