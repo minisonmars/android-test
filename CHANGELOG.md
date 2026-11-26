@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.27
+
 - Level: new Two bubbles / One bubble button. Two bubbles shows separate spirit-level vials, a long one for side to side and an upright one for front to back, each turning green when that direction is level. The app remembers your choice
 
 ## v0.3.26
