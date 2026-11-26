@@ -21,6 +21,7 @@ class DiaryEditActivity : Activity() {
         private const val TAKE_PHOTO = 1
         private const val PICK_FILE = 2
         private const val LOCATION = 3
+        private const val MAP = 4
     }
 
     private lateinit var ui: Ui
@@ -105,8 +106,9 @@ class DiaryEditActivity : Activity() {
             ui.rowButton("Use where I am now") { useHere() },
             ui.rowButton("Find from the address") { findAddress() }
         ))
+        col.addView(ui.button(if (t.hasPlace) "Move the pin on the map" else "Choose on the map") { pickOnMap() })
         if (t.hasPlace) col.addView(ui.row(
-            ui.rowButton("Open in maps") { openMaps() },
+            ui.rowButton("Navigate (maps app)") { openMaps() },
             ui.rowButton("Remove from map", Colours.BG) { keep(); t.lat = null; t.lon = null; keep(); build() }
         ))
 
@@ -174,6 +176,13 @@ class DiaryEditActivity : Activity() {
         }
     }
 
+    private fun pickOnMap() {
+        keep()
+        // The map saves to the stored trip, so make sure it's stored even if nothing else is filled in
+        if (garage.trips.none { it.id == trip.id }) { garage.trips.add(trip); GarageStore.save(this, garage) }
+        startActivityForResult(Intent(this, SitesMapActivity::class.java).putExtra(SitesMapActivity.EXTRA_PICK_TRIP, trip.id), MAP)
+    }
+
     private fun openMaps() {
         val lat = trip.lat ?: return
         val lon = trip.lon ?: return
@@ -230,7 +239,7 @@ class DiaryEditActivity : Activity() {
                 if (found == null) Toast.makeText(this, "Couldn't find that place. Check the address, or use where you are now.", Toast.LENGTH_LONG).show()
                 else {
                     keep(); trip.lat = found.latitude; trip.lon = found.longitude; keep(); build()
-                    Toast.makeText(this, "Found it. Tap Open in maps to check it's right.", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, "Found it. Tap Move the pin on the map to check it's right.", Toast.LENGTH_LONG).show()
                 }
             }
         }.start()
@@ -292,6 +301,13 @@ class DiaryEditActivity : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
+            MAP -> if (resultCode == RESULT_OK && data != null) {
+                trip.lat = data.getDoubleExtra("lat", 0.0); trip.lon = data.getDoubleExtra("lon", 0.0)
+                if (trip.place.isBlank()) Thread {
+                    val a = addressFor(trip.lat!!, trip.lon!!)
+                    if (a != null) runOnUiThread { if (trip.place.isBlank()) { trip.place = a; keep(); build() } }
+                }.start()
+            }
             TAKE_PHOTO -> {
                 val name = pendingPhoto ?: return
                 pendingPhoto = null

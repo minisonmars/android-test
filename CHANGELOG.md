@@ -5,7 +5,7 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Trip diary: "Choose on the map" lets you place a trip's pin by tapping the OpenStreetMap map, and "Move the pin on the map" to change it. "Navigate (maps app)" opens the site in your maps app for directions.
 
 ## v0.3.43
 
