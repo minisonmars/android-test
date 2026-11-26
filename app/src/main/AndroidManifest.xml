@@ -13,6 +13,8 @@
     <!-- Only used if you choose to show reminders in a phone calendar -->
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
+    <!-- Rough location, only for the compass (sun, TV mast and satellite directions) -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <uses-feature
         android:name="android.hardware.sensor.accelerometer"
@@ -75,6 +77,11 @@
             android:name=".RemindersActivity"
             android:exported="false"
             android:screenOrientation="portrait" android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".CompassActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
 
         <receiver
             android:name=".ReminderReceiver"

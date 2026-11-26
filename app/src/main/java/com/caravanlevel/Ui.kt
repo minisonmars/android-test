@@ -134,7 +134,7 @@ object Theme {
 }
 
 /** Icons drawn in code, so they look the same on every phone. */
-enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS, CARAVAN, CAMPERVAN, MOTORHOME, CAR }
+enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS, CARAVAN, CAMPERVAN, MOTORHOME, CAR, COMPASS }
 
 class IconView(context: Context, var icon: Icon, var colour: Int = Colours.TEXT) : View(context) {
     private val painter = IconPainter()
@@ -194,6 +194,12 @@ class IconPainter {
                     c.drawPath(tick, stroke)
                     c.drawLine(50f, y, 72f, y, stroke)
                 }
+            }
+            Icon.COMPASS -> {
+                // A ring with a needle: the north half filled
+                c.drawCircle(50f, 50f, 40f, stroke)
+                c.drawPath(Path().apply { moveTo(50f, 18f); lineTo(60f, 50f); lineTo(40f, 50f); close() }, fill)
+                c.drawPath(Path().apply { moveTo(50f, 82f); lineTo(60f, 50f); lineTo(40f, 50f); close() }, stroke)
             }
             Icon.CAMPERVAN -> {
                 // A van from the side, facing right: sloping bonnet, two windows, two wheels

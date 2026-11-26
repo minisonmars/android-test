@@ -5,7 +5,7 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- New Compass page. It shows true north, and where the sun rises and sets today, with the times. It also has the direction and distance of the nearest main TV transmitters, and where to point a Freesat/Sky dish (direction, up angle and LNB skew). There's the phone's mobile signal too, with a button to Ofcom's coverage map. It uses your rough location, which stays on the phone.
 
 ## v0.3.32
 
