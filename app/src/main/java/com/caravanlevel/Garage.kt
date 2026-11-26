@@ -221,6 +221,9 @@ class Vehicle(
             }
         }
 
+        /** Standard detail lines: their names can't be changed and they can't be removed. */
+        val FIXED_DETAILS = setOf("Make", "Model", "Year", "CRiS number", "Registration")
+
         /** A new vehicle with the default checklists and detail lines for its type. */
         fun create(name: String, type: VehicleType) = Vehicle(name, type).apply {
             checklists.addAll(DefaultLists.forType(type))

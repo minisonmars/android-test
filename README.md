@@ -20,7 +20,7 @@ You can have several vehicles: caravan, campervan, motorhome or tow car. The cho
 - Mileage: odometer readings (a caravan has none, so start from 0), estimated miles per year and when you use it
 - Notes
 
-The page is read-only until you tap **Edit**; then names, values, sizes, mileage settings and notes can be changed, and lines added or removed. Tap **Done editing** when finished. Everything is saved as soon as you leave the page.
+The page is read-only until you tap **Edit**; then values, sizes, mileage settings and notes can be changed, and lines added or removed. The standard lines (Make, Model, Year, CRiS number, Registration) keep their names; only lines you add can be renamed or removed. Tap **Done editing** when finished. Everything is saved as soon as you leave the page.
 
 ## Checklists
 

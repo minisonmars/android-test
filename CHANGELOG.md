@@ -5,7 +5,7 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Vehicle info: the standard lines (Make, Model, Year, CRiS number, Registration) keep their names and can't be removed; only lines you add yourself can be renamed or removed
 
 ## v0.3.17
 

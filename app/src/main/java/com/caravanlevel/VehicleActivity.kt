@@ -142,22 +142,31 @@ class VehicleActivity : Page() {
         }
         list.toList().forEach { d ->
             val card = ui.card()
-            card.addView(ui.text("Name", 14f, Colours.MUTED))
-            val label = ui.field(d.label, example)
-            card.addView(label)
-            card.addView(ui.text("What it says", 14f, Colours.MUTED).apply { setPadding(0, ui.dp(6), 0, 0) })
-            val value = ui.field(d.value, valueHint)
-            card.addView(value)
-            card.addView(ui.button("Remove this line", Colours.RED) {
-                save()
-                list.remove(d)
-                saveAndRebuild()
-            })
-            content.addView(card)
-            commits.add {
-                d.label = label.text.toString().trim()
-                d.value = value.text.toString().trim()
+            // The standard lines (Make, Model, Year...) keep their names; only your own lines can be renamed
+            val fixed = list === vehicle.details && d.label in Vehicle.FIXED_DETAILS
+            if (fixed) {
+                card.addView(ui.text(d.label, 17f, Colours.MUTED, bold = true))
+                val value = ui.field(d.value, valueHint)
+                card.addView(value)
+                commits.add { d.value = value.text.toString().trim() }
+            } else {
+                card.addView(ui.text("Name", 14f, Colours.MUTED))
+                val label = ui.field(d.label, example)
+                card.addView(label)
+                card.addView(ui.text("What it says", 14f, Colours.MUTED).apply { setPadding(0, ui.dp(6), 0, 0) })
+                val value = ui.field(d.value, valueHint)
+                card.addView(value)
+                card.addView(ui.button("Remove this line", Colours.RED) {
+                    save()
+                    list.remove(d)
+                    saveAndRebuild()
+                })
+                commits.add {
+                    d.label = label.text.toString().trim()
+                    d.value = value.text.toString().trim()
+                }
             }
+            content.addView(card)
         }
         content.addView(ui.button("Add a line", Colours.TILE) {
             save()
