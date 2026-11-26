@@ -271,11 +271,38 @@ object GarageStore {
             }.toMutableList())
             save(ctx, g)
         }
+        if (fixTypedIntoNames(g)) save(ctx, g)
         if (g.vehicles.isEmpty()) {
             g.vehicles.add(Vehicle.create("My caravan", VehicleType.CARAVAN))
             save(ctx, g)
         }
         return g
+    }
+
+    /**
+     * Version 0.3.14 let you type over the line names, so "Make" could become "Swift"
+     * with nothing in the value. If the first three starting lines look like that, put
+     * the names back (Make, Model, Year) and move what was typed into the values.
+     */
+    private fun fixTypedIntoNames(g: Garage): Boolean {
+        var changed = false
+        val names = listOf("Make", "Model", "Year")
+        for (v in g.vehicles) {
+            if (v.details.size < 3) continue
+            val first = v.details.take(3)
+            if (first.all { it.value.isBlank() } && first.none { it.label in names } &&
+                first.all { it.label.isNotBlank() }
+            ) {
+                first.forEachIndexed { i, d ->
+                    // "Makeswift" -> "swift": drop the old name if it was typed after it
+                    val typed = d.label.removePrefix(names[i]).removePrefix(names[i].lowercase()).trim()
+                    d.value = typed.ifEmpty { d.label }
+                    d.label = names[i]
+                }
+                changed = true
+            }
+        }
+        return changed
     }
 
     /** The vehicle picked in the bar at the top of each page. */

@@ -17,39 +17,48 @@ class VehicleActivity : Page() {
 
     override fun commit() = commits.forEach { it() }
 
+    /** Read-only until you tap Edit, so nothing gets changed by accident. */
+    private var editing = false
+
     override fun build() {
         commits.clear()
         val v = vehicle
         val unit = Units.sizeUnit(this)
 
+        content.addView(if (editing) ui.button("Done editing", Colours.ACCENT) { finishEditing() }
+        else ui.button("Edit", Colours.ACCENT) { editing = true; rebuild() })
+
         // Vehicle
         content.addView(ui.heading("Vehicle"))
-        content.addView(ui.label("Name"))
-        val name = ui.field(v.name)
-        content.addView(name)
-        commits.add { name.text.toString().trim().takeIf { it.isNotEmpty() }?.let { v.name = it } }
-
-        content.addView(ui.label("Type"))
-        val types = VehicleType.values()
-        content.addView(ui.spinner(types.map { it.label }, types.indexOf(v.type)) {
-            save()
-            v.type = types[it]
-            save()
-            reload() // the name in the bar and the size names change
-        })
-
-        content.addView(ui.row(
-            ui.rowButton("Add a vehicle", Colours.TILE) { addVehicle() },
-            ui.rowButton("Delete this vehicle", Colours.RED) { deleteVehicle() }
-        ))
+        if (editing) {
+            content.addView(ui.label("Name"))
+            val name = ui.field(v.name)
+            content.addView(name)
+            commits.add { name.text.toString().trim().takeIf { it.isNotEmpty() }?.let { v.name = it } }
+            content.addView(ui.label("Type"))
+            val types = VehicleType.values()
+            content.addView(ui.spinner(types.map { it.label }, types.indexOf(v.type)) {
+                save()
+                v.type = types[it]
+                save()
+                reload() // the name in the bar and the size names change
+            })
+        } else {
+            show("Name", v.name)
+            show("Type", v.type.label)
+        }
 
         // Details
         content.addView(ui.heading("Details"))
-        detailList(v.details, "For example: Chassis number", "Type it here")
+        detailList(v.details, "For example: Chassis number", "For example: Swift")
 
         // Sizes
         content.addView(ui.heading("Sizes ($unit)"))
         fun size(label: String, get: () -> Float, set: (Float) -> Unit) {
+            if (!editing) {
+                show(label, Units.sizeText(this, get()).let { if (it.isEmpty()) "" else "$it $unit" })
+                return
+            }
             content.addView(ui.label(label))
             val f = ui.numberField(Units.sizeText(this, get()))
             content.addView(f)
@@ -68,7 +77,7 @@ class VehicleActivity : Page() {
         } else {
             size("Wheelbase: front axle centre to rear axle centre", { v.wheelbaseCm }) { v.wheelbaseCm = it }
         }
-        content.addView(ui.button("Clear the level calibration") {
+        if (editing) content.addView(ui.button("Clear the level calibration") {
             v.rollOffset = 0f
             v.pitchOffset = 0f
             save()
@@ -78,8 +87,8 @@ class VehicleActivity : Page() {
         // Equipment
         content.addView(ui.heading("Equipment"))
         content.addView(ui.text("Makes, models and serial numbers, handy for spares and repairs.", 16f, Colours.MUTED))
-        detailList(v.equipment, "For example: Fridge", "Make, model, serial number")
-        if (v.equipment.isEmpty()) {
+        detailList(v.equipment, "For example: Fridge", "For example: Thetford N4112E, serial 12345")
+        if (editing && v.equipment.isEmpty()) {
             content.addView(ui.button("Add the usual items (fridge, heater, water heater...)") {
                 save()
                 v.equipment.addAll(defaultEquipment(v.type).map { Detail(it, "") })
@@ -92,42 +101,69 @@ class VehicleActivity : Page() {
 
         // Notes
         content.addView(ui.heading("Notes"))
-        val notes = ui.multiline(v.notes, "Anything else worth remembering")
-        content.addView(notes)
-        commits.add { v.notes = notes.text.toString() }
+        if (editing) {
+            val notes = ui.multiline(v.notes, "Anything else worth remembering")
+            content.addView(notes)
+            commits.add { v.notes = notes.text.toString() }
+        } else {
+            content.addView(ui.text(v.notes.ifBlank { "None" }, 18f, if (v.notes.isBlank()) Colours.MUTED else Colours.TEXT))
+        }
+
+        if (editing) {
+            content.addView(ui.button("Done editing", Colours.ACCENT) { finishEditing() })
+            content.addView(ui.button("Delete this vehicle", Colours.RED) { deleteVehicle() })
+        } else {
+            content.addView(ui.button("Edit", Colours.ACCENT) { editing = true; rebuild() })
+        }
+        content.addView(ui.button("Add another vehicle", Colours.TILE) { addVehicle() })
+    }
+
+    private fun finishEditing() {
+        save()
+        editing = false
+        rebuild()
+    }
+
+    /** One read-only line: a small name above the value. */
+    private fun show(label: String, value: String) {
+        content.addView(ui.text(label, 15f, Colours.MUTED).apply { setPadding(0, ui.dp(10), 0, 0) })
+        content.addView(ui.text(value.ifBlank { "Not set" }, 19f, if (value.isBlank()) Colours.MUTED else Colours.TEXT))
     }
 
     /**
-     * Named lines such as "Make" or "Fridge": the name is shown above a box to type in.
-     * Rename or remove a line with the buttons under it.
+     * Named lines such as "Make: Swift" or "Fridge: Thetford N4112E". Read-only until Edit,
+     * then both the name and what it says can be changed, and lines added or removed.
      */
     private fun detailList(list: MutableList<Detail>, example: String, valueHint: String) {
+        if (!editing) {
+            if (list.isEmpty()) content.addView(ui.text("Nothing yet. Tap Edit to add some.", 17f, Colours.MUTED))
+            list.forEach { show(it.label.ifBlank { "(no name)" }, it.value) }
+            return
+        }
         list.toList().forEach { d ->
             val card = ui.card()
-            card.addView(ui.text(d.label.ifBlank { "(no name)" }, 17f, Colours.MUTED, bold = true))
+            card.addView(ui.text("Name", 14f, Colours.MUTED))
+            val label = ui.field(d.label, example)
+            card.addView(label)
+            card.addView(ui.text("What it says", 14f, Colours.MUTED).apply { setPadding(0, ui.dp(6), 0, 0) })
             val value = ui.field(d.value, valueHint)
             card.addView(value)
-            card.addView(ui.row(
-                ui.rowButton("Rename") { askName("Rename this line", d.label) { save(); d.label = it; saveAndRebuild() } },
-                ui.rowButton("Remove", Colours.RED) {
-                    save()
-                    list.remove(d)
-                    saveAndRebuild()
-                }
-            ))
+            card.addView(ui.button("Remove this line", Colours.RED) {
+                save()
+                list.remove(d)
+                saveAndRebuild()
+            })
             content.addView(card)
-            commits.add { d.value = value.text.toString().trim() }
+            commits.add {
+                d.label = label.text.toString().trim()
+                d.value = value.text.toString().trim()
+            }
         }
         content.addView(ui.button("Add a line", Colours.TILE) {
-            askName("What is it?", "", example) { save(); list.add(Detail(it, "")); saveAndRebuild() }
+            save()
+            list.add(Detail("", ""))
+            saveAndRebuild()
         })
-    }
-
-    private fun askName(title: String, current: String, hint: String = "", done: (String) -> Unit) {
-        val f = ui.field(current, hint)
-        AlertDialog.Builder(this).setTitle(title).setView(ui.column(20).apply { addView(f) })
-            .setPositiveButton("OK") { _, _ -> f.text.toString().trim().takeIf { it.isNotEmpty() }?.let(done) }
-            .setNegativeButton("Cancel", null).show()
     }
 
     private fun mileage(v: Vehicle) {
@@ -149,6 +185,11 @@ class VehicleActivity : Page() {
         }
         content.addView(ui.button("Add a mileage reading", Colours.TILE) { addReading(v) })
 
+        if (!editing) {
+            show("Estimated mileage per year", if (v.annualMiles > 0) Units.distText(this, v.annualMiles) else "")
+            show("When you use it", v.usage.label)
+            return
+        }
         content.addView(ui.label("Estimated mileage per year ($unit)"))
         val annual = ui.wholeNumberField(if (v.annualMiles > 0) Units.distNumber(this, v.annualMiles).replace(",", "") else "")
         content.addView(annual)
@@ -195,6 +236,7 @@ class VehicleActivity : Page() {
                 garage.vehicles.add(v)
                 AppPrefs.setActiveVehicle(this, v.id)
                 GarageStore.save(this, garage)
+                editing = true
                 reload()
             }
             .setNegativeButton("Cancel", null).show()
@@ -215,6 +257,7 @@ class VehicleActivity : Page() {
             garage.vehicles.remove(v)
             AppPrefs.setActiveVehicle(this, garage.vehicles[0].id)
             GarageStore.save(this, garage)
+            editing = false
             reload()
         }
     }
