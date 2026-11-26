@@ -172,6 +172,9 @@ object Updater {
     private fun install(ctx: Context, apk: File) {
         val installer = ctx.packageManager.packageInstaller
         val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+        // Android decides whether to skip the confirm screen before it reads the APK, so it
+        // needs to be told up front which app this is an update for
+        params.setAppPackageName(ctx.packageName)
         if (Build.VERSION.SDK_INT >= 31) params.setRequireUserAction(PackageInstaller.SessionParams.USER_ACTION_NOT_REQUIRED)
         val id = installer.createSession(params)
         installer.openSession(id).use { session ->
