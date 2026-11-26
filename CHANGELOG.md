@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.20
+
 - Fixed updates still asking "Do you want to update this app?". Installing this version will still ask once; updates after it shouldn't
 
 ## v0.3.19
