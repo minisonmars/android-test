@@ -92,7 +92,10 @@ class DiaryEditActivity : Activity() {
         commits.clear()
         col.removeAllViews()
         val t = trip
-        col.addView(ui.text(t.name.takeIf { !editing } ?: "Trip", 24f, bold = true))
+        val title = ui.text(t.name.takeIf { !editing } ?: "Trip", 24f, bold = true).apply {
+            layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+        }
+        col.addView(if (editing) title else ui.row(title, iconButton(Icon.EDIT) { editing = true; build() }))
         if (!editing) col.addView(ui.text(DiaryDates.of(t.startMs, t.endMs), 17f, Colours.MUTED))
 
         if (editing) {
@@ -109,7 +112,6 @@ class DiaryEditActivity : Activity() {
             }
         } else {
             garage.vehicles.firstOrNull { it.id == t.vehicleId }?.let { col.addView(ui.text("With ${it.name}", 16f, Colours.MUTED)) }
-            col.addView(ui.button("Edit this trip") { editing = true; build() })
         }
 
         col.addView(ui.heading(if (t.stops.size == 1) "Stop" else "Stops"))
@@ -174,20 +176,32 @@ class DiaryEditActivity : Activity() {
         if (contact.isNotEmpty()) box.addView(ui.text(contact.joinToString("\n"), 16f, Colours.MUTED))
         col.addView(box)
         actions(s)
-        if (s.hasPlace) col.addView(ui.button("Navigate (maps app)") { openMaps(s) })
         s.photos.forEach { name -> col.addView(photoCard(s, name, removable = false)) }
     }
 
-    /** Call, Email and Website buttons for whatever the stop has. */
+    /** A small round-cornered icon button. */
+    private fun iconButton(icon: Icon, onClick: () -> Unit) = IconView(this, icon, Colours.ACCENT).apply {
+        background = ui.rounded(Colours.CARD, 12)
+        setPadding(ui.dp(10), ui.dp(10), ui.dp(10), ui.dp(10))
+        isClickable = true
+        setOnClickListener { onClick() }
+        layoutParams = LinearLayout.LayoutParams(ui.dp(52), ui.dp(52)).apply { setMargins(0, ui.dp(4), ui.dp(10), ui.dp(4)) }
+    }
+
+    /** Call, email, website and navigate icons for whatever the stop has. */
     private fun actions(s: Stop) {
         val buttons = listOfNotNull(
-            s.phone.takeIf { it.isNotBlank() }?.let { p -> ui.rowButton("Call") { go(Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + Uri.encode(p)))) } },
-            s.email.takeIf { it.isNotBlank() }?.let { e -> ui.rowButton("Email") { go(Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$e"))) } },
+            s.phone.takeIf { it.isNotBlank() }?.let { p -> iconButton(Icon.PHONE) { go(Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + Uri.encode(p)))) } },
+            s.email.takeIf { it.isNotBlank() }?.let { e -> iconButton(Icon.EMAIL) { go(Intent(Intent.ACTION_SENDTO, Uri.parse("mailto:$e"))) } },
             s.website.takeIf { it.isNotBlank() }?.let { w ->
-                ui.rowButton("Website") { go(Intent(Intent.ACTION_VIEW, Uri.parse(if (w.startsWith("http")) w else "https://$w"))) }
-            }
+                iconButton(Icon.WEB) { go(Intent(Intent.ACTION_VIEW, Uri.parse(if (w.startsWith("http")) w else "https://$w"))) }
+            },
+            if (s.hasPlace) iconButton(Icon.NAVIGATE) { openMaps(s) } else null
         )
-        if (buttons.isNotEmpty()) col.addView(ui.row(*buttons.toTypedArray()))
+        if (buttons.isNotEmpty()) col.addView(LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            buttons.forEach { addView(it) }
+        })
     }
 
     // ---- Editing ----
@@ -213,10 +227,7 @@ class DiaryEditActivity : Activity() {
         if (s.hasPlace) {
             col.addView(ui.text("Pinned on the map", 16f, Colours.MUTED))
             col.addView(ui.button("Move the pin") { pickOnMap(s) })
-            col.addView(ui.row(
-                ui.rowButton("Navigate (maps app)") { openMaps(s) },
-                ui.rowButton("Remove pin", Colours.BG) { keep(); s.lat = null; s.lon = null; keep(); build() }
-            ))
+            col.addView(ui.button("Remove pin", Colours.BG) { keep(); s.lat = null; s.lon = null; keep(); build() })
         } else {
             col.addView(ui.text("Not on the map yet: choose the spot on the map, or find it from the address.", 16f, Colours.MUTED))
             col.addView(ui.row(

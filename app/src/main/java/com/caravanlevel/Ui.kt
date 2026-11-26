@@ -173,7 +173,7 @@ object Theme {
 }
 
 /** Icons drawn in code, so they look the same on every phone. */
-enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS, CARAVAN, CAMPERVAN, MOTORHOME, CAR, COMPASS, CALIBRATE, BUBBLE, VIALS, VOICE, SIZES, DIARY, STAR, STAR_EMPTY, LOCATE }
+enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS, CARAVAN, CAMPERVAN, MOTORHOME, CAR, COMPASS, CALIBRATE, BUBBLE, VIALS, VOICE, SIZES, DIARY, STAR, STAR_EMPTY, LOCATE, EDIT, PHONE, EMAIL, WEB, NAVIGATE }
 
 class IconView(context: Context, var icon: Icon, var colour: Int = Colours.TEXT) : View(context) {
     private val painter = IconPainter()
@@ -233,6 +233,42 @@ class IconPainter {
                     c.drawPath(tick, stroke)
                     c.drawLine(50f, y, 72f, y, stroke)
                 }
+            }
+            Icon.EDIT -> {
+                // A pencil
+                c.drawPath(Path().apply {
+                    moveTo(22f, 78f); lineTo(26f, 60f); lineTo(66f, 20f); lineTo(80f, 34f); lineTo(40f, 74f); close()
+                }, stroke)
+                c.drawLine(58f, 28f, 72f, 42f, stroke)
+                c.drawLine(14f, 88f, 86f, 88f, stroke)
+            }
+            Icon.PHONE -> {
+                // An old-style handset
+                c.drawPath(Path().apply {
+                    moveTo(24f, 14f); lineTo(38f, 14f); lineTo(44f, 32f); lineTo(34f, 40f)
+                    quadTo(44f, 60f, 60f, 66f); lineTo(68f, 56f); lineTo(86f, 62f); lineTo(86f, 76f)
+                    quadTo(84f, 88f, 70f, 86f); quadTo(18f, 76f, 14f, 30f); quadTo(14f, 16f, 24f, 14f); close()
+                }, fill)
+            }
+            Icon.EMAIL -> {
+                // An envelope
+                c.drawRoundRect(RectF(10f, 24f, 90f, 76f), 6f, 6f, stroke)
+                c.drawPath(Path().apply { moveTo(12f, 28f); lineTo(50f, 54f); lineTo(88f, 28f) }, stroke)
+            }
+            Icon.WEB -> {
+                // A globe
+                c.drawCircle(50f, 50f, 38f, stroke)
+                c.drawOval(RectF(32f, 12f, 68f, 88f), stroke)
+                c.drawLine(12f, 50f, 88f, 50f, stroke)
+                c.drawLine(18f, 30f, 82f, 30f, stroke.apply { strokeWidth = 5f })
+                c.drawLine(18f, 70f, 82f, 70f, stroke)
+                stroke.strokeWidth = 7f
+            }
+            Icon.NAVIGATE -> {
+                // A navigation arrow
+                c.drawPath(Path().apply {
+                    moveTo(86f, 14f); lineTo(14f, 46f); lineTo(46f, 54f); lineTo(54f, 86f); close()
+                }, fill)
             }
             Icon.LOCATE -> {
                 // "Where am I": a ring with a dot and four short lines
