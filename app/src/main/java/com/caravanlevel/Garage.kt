@@ -162,6 +162,7 @@ class Vehicle(
     var lengthCm = 0f       // overall length
     var bodyLengthCm = 0f   // caravan: body without the A-frame
     var widthCm = 0f
+    var mirrorWidthCm = 0f  // vans: across the wing mirrors
     var heightCm = 0f
     var trackCm = 0f        // wheel centre to wheel centre (levelling side to side)
     var hitchCm = 0f        // caravan: hitch coupling to axle centre (levelling front to back)
@@ -201,7 +202,7 @@ class Vehicle(
             .put("mileage", JSONArray().apply { mileage.forEach { put(it.json()) } })
             .put("notes", notes)
             .put("length", lengthCm.toDouble()).put("bodyLength", bodyLengthCm.toDouble())
-            .put("width", widthCm.toDouble()).put("height", heightCm.toDouble())
+            .put("width", widthCm.toDouble()).put("mirrorWidth", mirrorWidthCm.toDouble()).put("height", heightCm.toDouble())
             .put("track", trackCm.toDouble()).put("hitch", hitchCm.toDouble())
             .put("wheelbase", wheelbaseCm.toDouble())
             .put("roll", rollOffset.toDouble()).put("pitch", pitchOffset.toDouble())
@@ -241,7 +242,7 @@ class Vehicle(
                 o.optString("notes"), o.optString("id", newId())
             ).apply {
                 lengthCm = f("length"); bodyLengthCm = f("bodyLength")
-                widthCm = f("width"); heightCm = f("height")
+                widthCm = f("width"); mirrorWidthCm = f("mirrorWidth"); heightCm = f("height")
                 trackCm = f("track"); hitchCm = f("hitch"); wheelbaseCm = f("wheelbase")
                 rollOffset = f("roll"); pitchOffset = f("pitch")
                 annualMiles = o.optInt("annualMiles", 0)

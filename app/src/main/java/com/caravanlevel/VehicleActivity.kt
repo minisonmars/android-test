@@ -103,6 +103,7 @@ class VehicleActivity : Page() {
         size("length", "Overall length", { v.lengthCm }) { v.lengthCm = it }
         if (v.type == VehicleType.CARAVAN) size("bodyLength", "Body length (without the A-frame)", { v.bodyLengthCm }) { v.bodyLengthCm = it }
         size("width", "Width (body, without mirrors)", { v.widthCm }) { v.widthCm = it }
+        if (v.type.motorised) size("mirrorWidth", "Width including wing mirrors", { v.mirrorWidthCm }) { v.mirrorWidthCm = it }
         size("height", "Height", { v.heightCm }) { v.heightCm = it }
 
         content.addView(ui.heading("Levelling sizes"))

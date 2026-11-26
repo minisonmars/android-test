@@ -159,58 +159,43 @@ class BubbleView(context: Context) : View(context) {
     }
 
     /**
-     * Two spirit-level vials in the same space as the circle: a long one across for side to
-     * side, and an upright one on the right for front to back. Each bubble moves toward the
-     * high side and turns green when that direction is level.
+     * Two spirit-level vials in the same space as the circle, one above the other: side to
+     * side on top, front to back underneath (front on the right). Each bubble moves toward
+     * the high side and turns green when that direction is level.
      */
     private fun drawVials(canvas: Canvas, w: Float, cy: Float, radius: Float) {
         val tube = 48 * d
         val bubbleR = tube * 0.36f
         val margin = 20 * d
-        val gap = 28 * d
+        val left = margin
+        val right = w - margin
+        val mid = (left + right) / 2f
+        val maxMove = (right - left) / 2f - tube / 2f
 
-        // Upright vial on the right (front to back)
-        val vx = w - margin - tube / 2f
-        val vTop = cy - radius
-        val vBottom = cy + radius
-        // Long vial across the rest (side to side)
-        val hLeft = margin
-        val hRight = vx - tube / 2f - gap
-        val hy = cy
-        val hcx = (hLeft + hRight) / 2f
-
-        fun vial(l: Float, t: Float, r: Float, b: Float, level: Boolean) {
-            ring.color = if (level) green else Colours.MUTED
-            canvas.drawRoundRect(l, t, r, b, tube / 2f, tube / 2f, ring)
-        }
-
-        val sideLevel = abs(rollDeg) <= LEVEL_DEG
-        val frontLevel = abs(pitchDeg) <= LEVEL_DEG
-
-        // Side to side
-        vial(hLeft, hy - tube / 2f, hRight, hy + tube / 2f, sideLevel)
-        canvas.drawLine(hcx - bubbleR * 1.3f, hy - tube / 2f, hcx - bubbleR * 1.3f, hy + tube / 2f, cross)
-        canvas.drawLine(hcx + bubbleR * 1.3f, hy - tube / 2f, hcx + bubbleR * 1.3f, hy + tube / 2f, cross)
-        val hMax = (hRight - hLeft) / 2f - tube / 2f
-        val dx = (rollDeg / maxDisplayDeg * hMax).coerceIn(-hMax, hMax)
-        bubble.color = if (sideLevel) green else orange
-        canvas.drawCircle(hcx + dx, hy, bubbleR, bubble)
-
-        // Front to back
-        vial(vx - tube / 2f, vTop, vx + tube / 2f, vBottom, frontLevel)
-        canvas.drawLine(vx - tube / 2f, cy - bubbleR * 1.3f, vx + tube / 2f, cy - bubbleR * 1.3f, cross)
-        canvas.drawLine(vx - tube / 2f, cy + bubbleR * 1.3f, vx + tube / 2f, cy + bubbleR * 1.3f, cross)
-        val vMax = radius - tube / 2f
-        val dy = (-pitchDeg / maxDisplayDeg * vMax).coerceIn(-vMax, vMax)
-        bubble.color = if (frontLevel) green else orange
-        canvas.drawCircle(vx, cy + dy, bubbleR, bubble)
-
-        // Labels
         text.typeface = Typeface.DEFAULT
         text.textSize = 13 * d
-        text.color = Colours.MUTED
-        canvas.drawText("Side to side", hcx, hy + tube / 2f + 20 * d, text)
-        canvas.drawText("Front", vx, vTop - 8 * d, text)
-        canvas.drawText("Back", vx, vBottom + 18 * d, text)
+
+        fun vial(y: Float, deg: Float, title: String, lowEnd: String, highEnd: String) {
+            val level = abs(deg) <= LEVEL_DEG
+            ring.color = if (level) green else Colours.MUTED
+            canvas.drawRoundRect(left, y - tube / 2f, right, y + tube / 2f, tube / 2f, tube / 2f, ring)
+            canvas.drawLine(mid - bubbleR * 1.3f, y - tube / 2f, mid - bubbleR * 1.3f, y + tube / 2f, cross)
+            canvas.drawLine(mid + bubbleR * 1.3f, y - tube / 2f, mid + bubbleR * 1.3f, y + tube / 2f, cross)
+            val dx = (deg / maxDisplayDeg * maxMove).coerceIn(-maxMove, maxMove)
+            bubble.color = if (level) green else orange
+            canvas.drawCircle(mid + dx, y, bubbleR, bubble)
+
+            text.color = Colours.MUTED
+            val ty = y - tube / 2f - 8 * d
+            canvas.drawText(title, mid, ty, text)
+            text.textAlign = Paint.Align.LEFT
+            canvas.drawText(lowEnd, left + 4 * d, ty, text)
+            text.textAlign = Paint.Align.RIGHT
+            canvas.drawText(highEnd, right - 4 * d, ty, text)
+            text.textAlign = Paint.Align.CENTER
+        }
+
+        vial(cy - radius * 0.42f, rollDeg, "Side to side", "Left", "Right")
+        vial(cy + radius * 0.58f, pitchDeg, "Front to back", "Back", "Front")
     }
 }
