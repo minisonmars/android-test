@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.47
+
 - Trip diary: removed "Address from the pin", which wasn't working.
 
 ## v0.3.46
