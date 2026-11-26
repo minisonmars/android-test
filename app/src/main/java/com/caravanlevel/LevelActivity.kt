@@ -153,7 +153,10 @@ class LevelActivity : Activity(), SensorEventListener {
         vehicle = GarageStore.active(this, garage)
         inches = AppPrefs.inches(this)
         // The Sizes button is only needed until the levelling sizes are set
-        sizesButton.view.visibility = if (vehicle.trackCm > 0f && vehicle.lengthForLevel > 0f) View.GONE else View.VISIBLE
+        val sized = vehicle.trackCm > 0f && vehicle.lengthForLevel > 0f
+        sizesButton.view.visibility = if (sized) View.GONE else View.VISIBLE
+        // Without sizes the orange lines already give the degrees, so don't repeat them
+        bubbleView.showAngles = sized
         bubbleView.hint = ""
         barHolder.removeAllViews()
         barHolder.addView(VehicleBar.make(ui, garage, vehicle) {

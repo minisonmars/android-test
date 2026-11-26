@@ -5,7 +5,8 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Compass: the Sunrise and Sunset words now sit clear of the compass ring.
+- Level: with no levelling sizes set, the degrees are only shown once, in the bigger orange lines.
 
 ## v0.3.40
 

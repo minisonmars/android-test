@@ -30,6 +30,8 @@ class BubbleView(context: Context) : View(context) {
     var sideText = ""
     var frontText = ""
     var hint = ""
+    /** The small written angles; hidden when the instructions already give degrees. */
+    var showAngles = true
     var profileLabel = ""
 
     /** false = one round bubble for both directions; true = two straight vials, one per direction. */
@@ -126,13 +128,15 @@ class BubbleView(context: Context) : View(context) {
         var y = cy + radius + extra + 38 * d
         val rollSide = if (abs(shownRoll) < 0.05f) "" else if (shownRoll > 0) " (right high)" else " (left high)"
         val pitchSide = if (abs(shownPitch) < 0.05f) "" else if (shownPitch > 0) " (front high)" else " (rear high)"
-        text.typeface = Typeface.DEFAULT
-        text.textSize = 21 * d
-        text.color = Colours.TEXT
-        canvas.drawText("Side: %.1f°%s".format(abs(shownRoll), rollSide), cx, y, text)
-        y += 30 * d
-        canvas.drawText("Front/back: %.1f°%s".format(abs(shownPitch), pitchSide), cx, y, text)
-        y += 44 * d
+        if (showAngles) {
+            text.typeface = Typeface.DEFAULT
+            text.textSize = 21 * d
+            text.color = Colours.TEXT
+            canvas.drawText("Side: %.1f°%s".format(abs(shownRoll), rollSide), cx, y, text)
+            y += 30 * d
+            canvas.drawText("Front/back: %.1f°%s".format(abs(shownPitch), pitchSide), cx, y, text)
+            y += 44 * d
+        }
 
         // Instructions
         text.typeface = Typeface.DEFAULT_BOLD

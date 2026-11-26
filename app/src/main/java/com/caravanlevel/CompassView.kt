@@ -72,9 +72,7 @@ class CompassView(context: Context) : View(context) {
             c.drawText(s, x, y + 9 * d, text)
             c.restore()
         }
-        // Markers just outside the ring, with a line in from the edge
-        text.typeface = Typeface.DEFAULT_BOLD
-        text.textSize = 13 * d
+        // Markers on the ring, with a line in from the edge
         markers.forEach { m ->
             val a = Math.toRadians(m.deg)
             ring.color = m.colour
@@ -83,14 +81,23 @@ class CompassView(context: Context) : View(context) {
             c.drawLine(cx + (r - 60 * d) * sx, cy - (r - 60 * d) * sy, cx + r * sx, cy - r * sy, ring)
             fill.color = m.colour
             c.drawCircle(cx + r * sx, cy - r * sy, 7 * d, fill)
-            val lx = cx + (r + 20 * d) * sx
-            val ly = cy - (r + 20 * d) * sy
-            text.color = m.colour
-            c.save(); c.rotate(heading, lx, ly)
-            c.drawText(m.label, lx, ly + 5 * d, text)
-            c.restore()
         }
         c.restore()
+
+        // Labels outside the ring, worked out on the screen (not turned with the card) and
+        // pushed out by their own size so they never sit on the ring
+        text.typeface = Typeface.DEFAULT_BOLD
+        text.textSize = 13 * d
+        markers.forEach { m ->
+            val a = Math.toRadians(m.deg - heading)
+            val sx = sin(a).toFloat(); val sy = cos(a).toFloat()
+            val halfW = text.measureText(m.label) / 2f
+            val halfH = 7 * d
+            val lx = cx + (r + 12 * d) * sx + (halfW + 2 * d) * sx
+            val ly = cy - (r + 12 * d) * sy - (halfH + 2 * d) * sy
+            text.color = m.colour
+            c.drawText(m.label, lx, ly + 5 * d, text)
+        }
 
         // Middle: the heading in figures
         text.typeface = Typeface.DEFAULT_BOLD
