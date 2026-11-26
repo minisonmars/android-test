@@ -92,7 +92,7 @@ class VehicleActivity : Page() {
             val units = SizeUnit.values()
             var chosen = u
             val spin = ui.spinner(units.map { it.label }, units.indexOf(u)) { chosen = units[it] }.apply {
-                layoutParams = LinearLayout.LayoutParams(ui.dp(110), ViewGroup.LayoutParams.WRAP_CONTENT)
+                layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT)
             }
             content.addView(ui.row(f, spin))
             commits.add {

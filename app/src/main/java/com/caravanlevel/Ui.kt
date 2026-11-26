@@ -303,9 +303,12 @@ class Ui(val ctx: Activity) {
     fun spinner(items: List<String>, selected: Int, onPick: (Int) -> Unit) = Spinner(ctx).apply {
         // Our own rows, so big text is never cut off (the built-in rows have a fixed height)
         val ad = object : ArrayAdapter<String>(ctx, android.R.layout.simple_spinner_item, items) {
-            private fun row(position: Int, convertView: View?, padV: Int, colour: Int): View =
+            private fun row(position: Int, convertView: View?, padV: Int, colour: Int, oneLine: Boolean): View =
                 ((convertView as? TextView) ?: TextView(ctx)).apply {
                     text = getItem(position)
+                    // The chosen item stays on one line; the open list can wrap long items
+                    isSingleLine = oneLine
+                    ellipsize = if (oneLine) android.text.TextUtils.TruncateAt.END else null
                     textSize = 20f
                     setTextColor(colour)
                     minHeight = dp(52)
@@ -317,10 +320,10 @@ class Ui(val ctx: Activity) {
                 }
 
             override fun getView(position: Int, convertView: View?, parent: ViewGroup): View =
-                row(position, convertView, 10, Colours.TEXT)
+                row(position, convertView, 10, Colours.TEXT, true)
 
             override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View =
-                row(position, convertView, 14, Colours.TEXT)
+                row(position, convertView, 14, Colours.TEXT, false)
         }
         adapter = ad
         setSelection(selected.coerceIn(0, (items.size - 1).coerceAtLeast(0)))

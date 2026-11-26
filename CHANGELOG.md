@@ -5,7 +5,7 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Vehicle info: the unit drop-downs next to each size now show on one line.
 
 ## v0.3.29
 
