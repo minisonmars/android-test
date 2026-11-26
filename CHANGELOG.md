@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.15
+
 - Drop-down lists now show their options in full (the text was cut off)
 - Vehicle info: each line (Make, Model, Fridge...) now shows its name above an empty box to type in, instead of a box with the name already in it. Use Rename or Remove under a line, and Add a line asks for the name first
 
