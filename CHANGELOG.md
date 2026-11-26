@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.29
+
 - Vehicle info: "Fill in from a known model" now also has Swift 2021 and 2025 caravans and Bailey 2017 (Pursuit, Pegasus and most Unicorns). Figures are the makers' published ones, so check them against your own caravan's plate.
 
 ## v0.3.27
