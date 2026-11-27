@@ -134,37 +134,73 @@ class ServiceEditActivity : Activity() {
         })
     }
 
-    /** A reminder for the next service: this record's date plus N months (and miles for vans). */
+    /**
+     * A reminder for the next one: either on an exact date (e.g. the MOT deadline) or this
+     * record's date plus N months (and/or miles for vans).
+     */
     private fun nextReminder() {
         val r = record
         val box = ui.column(20)
         box.addView(ui.label("What"))
         val title = ui.field(r.title.ifBlank { "Service" }, "For example: Habitation service")
         box.addView(title)
-        box.addView(ui.label("Next one due after ... months"))
-        val months = ui.wholeNumberField("12")
-        box.addView(months)
+
         val byMiles = vehicle.type.motorised
         val unit = Units.distUnit(this)
+        var onDate = false
+        var dateMs: Long? = null
+
+        val dateBtn = ui.button("") {}
+        fun showDate() { dateBtn.text = dateMs?.let { "Due on ${Units.date(it)}" } ?: "Pick the date" }
+        showDate()
+        dateBtn.setOnClickListener { ui.pickDate(dateMs ?: Units.addMonths(r.dateMs, 12)) { dateMs = it; showDate() } }
+        val repeatLabel = ui.label("Then repeat every ... months (optional)")
+        val repeat = ui.wholeNumberField("12")
+
+        val monthsLabel = ui.label("Due ... months after this one")
+        val months = ui.wholeNumberField("12")
+        val milesLabel = ui.label("and/or ... $unit after this one" + (r.mileage?.let { " (this one was at ${Units.distNumber(this, it)})" } ?: ""))
         val miles = ui.wholeNumberField("", "Optional, for example 10000")
-        if (byMiles) {
-            box.addView(ui.label("or after ... $unit" + (r.mileage?.let { " (this one was at ${Units.distNumber(this, it)})" } ?: "")))
-            box.addView(miles)
+
+        val dateViews = listOf(dateBtn, repeatLabel, repeat)
+        val gapViews = listOf(monthsLabel, months) + if (byMiles) listOf(milesLabel, miles) else emptyList()
+        fun showMode() {
+            dateViews.forEach { it.visibility = if (onDate) android.view.View.VISIBLE else android.view.View.GONE }
+            gapViews.forEach { it.visibility = if (onDate) android.view.View.GONE else android.view.View.VISIBLE }
         }
+        box.addView(ui.label("When is the next one due?"))
+        box.addView(ui.spinner(listOf(
+            if (byMiles) "After a number of months or $unit" else "After a number of months",
+            "On a set date (e.g. MOT deadline)"), 0) { onDate = it == 1; showMode() })
+        (dateViews + gapViews).forEach { box.addView(it) }
+        showMode()
+
         android.app.AlertDialog.Builder(this)
             .setTitle("Reminder for the next one")
             .setView(ScrollView(this).apply { addView(box) })
             .setPositiveButton("Set reminder") { _, _ ->
-                val m = months.text.toString().toIntOrNull() ?: 0
-                val every = if (byMiles) Units.parseDist(this, miles.text.toString()) ?: 0 else 0
-                val dueMs = if (m > 0) Units.addMonths(Units.startOfDay(r.dateMs), m) + 12 * 3600_000L else null
-                val dueMiles = if (every > 0 && r.mileage != null) r.mileage!! + every else null
+                val dueMs: Long?
+                val dueMiles: Int?
+                val everyMonths: Int
+                val everyMiles: Int
+                if (onDate) {
+                    dueMs = dateMs
+                    dueMiles = null
+                    everyMonths = repeat.text.toString().toIntOrNull() ?: 0
+                    everyMiles = 0
+                } else {
+                    everyMonths = months.text.toString().toIntOrNull() ?: 0
+                    everyMiles = if (byMiles) Units.parseDist(this, miles.text.toString()) ?: 0 else 0
+                    dueMs = if (everyMonths > 0) Units.addMonths(Units.startOfDay(r.dateMs), everyMonths) + 12 * 3600_000L else null
+                    dueMiles = if (everyMiles > 0 && r.mileage != null) r.mileage!! + everyMiles else null
+                }
                 if (dueMs == null && dueMiles == null) {
-                    Toast.makeText(this, "Enter months" + (if (byMiles) " or a mileage" else ""), Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, if (onDate) "Pick the date first" else
+                        "Enter months" + (if (byMiles) " or a mileage (and this record's mileage)" else ""), Toast.LENGTH_LONG).show()
                     return@setPositiveButton
                 }
                 val name = title.text.toString().trim().ifEmpty { "Service" }
-                val moved = vehicle.setReminder(name, dueMs, dueMiles, m, every)
+                val moved = vehicle.setReminder(name, dueMs, dueMiles, everyMonths, everyMiles)
                 GarageStore.save(this, garage)
                 Reminders.checkNow(this)
                 val due = listOfNotNull(dueMs?.let { Units.date(it) }, dueMiles?.let { "${Units.distNumber(this, it)} $unit" }).joinToString(" or ")

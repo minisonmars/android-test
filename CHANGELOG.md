@@ -5,7 +5,7 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- The "next one" reminder from a service record can be set for an exact date (for example the MOT deadline), or a number of months and/or miles after the service.
 
 ## v0.3.57
 
