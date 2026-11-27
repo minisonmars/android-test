@@ -145,6 +145,7 @@
         <!-- Android Auto (text screens: sizes, level, compass, checklists) -->
         <service
             android:name=".CarService"
+            android:enabled="false"
             android:exported="true">
             <intent-filter>
                 <action android:name="androidx.car.app.CarAppService" />

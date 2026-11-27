@@ -83,16 +83,6 @@ class SettingsActivity : Activity() {
             })
         }
 
-        // Android Auto
-        col.addView(ui.heading("Android Auto"))
-        col.addView(ui.text("On the car screen the app shows vehicle sizes, the level, the compass and checklists, as text. It uses the phone's sensors, so keep the phone in a fixed holder and tap Calibrate on the car screen once, parked on level ground.\n\n" +
-            "Because the app isn't from the Play Store, Android Auto hides it until you allow it:\n" +
-            "1. Open Android Auto's settings on the phone (Settings > Connected devices > Connection preferences > Android Auto).\n" +
-            "2. Tap \"Version\" at the bottom about 10 times and say OK to developer mode.\n" +
-            "3. Tap the three dots at the top right > Developer settings, and tick \"Unknown sources\".\n" +
-            "4. Reconnect to the car. Caravan Leveller appears in the car's app list.\n" +
-            "Menu names can vary a little between Android Auto versions.", 15f, Colours.MUTED))
-
         // Automatic backup
         col.addView(ui.heading("Automatic backup"))
         autoStatus = ui.text("", 17f)
@@ -129,6 +119,24 @@ class SettingsActivity : Activity() {
                 try { startActivityForResult(i, RESTORE) } catch (_: Exception) { toast("No file picker found") }
             }
         })
+
+        // Experimental: features still being tried out
+        col.addView(ui.heading("Experimental"))
+        col.addView(ui.text("Features still being tried out. They may change or not work on every phone.", 16f, Colours.MUTED))
+
+        col.addView(ui.label("Ask AI"))
+        col.addView(ui.text("Share your vehicle's details with an AI app (Claude, Gemini, ChatGPT...) to help troubleshoot a problem. You choose what's included, and the app you pick handles it under its own privacy policy.", 15f, Colours.MUTED))
+        col.addView(ui.button("Ask AI about this vehicle") { AskAi.show(this) })
+
+        col.addView(ui.label("Android Auto"))
+        col.addView(switch("Show the app on Android Auto", CarSwitch.on(this)) { CarSwitch.set(this, it) })
+        col.addView(ui.text("On the car screen the app shows vehicle sizes, the level, the compass and checklists, as text. It uses the phone's sensors, so keep the phone in a fixed holder and tap Calibrate on the car screen once, parked on level ground.\n\n" +
+            "To use it, switch on \"Show the app on Android Auto\" above. Because the app isn't from the Play Store, Android Auto also hides it until you allow it:\n" +
+            "1. Open Android Auto's settings on the phone (Settings > Connected devices > Connection preferences > Android Auto).\n" +
+            "2. Tap \"Version\" at the bottom about 10 times and say OK to developer mode.\n" +
+            "3. Tap the three dots at the top right > Developer settings, and tick \"Unknown sources\".\n" +
+            "4. Reconnect to the car. Caravan Leveller appears in the car's app list.\n" +
+            "Menu names can vary a little between Android Auto versions.", 15f, Colours.MUTED))
 
         // App updates: same layout as in all the other apps
         col.addView(ui.heading("Updates"))
