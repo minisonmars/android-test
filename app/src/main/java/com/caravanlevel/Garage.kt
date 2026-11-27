@@ -49,10 +49,27 @@ fun newId(): String = UUID.randomUUID().toString()
 
 /** A named detail, e.g. "Fridge" = "Thetford N4112E, serial 1234". */
 class Detail(var label: String, var value: String) {
-    fun json() = JSONObject().put("label", label).put("value", value)
+    // Equipment only: fitted after the vehicle was built, and its purchase details
+    var aftermarket = false
+    var installedMs: Long? = null
+    var cost = ""            // kept as typed, e.g. "450.00"
+    var warrantyMonths = 0
+
+    /** When the warranty ends, or null if not known. */
+    val warrantyEndMs get() = installedMs?.takeIf { warrantyMonths > 0 }?.let { Units.addMonths(it, warrantyMonths) }
+
+    fun json() = JSONObject().put("label", label).put("value", value).apply {
+        if (aftermarket) put("aftermarket", true).put("installed", installedMs ?: JSONObject.NULL)
+            .put("cost", cost).put("warrantyMonths", warrantyMonths)
+    }
 
     companion object {
-        fun from(o: JSONObject) = Detail(o.optString("label"), o.optString("value"))
+        fun from(o: JSONObject) = Detail(o.optString("label"), o.optString("value")).apply {
+            aftermarket = o.optBoolean("aftermarket", false)
+            installedMs = o.optLongOrNull("installed")
+            cost = o.optString("cost")
+            warrantyMonths = o.optInt("warrantyMonths", 0)
+        }
     }
 }
 

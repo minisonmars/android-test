@@ -264,7 +264,8 @@ class VehicleActivity : Page() {
             return
         }
         content.addView(ui.label("Tyre size (on the sidewall, e.g. 185/80 R14 C)"))
-        val size = ui.field(v.tyreSize, "For example: 185/80 R14 C")
+        val size = ui.field(v.tyreSize, "For example: 185/80 R14 C", android.text.InputType.TYPE_CLASS_TEXT or
+            android.text.InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS or android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS)
         content.addView(size)
         content.addView(ui.label("Pressure unit"))
         var bar = v.tyreBar
@@ -329,7 +330,26 @@ class VehicleActivity : Page() {
     private fun detailList(list: MutableList<Detail>, example: String, valueHint: String) {
         if (!editing) {
             if (list.isEmpty()) content.addView(ui.text("Nothing yet. Tap Edit to add some.", 17f, Colours.MUTED))
-            list.forEach { show(it.label.ifBlank { "(no name)" }, it.value) }
+            list.forEach { d ->
+                show(d.label.ifBlank { "(no name)" }, d.value)
+                if (list === vehicle.equipment) {
+                    val bits = mutableListOf(if (d.aftermarket) "Aftermarket" else "Factory fitted")
+                    if (d.aftermarket) {
+                        d.installedMs?.let { bits.add("fitted ${Units.date(it)}") }
+                        d.cost.takeIf { it.isNotBlank() }?.let { bits.add(Units.money(it)) }
+                    }
+                    content.addView(ui.text(bits.joinToString("  ·  "), 15f, Colours.MUTED))
+                    val end = d.warrantyEndMs
+                    if (d.aftermarket && d.warrantyMonths > 0) {
+                        val text = when {
+                            end == null -> "Warranty ${d.warrantyMonths} months"
+                            end < System.currentTimeMillis() -> "Warranty ended ${Units.date(end)}"
+                            else -> "Under warranty until ${Units.date(end)}"
+                        }
+                        content.addView(ui.text(text, 15f, if (end != null && end >= System.currentTimeMillis()) Colours.ACCENT else Colours.MUTED))
+                    }
+                }
+            }
             return
         }
         list.toList().forEach { d ->
@@ -338,7 +358,14 @@ class VehicleActivity : Page() {
             val fixed = list === vehicle.details && d.label in Vehicle.FIXED_DETAILS
             if (fixed) {
                 card.addView(ui.text(d.label, 17f, Colours.MUTED, bold = true))
-                val value = ui.field(d.value, valueHint)
+                val value = when (d.label) {
+                    "Year" -> ui.wholeNumberField(d.value, "For example: 2021")
+                    "Registration", "CRiS number", Vehicle.VIN -> ui.field(d.value, "", android.text.InputType.TYPE_CLASS_TEXT or
+                        android.text.InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS or android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS).apply {
+                        filters = arrayOf(android.text.InputFilter.AllCaps())
+                    }
+                    else -> ui.field(d.value, valueHint)
+                }
                 card.addView(value)
                 commits.add { d.value = value.text.toString().trim() }
             } else {
@@ -348,6 +375,7 @@ class VehicleActivity : Page() {
                 card.addView(ui.text("What it says", 14f, Colours.MUTED).apply { setPadding(0, ui.dp(6), 0, 0) })
                 val value = ui.field(d.value, valueHint)
                 card.addView(value)
+                if (list === vehicle.equipment) equipmentExtras(card, d)
                 card.addView(ui.iconRow(ui.binButton {
                     save()
                     list.remove(d)
@@ -365,6 +393,40 @@ class VehicleActivity : Page() {
             list.add(Detail("", ""))
             saveAndRebuild()
         })
+    }
+
+    /** Factory fitted or aftermarket; aftermarket items get date fitted, cost and warranty. */
+    private fun equipmentExtras(card: LinearLayout, d: Detail) {
+        val extras = ui.column(0)
+        val after = android.widget.CheckBox(this).apply {
+            text = "Aftermarket (added after it was built)"
+            textSize = 17f
+            setTextColor(Colours.TEXT)
+            isChecked = d.aftermarket
+            setPadding(0, ui.dp(8), 0, ui.dp(8))
+        }
+        card.addView(after)
+        var installed = d.installedMs
+        val dateBtn = ui.button("") {}
+        fun showDate() { dateBtn.text = installed?.let { "Fitted: ${Units.date(it)}" } ?: "Date fitted (tap to set)" }
+        showDate()
+        dateBtn.setOnClickListener { ui.pickDate(installed) { installed = it; showDate() } }
+        extras.addView(dateBtn)
+        extras.addView(ui.text("Cost (£)", 14f, Colours.MUTED))
+        val cost = ui.numberField(d.cost, "0.00")
+        extras.addView(cost)
+        extras.addView(ui.text("Warranty (months)", 14f, Colours.MUTED))
+        val warranty = ui.wholeNumberField(if (d.warrantyMonths > 0) d.warrantyMonths.toString() else "", "For example: 24")
+        extras.addView(warranty)
+        card.addView(extras)
+        extras.visibility = if (d.aftermarket) android.view.View.VISIBLE else android.view.View.GONE
+        after.setOnCheckedChangeListener { _, on -> extras.visibility = if (on) android.view.View.VISIBLE else android.view.View.GONE }
+        commits.add {
+            d.aftermarket = after.isChecked
+            d.installedMs = installed
+            d.cost = cost.text.toString().trim()
+            d.warrantyMonths = warranty.text.toString().trim().toIntOrNull() ?: 0
+        }
     }
 
     private fun mileage(v: Vehicle) {
