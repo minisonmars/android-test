@@ -107,7 +107,7 @@ class SettingsActivity : Activity() {
 
         // Backup
         col.addView(ui.heading("Backup to a file"))
-        col.addView(ui.text("Saves everything (vehicles, checklists, service records with their photos and files, reminders and settings) in one file. You choose where: Google Drive, OneDrive, the phone or anywhere else the phone offers.", 16f, Colours.MUTED))
+        col.addView(ui.text("Saves everything (vehicles, checklists, services and repairs with their photos and files, reminders and settings) in one file. You choose where: Google Drive, OneDrive, the phone or anywhere else the phone offers.", 16f, Colours.MUTED))
         col.addView(ui.button("Back up to a file", Colours.ACCENT) {
             val i = Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE)
                 .setType("application/zip").putExtra(Intent.EXTRA_TITLE, Backup.fileName())

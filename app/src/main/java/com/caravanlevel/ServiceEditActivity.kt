@@ -82,7 +82,7 @@ class ServiceEditActivity : Activity() {
         commits.clear()
         col.removeAllViews()
         val r = record
-        col.addView(ui.text("Service record", 24f, bold = true))
+        col.addView(ui.text("Service or repair", 24f, bold = true))
         col.addView(ui.text("${vehicle.name} (${vehicle.type.label})", 17f, Colours.ACCENT))
 
         col.addView(ui.label("Date"))
@@ -154,7 +154,7 @@ class ServiceEditActivity : Activity() {
         val r = record
         val box = ui.column(20)
         box.addView(ui.label("What"))
-        val title = ui.field(r.title.ifBlank { "Service" }, "For example: Habitation service")
+        val title = ui.field(r.title.ifBlank { "Service" }, "For example: Habitation service, or new water pump")
         box.addView(title)
 
         val byMiles = vehicle.type.motorised

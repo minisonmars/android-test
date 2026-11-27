@@ -13,7 +13,7 @@ enum class Section(val label: String, val icon: Icon) {
     COMPASS("Compass", Icon.COMPASS),
     CHECKLISTS("Checklists", Icon.CHECKLIST),
     VEHICLE("Vehicle info", Icon.VEHICLE),
-    SERVICE("Service records", Icon.SERVICE),
+    SERVICE("Service and repairs", Icon.SERVICE),
     REMINDERS("Reminders", Icon.REMINDER),
     DIARY("Trip diary", Icon.DIARY),
     HELP("Troubleshooting", Icon.HELP);

@@ -7,7 +7,7 @@ class ServiceActivity : Page() {
     override val section = Section.SERVICE
 
     override fun build() {
-        content.addView(ui.button("Add a service record", Colours.ACCENT) { edit(null) })
+        content.addView(ui.button("Add a service or repair", Colours.ACCENT) { edit(null) })
 
         val list = vehicle.services.sortedByDescending { it.dateMs }
         if (list.isEmpty()) {

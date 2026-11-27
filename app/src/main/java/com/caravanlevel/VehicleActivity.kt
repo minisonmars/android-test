@@ -751,7 +751,7 @@ class VehicleActivity : Page() {
         }
         ui.confirm(
             "Delete ${vehicle.name}?",
-            "Its details, checklists, service records, photos, documents and reminders will all be deleted. This can't be undone.",
+            "Its details, checklists, services and repairs, photos, documents and reminders will all be deleted. This can't be undone.",
             "Delete"
         ) {
             val v = vehicle

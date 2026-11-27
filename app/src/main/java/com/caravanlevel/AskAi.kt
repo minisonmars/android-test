@@ -6,7 +6,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.widget.CheckBox
 import android.widget.ScrollView
 
 /** Android Auto on or off: the car screens are only offered while the service is enabled. */
@@ -31,21 +30,28 @@ object AskAi {
         box.addView(ui.label("What's the problem? (optional)"))
         val question = ui.multiline("", "For example: The fridge won't work on gas")
         box.addView(question)
-        fun tick(label: String, on: Boolean) = CheckBox(a).apply {
-            text = label; textSize = 17f; setTextColor(Colours.TEXT); isChecked = on
+        // switches remember what you chose last time
+        val prefs = a.getSharedPreferences("askai", Context.MODE_PRIVATE)
+        fun tick(key: String, label: String, on: Boolean) = android.widget.Switch(a).apply {
+            text = label; textSize = 17f; setTextColor(Colours.TEXT); isChecked = prefs.getBoolean(key, on)
+            setPadding(0, ui.dp(6), 0, ui.dp(6))
         }.also { box.addView(it) }
-        box.addView(ui.label("Include"))
-        val details = tick("Make, model, sizes, weights and tyres", true)
-        val equipment = tick("Equipment", true)
-        val services = tick("Service history", true)
-        val reminders = tick("Reminders", false)
-        val notes = tick("Notes", true)
-        val ids = tick("Registration, CRiS and VIN numbers", false)
+        box.addView(ui.label("Choose what to share"))
+        val details = tick("details", "Vehicle details: make, model, sizes, weights, tyres", true)
+        val equipment = tick("equipment", "Equipment", true)
+        val services = tick("services", "Services and repairs", true)
+        val reminders = tick("reminders", "Reminders", false)
+        val notes = tick("notes", "Notes", true)
+        val ids = tick("ids", "Registration, CRiS and VIN numbers", false)
+        fun remember() = prefs.edit().putBoolean("details", details.isChecked).putBoolean("equipment", equipment.isChecked)
+            .putBoolean("services", services.isChecked).putBoolean("reminders", reminders.isChecked)
+            .putBoolean("notes", notes.isChecked).putBoolean("ids", ids.isChecked).apply()
 
         AlertDialog.Builder(a)
             .setTitle("Ask AI about ${v.name}")
             .setView(ScrollView(a).apply { addView(box) })
             .setPositiveButton("Share to an AI app") { _, _ ->
+                remember()
                 val text = build(a, v, question.text.toString().trim(), details.isChecked, equipment.isChecked,
                     services.isChecked, reminders.isChecked, notes.isChecked, ids.isChecked)
                 val send = Intent(Intent.ACTION_SEND).setType("text/plain")
@@ -89,7 +95,7 @@ object AskAi {
             }
         }
         if (services && v.services.isNotEmpty()) {
-            appendLine(); appendLine("SERVICE HISTORY (newest first)")
+            appendLine(); appendLine("SERVICES AND REPAIRS (newest first)")
             v.services.sortedByDescending { it.dateMs }.forEach { r ->
                 append("${Units.date(r.dateMs)}: ${r.title.ifBlank { "Service" }}")
                 if (r.who.isNotBlank()) append(" by ${r.who}")
