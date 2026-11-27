@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.68
+
 - New Experimental part in Settings.
 - Ask AI (experimental): writes your vehicle's details (you choose what: sizes and weights, equipment, service history, reminders, notes, registration numbers) as text and shares it to an AI app such as Claude, Gemini or ChatGPT, with your question, to help troubleshoot.
 - Android Auto has moved to Experimental with an on/off switch (off to start with).
