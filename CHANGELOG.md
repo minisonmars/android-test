@@ -5,7 +5,7 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Ticking Done on a repeating reminder now opens a box showing the next due date (and mileage for vans and cars). You can pick a different date or change how often it repeats, or stop it repeating.
 
 ## v0.3.59
 

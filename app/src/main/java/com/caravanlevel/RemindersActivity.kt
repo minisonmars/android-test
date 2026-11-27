@@ -136,14 +136,74 @@ class RemindersActivity : Page() {
     }
 
     private fun done(r: Reminder) {
-        if (Due.complete(vehicle, r)) {
-            saveAndRebuild()
-        } else {
+        if (r.repeatMonths <= 0 && r.repeatMiles <= 0) {
             ui.confirm("Done: ${r.title}", "This reminder doesn't repeat, so it will be removed.", "Remove") {
                 vehicle.reminders.remove(r)
                 saveAndRebuild()
             }
+            return
         }
+        // Repeating: suggest the next one and let the date, months or miles be changed first
+        val v = vehicle
+        val box = ui.column(20)
+        val today = Units.startOfDay(System.currentTimeMillis())
+        var dateMs: Long? = if (r.repeatMonths > 0) Units.addMonths(today, r.repeatMonths) + 12 * 3600_000L else null
+        var picked = false
+        val dateBtn = ui.button("") {}
+        fun showDate() { dateBtn.text = dateMs?.let { "Next due: ${Units.date(it)}" } ?: "Next due date: none (tap to set)" }
+        showDate()
+        dateBtn.setOnClickListener { ui.pickDate(dateMs) { dateMs = it; picked = true; showDate() } }
+        val months = ui.wholeNumberField(if (r.repeatMonths > 0) r.repeatMonths.toString() else "", "Repeat every ... months")
+        months.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(a: CharSequence?, b: Int, c: Int, d: Int) {}
+            override fun onTextChanged(a: CharSequence?, b: Int, c: Int, d: Int) {}
+            override fun afterTextChanged(e: android.text.Editable?) {
+                if (picked) return
+                val m = e.toString().toIntOrNull() ?: 0
+                dateMs = if (m > 0) Units.addMonths(today, m) + 12 * 3600_000L else null
+                showDate()
+            }
+        })
+        box.addView(ui.text("Next one", 18f, bold = true))
+        box.addView(dateBtn)
+        box.addView(ui.label("Repeat every ... months"))
+        box.addView(months)
+
+        val byMiles = v.type.motorised
+        val unit = Units.distUnit(this)
+        val now = Mileage.estimateNow(v)
+        val nextMiles = ui.wholeNumberField(
+            if (r.repeatMiles > 0) Units.distNumber(this, (now ?: r.dueMiles ?: 0) + r.repeatMiles).replace(",", "") else "",
+            "Optional")
+        val everyMiles = ui.wholeNumberField(if (r.repeatMiles > 0) Units.distNumber(this, r.repeatMiles).replace(",", "") else "", "Optional")
+        if (byMiles) {
+            box.addView(ui.label("Next due at mileage ($unit)" + (now?.let { ", about ${Units.distNumber(this, it)} now" } ?: "")))
+            box.addView(nextMiles)
+            box.addView(ui.label("Repeat every ... $unit"))
+            box.addView(everyMiles)
+        }
+
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Done: ${r.title}")
+            .setView(android.widget.ScrollView(this).apply { addView(box) })
+            .setPositiveButton("Set next one") { _, _ ->
+                r.repeatMonths = months.text.toString().toIntOrNull() ?: 0
+                r.dueMs = dateMs
+                if (byMiles) {
+                    r.repeatMiles = Units.parseDist(this, everyMiles.text.toString()) ?: 0
+                    r.dueMiles = Units.parseDist(this, nextMiles.text.toString())
+                }
+                r.notifiedSoon = false; r.notifiedDue = false
+                if (r.dueMs == null && r.dueMiles == null) v.reminders.remove(r)
+                saveAndRebuild()
+                Reminders.checkNow(this)
+            }
+            .setNeutralButton("Stop repeating") { _, _ ->
+                v.reminders.remove(r)
+                saveAndRebuild()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     /** Common reminders to start from, depending on the vehicle type. */
