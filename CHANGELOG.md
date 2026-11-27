@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.59
+
 - Adding a photo or file is now a small camera or paperclip icon instead of big buttons.
 - Deleting a record, trip, stop, list, line, photo or reminder is now a small red waste basket icon. It still asks before deleting.
 - Service records show a bell when a reminder has been set for the next one. The record itself shows when that reminder is due, with a button to change it.
