@@ -291,14 +291,15 @@ class LevelActivity : Activity(), SensorEventListener {
             var sideText = ""
             var frontText = ""
             if (!levelSide) {
-                val which = if (roll > 0) "left" else "right"
-                sideText = "${which.uppercase()} side low ${String.format(Locale.UK, "%.1f", abs(roll))}°"
-                spoken.add("$which side low, ${Store.num(abs(roll), 1)} degrees")
+                val which = if (roll > 0) "left" else "right" // raise the low side
+                sideText = "Raise ${which.uppercase()} ${String.format(Locale.UK, "%.1f", abs(roll))}°"
+                spoken.add("Raise $which, ${Store.num(abs(roll), 1)} degrees")
             }
             if (!levelFront) {
-                val end = if (pitch > 0) "rear" else "front"
-                frontText = "${end.uppercase()} low ${String.format(Locale.UK, "%.1f", abs(pitch))}°"
-                spoken.add("$end low, ${Store.num(abs(pitch), 1)} degrees")
+                // always said from the front: rear low = front high
+                val how = if (pitch > 0) "high" else "low"
+                frontText = "Front ${how.uppercase()} ${String.format(Locale.UK, "%.1f", abs(pitch))}°"
+                spoken.add("Front $how, ${Store.num(abs(pitch), 1)} degrees")
             }
             if (levelSide && levelFront) spoken.add("Level")
             return Result(sideText, frontText, "Tap Sizes and add the levelling sizes to get amounts in $unitWord", spoken.joinToString(". "))
