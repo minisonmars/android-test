@@ -5,7 +5,7 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Vehicle info has a new Documents and pictures part: take a photo or add any file (sales details, V5C, warranties, receipts). Tap one to open it. Remove them with the waste basket while editing. They're included in backups.
 
 ## v0.3.62
 

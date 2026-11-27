@@ -254,6 +254,9 @@ class Vehicle(
     /** Photo of the vehicle: a file name in the attachments folder. */
     var photo: String? = null
 
+    /** Documents and pictures (sales details, V5C, warranty...): names in the attachments folder. */
+    val files = mutableListOf<String>()
+
     // Level calibration, degrees
     var rollOffset = 0f
     var pitchOffset = 0f
@@ -286,6 +289,7 @@ class Vehicle(
             .put("sizeUnits", JSONObject(sizeUnits.toMap()))
             .put("photo", photo ?: JSONObject.NULL)
             .put("packingAdded", packingAdded)
+            .put("files", JSONArray().apply { files.forEach { put(it) } })
             .put("mro", mroKg).put("mtplm", mtplmKg)
             .put("noseLimit", noseLimitKg).put("nose", noseKg).put("loaded", loadedKg)
             .put("towLimit", towLimitKg).put("towCar", towCarId)
@@ -339,6 +343,7 @@ class Vehicle(
                 tyreDot = o.optString("tyreDot"); spareDot = o.optString("spareDot")
                 photo = if (o.isNull("photo")) null else o.optString("photo").ifBlank { null }
                 packingAdded = o.optBoolean("packingAdded", false)
+                files.addAll(o.optJSONArray("files").strings())
             }
         }
 

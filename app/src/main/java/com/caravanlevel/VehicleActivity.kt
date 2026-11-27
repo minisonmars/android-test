@@ -32,6 +32,8 @@ class VehicleActivity : Page() {
     companion object {
         private const val TAKE_PHOTO = 1
         private const val PICK_PHOTO = 2
+        private const val TAKE_FILE = 3
+        private const val PICK_FILE = 4
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -166,6 +168,8 @@ class VehicleActivity : Page() {
 
         // Mileage
         if (v.type.motorised) mileage(v) // caravans have no odometer
+
+        files(v)
 
         // Notes
         content.addView(ui.heading("Notes"))
@@ -617,6 +621,67 @@ class VehicleActivity : Page() {
         ).toTypedArray()))
     }
 
+    /** Documents and pictures such as sales details. Add any time; remove while editing. */
+    private fun files(v: Vehicle) {
+        content.addView(ui.heading("Documents and pictures"))
+        if (v.files.isEmpty()) content.addView(ui.text("Sales details, V5C, warranties, receipts... Add a photo or file.", 16f, Colours.MUTED))
+        v.files.toList().forEach { name ->
+            val card = ui.card()
+            if (AttachmentProvider.mime(name).startsWith("image/")) {
+                Attach.thumbnail(java.io.File(GarageStore.attachmentsDir(this), name))?.let { bmp ->
+                    card.addView(ImageView(this).apply {
+                        setImageBitmap(bmp)
+                        scaleType = ImageView.ScaleType.CENTER_CROP
+                        layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ui.dp(180))
+                    })
+                }
+            }
+            val title = ui.text(AttachmentProvider.displayName(name), 16f)
+            if (editing) {
+                title.layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+                card.addView(ui.row(title, ui.binButton {
+                    ui.confirm("Remove this file?", AttachmentProvider.displayName(name), "Remove") {
+                        save()
+                        v.files.remove(name)
+                        GarageStore.deleteAttachment(this, name)
+                        saveAndRebuild()
+                    }
+                }))
+            } else card.addView(title)
+            card.isClickable = true
+            card.setOnClickListener { Attach.view(this, name) }
+            content.addView(card)
+        }
+        content.addView(ui.iconRow(
+            ui.iconButton(Icon.CAMERA) { takeFile() },
+            ui.iconButton(Icon.ATTACH) { pickFile() }
+        ))
+    }
+
+    private fun takeFile() {
+        save()
+        val name = Attach.newName("${vehicle.name} document.jpg")
+        java.io.File(GarageStore.attachmentsDir(this), name).createNewFile()
+        try {
+            pendingPhoto = name
+            startActivityForResult(Attach.cameraIntent(name), TAKE_FILE)
+        } catch (_: ActivityNotFoundException) {
+            pendingPhoto = null
+            GarageStore.deleteAttachment(this, name)
+            Toast.makeText(this, "No camera app found", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun pickFile() {
+        save()
+        val i = Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("*/*")
+        try {
+            startActivityForResult(i, PICK_FILE)
+        } catch (_: ActivityNotFoundException) {
+            Toast.makeText(this, "No file picker found", Toast.LENGTH_LONG).show()
+        }
+    }
+
     private fun takePhoto() {
         save()
         val name = Attach.newName("${vehicle.name}.jpg")
@@ -649,6 +714,18 @@ class VehicleActivity : Page() {
         val v = GarageStore.active(this, g)
         var newPhoto: String? = null
         when (requestCode) {
+            TAKE_FILE -> {
+                val name = pendingPhoto ?: return
+                pendingPhoto = null
+                val f = java.io.File(GarageStore.attachmentsDir(this), name)
+                if (resultCode == RESULT_OK && f.length() > 0) { v.files.add(name); GarageStore.save(this, g) } else f.delete()
+                return
+            }
+            PICK_FILE -> {
+                val uri = data?.data
+                if (resultCode == RESULT_OK && uri != null) Attach.copyIn(this, uri)?.let { v.files.add(it); GarageStore.save(this, g) }
+                return
+            }
             TAKE_PHOTO -> {
                 val name = pendingPhoto ?: return
                 pendingPhoto = null
@@ -674,12 +751,13 @@ class VehicleActivity : Page() {
         }
         ui.confirm(
             "Delete ${vehicle.name}?",
-            "Its details, checklists, service records, photos and reminders will all be deleted. This can't be undone.",
+            "Its details, checklists, service records, photos, documents and reminders will all be deleted. This can't be undone.",
             "Delete"
         ) {
             val v = vehicle
             v.services.flatMap { it.attachments }.forEach { GarageStore.deleteAttachment(this, it) }
             v.photo?.let { GarageStore.deleteAttachment(this, it) }
+            v.files.forEach { GarageStore.deleteAttachment(this, it) }
             garage.vehicles.remove(v)
             AppPrefs.setActiveVehicle(this, garage.vehicles[0].id)
             GarageStore.save(this, garage)
