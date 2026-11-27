@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.62
+
 - Vehicle info: Year opens the number keyboard; Registration, CRiS number, VIN and tyre size type in capital letters.
 - Equipment: tick "Aftermarket" for things added after the vehicle was built, then add the date fitted, cost and warranty period. It shows whether it's still under warranty.
 
