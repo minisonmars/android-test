@@ -142,6 +142,22 @@
             </intent-filter>
         </receiver>
 
+        <!-- Android Auto (text screens: sizes, level, compass, checklists) -->
+        <service
+            android:name=".CarService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.car.app.CarAppService" />
+                <category android:name="androidx.car.app.category.IOT" />
+            </intent-filter>
+        </service>
+        <meta-data
+            android:name="androidx.car.app.minCarApiLevel"
+            android:value="1" />
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
+
         <provider
             android:name=".AttachmentProvider"
             android:authorities="com.caravanlevel.files"

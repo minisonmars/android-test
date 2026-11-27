@@ -52,3 +52,8 @@ android {
         jvmTarget = "17"
     }
 }
+
+dependencies {
+    // Android Auto screens (text templates only)
+    implementation("androidx.car.app:app:1.4.0")
+}
