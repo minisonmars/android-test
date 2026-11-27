@@ -102,6 +102,7 @@ class ReminderReceiver : BroadcastReceiver() {
         val pending = goAsync()
         Thread {
             try { Reminders.check(context.applicationContext) } catch (_: Exception) {}
+            try { AutoBackup.runIfDue(context.applicationContext) } catch (_: Exception) {}
             pending.finish()
         }.start()
     }

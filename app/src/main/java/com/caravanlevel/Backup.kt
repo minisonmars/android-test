@@ -25,7 +25,9 @@ object Backup {
     /** Writes the backup. Returns the number of photos and files included. */
     fun write(ctx: Context, to: Uri): Int {
         var files = 0
-        val out = ctx.contentResolver.openOutputStream(to, "w") ?: error("Couldn't open the file")
+        // "wt" empties the old file first (needed when it's overwritten); some apps only offer "w"
+        val out = (try { ctx.contentResolver.openOutputStream(to, "wt") } catch (_: Exception) { null })
+            ?: ctx.contentResolver.openOutputStream(to, "w") ?: error("Couldn't open the file")
         ZipOutputStream(out.buffered()).use { zip ->
             val garage = File(ctx.filesDir, GARAGE)
             if (garage.exists()) {

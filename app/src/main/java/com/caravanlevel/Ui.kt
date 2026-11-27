@@ -732,6 +732,16 @@ abstract class Page : Activity() {
         reload()
     }
 
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) AutoBackup.offer(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        AutoBackup.runInBackground(this) // catches changes made on this page
+    }
+
     override fun onPause() {
         super.onPause()
         save()

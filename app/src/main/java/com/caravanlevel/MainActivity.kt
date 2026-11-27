@@ -84,6 +84,12 @@ class MainActivity : Activity() {
         AppPrefs.setLastSection(this, AppPrefs.OPEN_HOME)
         refreshUpdateBanner()
         build()
+        AutoBackup.runInBackground(this)
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) AutoBackup.offer(this) // only once this page is really on screen
     }
 
     private fun build() {
