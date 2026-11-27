@@ -16,6 +16,7 @@ class SettingsActivity : Activity() {
         private const val BACKUP = 1
         private const val RESTORE = 2
         private const val CHOOSE_AUTO = 3
+        private const val ICON_PHOTO = 4
         const val EXTRA_DO = "do"
         const val DO_CHOOSE_AUTO = "chooseAuto"
         const val DO_RESTORE = "restore"
@@ -64,6 +65,23 @@ class SettingsActivity : Activity() {
         col.addView(ui.heading("Units"))
         col.addView(switch("Inches instead of cm: for the Level page's raise/lower amounts, and the starting unit for sizes not entered yet", AppPrefs.inches(this)) { AppPrefs.setInches(this, it) })
         col.addView(switch("Km instead of miles: for mileage, reminders, and distances on the Compass and Trip diary", AppPrefs.km(this)) { AppPrefs.setKm(this, it) })
+
+        // App icon
+        col.addView(ui.heading("App icon"))
+        col.addView(ui.spinner(AppIcon.CHOICES.map { it.second }, AppIcon.current(this),
+            listOf(Icon.CARAVAN, Icon.MOTORHOME, Icon.CAMPERVAN)) { i ->
+            if (i != AppIcon.current(this)) {
+                AppIcon.set(this, i)
+                toast("App icon changed. If it disappears from your home screen, add it again from the app list.")
+            }
+        })
+        if (AppIcon.shortcutsSupported(this)) {
+            col.addView(ui.text("Or put one of your own photos on the home screen as a shortcut to the app. (Android doesn't let apps use a photo as the real app icon.)", 16f, Colours.MUTED))
+            col.addView(ui.button("Home screen shortcut with my photo") {
+                val i = Intent(Intent.ACTION_OPEN_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("image/*")
+                try { startActivityForResult(i, ICON_PHOTO) } catch (_: Exception) { toast("No photo picker found") }
+            })
+        }
 
         // Automatic backup
         col.addView(ui.heading("Automatic backup"))
@@ -162,6 +180,12 @@ class SettingsActivity : Activity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         val uri = data?.data
+        if (requestCode == ICON_PHOTO) {
+            if (resultCode != RESULT_OK || uri == null) return
+            val name = GarageStore.active(this, GarageStore.load(this)).name
+            if (!AppIcon.pinPhoto(this, uri, name)) toast("Couldn't make the shortcut from that picture")
+            return
+        }
         if (requestCode == CHOOSE_AUTO) {
             if (resultCode != RESULT_OK || uri == null) { if (intent.hasExtra(EXTRA_DO)) finish(); return }
             AutoBackup.chosen(this, uri)
@@ -195,7 +219,7 @@ class SettingsActivity : Activity() {
                 busy.dismiss()
                 if (requestCode == RESTORE && result == null) {
                     // Start again from the home page with the restored data and settings
-                    startActivity(Intent(this, MainActivity::class.java)
+                    startActivity(Intent(this, HomeActivity::class.java)
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
                     toast("Backup restored")
                 } else {

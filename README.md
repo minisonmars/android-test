@@ -118,7 +118,7 @@ What changed is kept in `CHANGELOG.md`. New user-facing changes go as bullets un
 
 All in `app/src/main/java/com/caravanlevel/`:
 
-- `MainActivity.kt` – home page with the section tiles, start-page setting, update banner
+- `HomeActivity.kt` – home page with the section tiles, start-page setting, update banner
 - `LevelActivity.kt` and `BubbleView.kt` – sensors, smoothing, calibration, raise/lower maths, voice, and the bubble drawing
 - `ChecklistActivity.kt` – checklists and the list editor
 - `VehicleActivity.kt` – vehicle details, sizes, equipment, mileage; add and delete vehicles

@@ -38,15 +38,48 @@
         android:label="Caravan Leveller"
         android:theme="@android:style/Theme.Material.NoActionBar">
         <activity
-            android:name=".MainActivity"
+            android:name=".HomeActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" />
+        <!-- App icon choices (Settings > App icon): only one is switched on at a time.
+             ".MainActivity" keeps its old name so home screen icons survive updates. -->
+        <activity-alias
+            android:name=".MainActivity"
+            android:targetActivity=".HomeActivity"
+            android:exported="true"
+            android:enabled="true"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconMotorhome"
+            android:targetActivity=".HomeActivity"
+            android:exported="true"
+            android:enabled="false"
+            android:icon="@mipmap/ic_launcher_motorhome"
+            android:roundIcon="@mipmap/ic_launcher_motorhome">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+        <activity-alias
+            android:name=".IconCampervan"
+            android:targetActivity=".HomeActivity"
+            android:exported="true"
+            android:enabled="false"
+            android:icon="@mipmap/ic_launcher_campervan"
+            android:roundIcon="@mipmap/ic_launcher_campervan">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
         <receiver
             android:name=".InstallReceiver"
             android:exported="false" />

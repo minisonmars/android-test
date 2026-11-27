@@ -5,7 +5,8 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Settings > App icon: choose a caravan, motorhome or campervan icon.
+- Settings > App icon also lets you put your own photo on the home screen as a shortcut to the app.
 
 ## v0.3.64
 

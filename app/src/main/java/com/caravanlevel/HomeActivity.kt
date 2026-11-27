@@ -15,7 +15,7 @@ import android.widget.TextView
  * The home page: the chosen vehicle at the top, then a big tile for each section.
  * Settings can make the app open straight on a section, or where you left off.
  */
-class MainActivity : Activity() {
+class HomeActivity : Activity() {
 
     private lateinit var ui: Ui
     private lateinit var updateBanner: TextView
@@ -40,13 +40,13 @@ class MainActivity : Activity() {
             gravity = Gravity.CENTER
             setPadding(ui.dp(12), ui.dp(14), ui.dp(12), ui.dp(14))
             visibility = View.GONE
-            setOnClickListener { Updater.showDialog(this@MainActivity) { refreshUpdateBanner() } }
+            setOnClickListener { Updater.showDialog(this@HomeActivity) { refreshUpdateBanner() } }
         }
         body = ui.column(16)
         val page = ui.column().apply {
             setBackgroundColor(Colours.BG)
             addView(updateBanner)
-            addView(ScrollView(this@MainActivity).apply { addView(body) },
+            addView(ScrollView(this@HomeActivity).apply { addView(body) },
                 LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
         }
         page.fitSystemBars()
@@ -106,7 +106,7 @@ class MainActivity : Activity() {
             background = ui.rounded(Colours.CARD, 12)
             isClickable = true
             contentDescription = "Settings"
-            setOnClickListener { startActivity(Intent(this@MainActivity, SettingsActivity::class.java)) }
+            setOnClickListener { startActivity(Intent(this@HomeActivity, SettingsActivity::class.java)) }
             layoutParams = LinearLayout.LayoutParams(ui.dp(48), ui.dp(48))
         }
         body.addView(ui.row(title, cog))

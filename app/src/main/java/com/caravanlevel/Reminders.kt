@@ -73,9 +73,9 @@ object Reminders {
                 NotificationChannel(CHANNEL, "Reminders", NotificationManager.IMPORTANCE_DEFAULT)
             )
         }
-        val open = Intent(ctx, MainActivity::class.java)
-            .putExtra(MainActivity.EXTRA_SECTION, Section.REMINDERS.name)
-            .putExtra(MainActivity.EXTRA_VEHICLE, v.id)
+        val open = Intent(ctx, HomeActivity::class.java)
+            .putExtra(HomeActivity.EXTRA_SECTION, Section.REMINDERS.name)
+            .putExtra(HomeActivity.EXTRA_VEHICLE, v.id)
             .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val pi = PendingIntent.getActivity(
             ctx, r.id.hashCode(), open, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
