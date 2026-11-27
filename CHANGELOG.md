@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.67
+
 - Android Auto (test): vehicle sizes (metres and feet), the level and compass as text, and checklists you can tick on the car screen. Needs Android Auto's "Unknown sources" developer setting; Settings > Android Auto explains how.
 
 ## v0.3.66
