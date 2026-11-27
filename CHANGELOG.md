@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.61
+
 - Level without sizes: front to back now always reads from the front ("Front HIGH 1.2°" or "Front LOW 1.2°"), and side to side says which side to raise ("Raise LEFT 0.8°"). The voice says the same.
 
 ## v0.3.60
