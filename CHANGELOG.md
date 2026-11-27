@@ -5,7 +5,7 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Settings > Automatic backup has a short note on how to choose Google Drive or OneDrive, and how to restore on a new phone.
 
 ## v0.3.65
 

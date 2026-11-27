@@ -94,6 +94,8 @@ class SettingsActivity : Activity() {
         col.addView(ui.spinner(AutoBackup.CHOICES.map { it.second }, shown) {
             AutoBackup.setDays(this, AutoBackup.CHOICES[it].first); refreshAuto()
         })
+        col.addView(ui.text("How to choose Google Drive or OneDrive: tap \"Choose where to keep it\", then in the file screen tap the menu (three lines, top left) and pick Drive or OneDrive. Open the folder you want and tap Save. Drive and OneDrive need their apps installed and signed in.\n\n" +
+            "New phone: install the app, then in Settings tap \"Restore from a backup\" and pick the \"Caravan Leveller auto backup\" file from Drive or OneDrive. Then choose where to keep it again, so backups carry on.", 15f, Colours.MUTED))
         col.addView(ui.button("Back up now") {
             if (AutoBackup.uri(this) == null) { chooseAuto(); return@button }
             val busy = AlertDialog.Builder(this).setMessage("Backing up...").setCancelable(false).show()
