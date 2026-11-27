@@ -117,7 +117,11 @@ class ServiceRecord(
     val attachments: MutableList<String> = mutableListOf(),
     val id: String = newId()
 ) {
+    /** The reminder made from this record for the next one, if any. */
+    var reminderId = ""
+
     fun json() = JSONObject().put("id", id).put("date", dateMs).put("title", title)
+        .put("reminder", reminderId)
         .put("who", who).put("cost", cost).put("mileage", mileage ?: JSONObject.NULL)
         .put("notes", notes)
         .put("attachments", JSONArray().apply { attachments.forEach { put(it) } })
@@ -128,7 +132,7 @@ class ServiceRecord(
             o.optIntOrNull("mileage"), o.optString("notes"),
             o.optJSONArray("attachments").strings().toMutableList(),
             o.optString("id", newId())
-        )
+        ).apply { reminderId = o.optString("reminder") }
     }
 }
 

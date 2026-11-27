@@ -94,7 +94,7 @@ class RemindersActivity : Page() {
             card.addView(ui.row(
                 ui.rowButton("Done", Colours.GREEN) { done(r) },
                 ui.rowButton("Change") { edit(r) },
-                ui.rowButton("Delete", Colours.BG) {
+                ui.binButton {
                     ui.confirm("Delete \"${r.title}\"?", "", "Delete") {
                         v.reminders.remove(r)
                         saveAndRebuild()

@@ -173,7 +173,7 @@ object Theme {
 }
 
 /** Icons drawn in code, so they look the same on every phone. */
-enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS, CARAVAN, CAMPERVAN, MOTORHOME, CAR, COMPASS, CALIBRATE, BUBBLE, VIALS, VOICE, SIZES, DIARY, STAR, STAR_EMPTY, LOCATE, EDIT, PHONE, EMAIL, WEB, NAVIGATE, FILTER, ADD, MAP, SEARCH, SORT, HELP }
+enum class Icon { LEVEL, CHECKLIST, VEHICLE, SERVICE, REMINDER, SETTINGS, CARAVAN, CAMPERVAN, MOTORHOME, CAR, COMPASS, CALIBRATE, BUBBLE, VIALS, VOICE, SIZES, DIARY, STAR, STAR_EMPTY, LOCATE, EDIT, PHONE, EMAIL, WEB, NAVIGATE, FILTER, ADD, MAP, SEARCH, SORT, HELP, CAMERA, ATTACH, PHOTO, BIN }
 
 class IconView(context: Context, var icon: Icon, var colour: Int = Colours.TEXT) : View(context) {
     private val painter = IconPainter()
@@ -233,6 +233,35 @@ class IconPainter {
                     c.drawPath(tick, stroke)
                     c.drawLine(50f, y, 72f, y, stroke)
                 }
+            }
+            Icon.CAMERA -> {
+                // A camera body with a lens
+                c.drawRoundRect(RectF(10f, 28f, 90f, 82f), 10f, 10f, stroke)
+                c.drawPath(Path().apply { moveTo(34f, 28f); lineTo(40f, 16f); lineTo(60f, 16f); lineTo(66f, 28f) }, stroke)
+                c.drawCircle(50f, 55f, 15f, stroke)
+            }
+            Icon.ATTACH -> {
+                // A paperclip
+                c.drawPath(Path().apply {
+                    moveTo(66f, 34f); lineTo(66f, 70f)
+                    quadTo(66f, 88f, 50f, 88f); quadTo(34f, 88f, 34f, 70f)
+                    lineTo(34f, 26f); quadTo(34f, 12f, 46f, 12f); quadTo(58f, 12f, 58f, 26f)
+                    lineTo(58f, 66f); quadTo(58f, 74f, 50f, 74f); quadTo(42f, 74f, 42f, 66f); lineTo(42f, 34f)
+                }, stroke)
+            }
+            Icon.PHOTO -> {
+                // A picture: frame, sun and hills
+                c.drawRoundRect(RectF(10f, 18f, 90f, 82f), 8f, 8f, stroke)
+                c.drawCircle(34f, 38f, 7f, fill)
+                c.drawPath(Path().apply { moveTo(14f, 76f); lineTo(40f, 52f); lineTo(54f, 64f); lineTo(66f, 50f); lineTo(86f, 70f) }, stroke)
+            }
+            Icon.BIN -> {
+                // A waste basket with a lid
+                c.drawLine(16f, 24f, 84f, 24f, stroke)
+                c.drawPath(Path().apply { moveTo(38f, 24f); lineTo(40f, 14f); lineTo(60f, 14f); lineTo(62f, 24f) }, stroke)
+                c.drawPath(Path().apply { moveTo(24f, 24f); lineTo(30f, 88f); lineTo(70f, 88f); lineTo(76f, 24f) }, stroke)
+                c.drawLine(42f, 38f, 43f, 74f, stroke)
+                c.drawLine(58f, 38f, 57f, 74f, stroke)
             }
             Icon.HELP -> {
                 // A first aid box with a cross
@@ -555,6 +584,26 @@ class Ui(val ctx: Activity) {
             layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
                 .apply { setMargins(dp(3), dp(4), dp(3), dp(4)) }
         }
+
+    /** A small square icon button (the app's rule: add photo/file and delete are icons, not big buttons). */
+    fun iconButton(icon: Icon, colour: Int = Colours.ACCENT, onClick: () -> Unit) = IconView(ctx, icon, colour).apply {
+        background = rounded(Colours.CARD, 12)
+        setPadding(dp(10), dp(10), dp(10), dp(10))
+        isClickable = true
+        setOnClickListener { onClick() }
+        contentDescription = icon.name.lowercase()
+        layoutParams = LinearLayout.LayoutParams(dp(52), dp(52)).apply { setMargins(0, dp(4), dp(10), dp(4)) }
+    }
+
+    /** A red waste basket icon. */
+    fun binButton(onClick: () -> Unit) = iconButton(Icon.BIN, Colours.RED, onClick)
+
+    /** Icon buttons in a row; end = true lines them up on the right. */
+    fun iconRow(vararg views: View, end: Boolean = false) = LinearLayout(ctx).apply {
+        orientation = LinearLayout.HORIZONTAL
+        gravity = (if (end) android.view.Gravity.END else android.view.Gravity.START) or android.view.Gravity.CENTER_VERTICAL
+        views.forEach { addView(it) }
+    }
 
     fun row(vararg views: View) = LinearLayout(ctx).apply {
         orientation = LinearLayout.HORIZONTAL

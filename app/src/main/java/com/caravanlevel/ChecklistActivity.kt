@@ -180,7 +180,7 @@ class ChecklistActivity : Page() {
                 ui.rowButton("Move down") {
                     if (i < list.items.size - 1) { list.items.add(i + 1, list.items.removeAt(i)); saveAndRebuild() }
                 },
-                ui.rowButton("Remove", Colours.RED) {
+                ui.binButton {
                     save()
                     list.items.remove(item)
                     saveAndRebuild()
@@ -220,14 +220,14 @@ class ChecklistActivity : Page() {
                 }
             })
         }
-        content.addView(ui.button("Delete this list", Colours.RED) {
+        content.addView(ui.iconRow(ui.binButton {
             ui.confirm("Delete \"${list.name}\"?", "This can't be undone.", "Delete") {
                 editFields.clear()
                 vehicle.checklists.remove(list)
                 editing = false
                 saveAndRebuild()
             }
-        })
+        }, end = true))
     }
 
     private fun newList() {

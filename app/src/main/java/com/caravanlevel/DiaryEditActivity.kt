@@ -127,7 +127,7 @@ class DiaryEditActivity : Activity() {
                 keep(); build()
             })
             col.addView(ui.button("Done", Colours.ACCENT) { finish() })
-            col.addView(ui.button("Delete this trip", Colours.RED) {
+            col.addView(ui.iconRow(ui.binButton {
                 ui.confirm("Delete this trip?", "All its stops, photos and files will be deleted too.", "Delete") {
                     t.stops.flatMap { it.photos }.forEach { GarageStore.deleteAttachment(this, it) }
                     garage.trips.removeAll { it.id == t.id }
@@ -135,7 +135,7 @@ class DiaryEditActivity : Activity() {
                     deleted = true
                     finish()
                 }
-            })
+            }, end = true))
         } else {
             col.addView(ui.button("Done", Colours.ACCENT) { finish() })
         }
@@ -180,13 +180,7 @@ class DiaryEditActivity : Activity() {
     }
 
     /** A small round-cornered icon button. */
-    private fun iconButton(icon: Icon, onClick: () -> Unit) = IconView(this, icon, Colours.ACCENT).apply {
-        background = ui.rounded(Colours.CARD, 12)
-        setPadding(ui.dp(10), ui.dp(10), ui.dp(10), ui.dp(10))
-        isClickable = true
-        setOnClickListener { onClick() }
-        layoutParams = LinearLayout.LayoutParams(ui.dp(52), ui.dp(52)).apply { setMargins(0, ui.dp(4), ui.dp(10), ui.dp(4)) }
-    }
+    private fun iconButton(icon: Icon, onClick: () -> Unit) = ui.iconButton(icon, onClick = onClick)
 
     /** Call, email, website and navigate icons for whatever the stop has. */
     private fun actions(s: Stop) {
@@ -259,19 +253,19 @@ class DiaryEditActivity : Activity() {
 
         col.addView(ui.label("Photos and files"))
         s.photos.toList().forEach { name -> col.addView(photoCard(s, name, removable = true)) }
-        col.addView(ui.row(
-            ui.rowButton("Take a photo", Colours.TILE) { takePhoto(s) },
-            ui.rowButton("Add photo or file", Colours.TILE) { pickFile(s) }
+        col.addView(ui.iconRow(
+            ui.iconButton(Icon.CAMERA) { takePhoto(s) },
+            ui.iconButton(Icon.ATTACH) { pickFile(s) }
         ))
         if (trip.stops.size > 1) {
-            col.addView(ui.button("Remove this stop", Colours.BG) {
+            col.addView(ui.iconRow(ui.binButton {
                 ui.confirm("Remove this stop?", "Its photos and files will be deleted too.", "Remove") {
                     keep()
                     s.photos.forEach { GarageStore.deleteAttachment(this, it) }
                     trip.stops.remove(s)
                     keep(); build()
                 }
-            })
+            }, end = true))
         }
         col.addView(android.view.View(this).apply { layoutParams = LinearLayout.LayoutParams(1, ui.dp(12)) })
     }
@@ -334,16 +328,15 @@ class DiaryEditActivity : Activity() {
             }
         }
         addView(ui.text(AttachmentProvider.displayName(name), 16f).apply { gravity = Gravity.START })
-        if (removable) addView(ui.row(
-            ui.rowButton("Open") { Attach.view(this@DiaryEditActivity, name) },
-            ui.rowButton("Remove", Colours.RED) {
+        if (removable) addView(ui.iconRow(
+            ui.binButton {
                 ui.confirm("Remove this file?", AttachmentProvider.displayName(name), "Remove") {
                     keep()
                     s.photos.remove(name)
                     GarageStore.deleteAttachment(this@DiaryEditActivity, name)
                     keep(); build()
                 }
-            }
+            }, end = true
         ))
         isClickable = true
         setOnClickListener { Attach.view(this@DiaryEditActivity, name) }

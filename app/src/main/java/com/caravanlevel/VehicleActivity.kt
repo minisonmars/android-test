@@ -179,7 +179,7 @@ class VehicleActivity : Page() {
 
         if (editing) {
             content.addView(ui.button("Done editing", Colours.ACCENT) { finishEditing() })
-            content.addView(ui.button("Delete this vehicle", Colours.RED) { deleteVehicle() })
+            content.addView(ui.iconRow(ui.binButton { deleteVehicle() }, end = true))
         } else {
             content.addView(ui.button("Edit", Colours.ACCENT) { editing = true; rebuild() })
         }
@@ -348,11 +348,11 @@ class VehicleActivity : Page() {
                 card.addView(ui.text("What it says", 14f, Colours.MUTED).apply { setPadding(0, ui.dp(6), 0, 0) })
                 val value = ui.field(d.value, valueHint)
                 card.addView(value)
-                card.addView(ui.button("Remove this line", Colours.RED) {
+                card.addView(ui.iconRow(ui.binButton {
                     save()
                     list.remove(d)
                     saveAndRebuild()
-                })
+                }, end = true))
                 commits.add {
                     d.label = label.text.toString().trim()
                     d.value = value.text.toString().trim()
@@ -543,16 +543,16 @@ class VehicleActivity : Page() {
             }
         }
         if (!editing) return
-        content.addView(ui.row(
-            ui.rowButton(if (name == null) "Take a photo" else "New photo", Colours.TILE) { takePhoto() },
-            ui.rowButton("Choose a photo", Colours.TILE) { pickPhoto() }
-        ))
-        if (name != null) content.addView(ui.button("Remove the photo", Colours.RED) {
-            save()
-            GarageStore.deleteAttachment(this, name)
-            vehicle.photo = null
-            saveAndRebuild()
-        })
+        content.addView(ui.iconRow(*listOfNotNull(
+            ui.iconButton(Icon.CAMERA) { takePhoto() },
+            ui.iconButton(Icon.PHOTO) { pickPhoto() },
+            name?.let { n -> ui.binButton {
+                save()
+                GarageStore.deleteAttachment(this, n)
+                vehicle.photo = null
+                saveAndRebuild()
+            } }
+        ).toTypedArray()))
     }
 
     private fun takePhoto() {

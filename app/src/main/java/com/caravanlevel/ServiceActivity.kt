@@ -24,7 +24,14 @@ class ServiceActivity : Page() {
 
         list.forEach { r ->
             val card = ui.card()
-            card.addView(ui.text(Units.date(r.dateMs), 16f, Colours.MUTED))
+            val date = ui.text(Units.date(r.dateMs), 16f, Colours.MUTED)
+            if (vehicle.reminders.any { it.id == r.reminderId }) {
+                // a bell shows a reminder has been set for the next one
+                date.layoutParams = android.widget.LinearLayout.LayoutParams(0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+                card.addView(ui.row(date, IconView(this, Icon.REMINDER, Colours.ACCENT).apply {
+                    layoutParams = android.widget.LinearLayout.LayoutParams(ui.dp(30), ui.dp(30))
+                }))
+            } else card.addView(date)
             card.addView(ui.text(r.title.ifBlank { "Service" }, 20f, bold = true))
             val bits = listOfNotNull(
                 r.who.takeIf { it.isNotBlank() },

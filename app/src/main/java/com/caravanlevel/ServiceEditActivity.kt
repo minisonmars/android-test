@@ -116,14 +116,26 @@ class ServiceEditActivity : Activity() {
 
         col.addView(ui.heading("Photos and files"))
         r.attachments.toList().forEach { name -> col.addView(attachmentCard(name)) }
-        col.addView(ui.row(
-            ui.rowButton("Take a photo", Colours.TILE) { takePhoto() },
-            ui.rowButton("Add photo or file", Colours.TILE) { pickFile() }
+        col.addView(ui.iconRow(
+            ui.iconButton(Icon.CAMERA) { takePhoto() },
+            ui.iconButton(Icon.ATTACH) { pickFile() }
         ))
 
-        col.addView(ui.button("Set a reminder for the next one", Colours.TILE) { keep(); nextReminder() })
+        col.addView(ui.heading("Next one"))
+        val linked = vehicle.reminders.firstOrNull { it.id == r.reminderId }
+        if (linked != null) {
+            col.addView(ui.row(
+                IconView(this, Icon.REMINDER, Colours.ACCENT).apply {
+                    layoutParams = LinearLayout.LayoutParams(ui.dp(32), ui.dp(32)).apply { setMargins(0, 0, ui.dp(10), 0) }
+                },
+                ui.text("Reminder set: ${linked.title}, ${Due.describe(this, vehicle, linked)}", 17f, Colours.ACCENT).apply {
+                    layoutParams = LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f)
+                }
+            ))
+        }
+        col.addView(ui.button(if (linked == null) "Set a reminder for the next one" else "Change the reminder", Colours.TILE) { keep(); nextReminder() })
         col.addView(ui.button("Done", Colours.ACCENT) { finish() })
-        col.addView(ui.button("Delete this record", Colours.RED) {
+        col.addView(ui.iconRow(ui.binButton {
             ui.confirm("Delete this record?", "Its photos and files will be deleted too.", "Delete") {
                 r.attachments.forEach { GarageStore.deleteAttachment(this, it) }
                 vehicle.services.removeAll { it.id == r.id }
@@ -131,7 +143,7 @@ class ServiceEditActivity : Activity() {
                 deleted = true
                 finish()
             }
-        })
+        }, end = true))
     }
 
     /**
@@ -200,8 +212,12 @@ class ServiceEditActivity : Activity() {
                     return@setPositiveButton
                 }
                 val name = title.text.toString().trim().ifEmpty { "Service" }
+                // the reminder this record made before, even if it was renamed
+                vehicle.reminders.firstOrNull { it.id == r.reminderId }?.let { it.title = name }
                 val moved = vehicle.setReminder(name, dueMs, dueMiles, everyMonths, everyMiles)
+                r.reminderId = vehicle.reminders.first { it.title.equals(name, ignoreCase = true) }.id
                 GarageStore.save(this, garage)
+                build()
                 Reminders.checkNow(this)
                 val due = listOfNotNull(dueMs?.let { Units.date(it) }, dueMiles?.let { "${Units.distNumber(this, it)} $unit" }).joinToString(" or ")
                 Toast.makeText(this, (if (moved) "Reminder moved: " else "Reminder set: ") + "$name, due $due", Toast.LENGTH_LONG).show()
@@ -223,9 +239,8 @@ class ServiceEditActivity : Activity() {
             }
         }
         addView(ui.text(AttachmentProvider.displayName(name), 17f))
-        addView(ui.row(
-            ui.rowButton("Open") { showFile(name) },
-            ui.rowButton("Remove", Colours.RED) {
+        addView(ui.iconRow(
+            ui.binButton {
                 ui.confirm("Remove this file?", AttachmentProvider.displayName(name), "Remove") {
                     keep()
                     record.attachments.remove(name)
@@ -233,7 +248,7 @@ class ServiceEditActivity : Activity() {
                     keep()
                     build()
                 }
-            }
+            }, end = true
         ))
         isClickable = true
         setOnClickListener { showFile(name) }
