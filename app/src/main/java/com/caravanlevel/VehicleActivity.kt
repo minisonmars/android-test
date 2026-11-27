@@ -215,6 +215,27 @@ class VehicleActivity : Page() {
         }
     }
 
+    /** Reminders for when the tyres (and spare) reach 5 years old, from their DOT codes. */
+    private fun tyreReminders(v: Vehicle) {
+        val car = v.type == VehicleType.CAR
+        val added = mutableListOf<String>()
+        fun one(title: String, code: String) {
+            val due = Tyres.replaceMs(code) ?: return
+            // already past 5 years: due tomorrow so it still shows and notifies
+            val d = maxOf(due, Units.startOfDay(System.currentTimeMillis()) + 36 * 3600_000L)
+            v.setReminder(title, d, repeatMonths = if (car) 12 else 0,
+                notes = "Tyres dated $code (DOT)." + if (car) " Check for cracking every year from 5 years old." else "")
+            added.add("$title: ${Units.date(d)}")
+        }
+        one(if (car) "Check the tyres (5+ years old)" else "Replace the tyres (5 years old)", v.tyreDot)
+        one(if (car) "Check the spare tyre (5+ years old)" else "Replace the spare tyre (5 years old)", v.spareDot)
+        save()
+        Reminders.checkNow(this)
+        ui.confirm("Tyre reminders set", added.joinToString("\n") + "\n\nYou can see and change them in Reminders.", "Open Reminders") {
+            startActivity(Intent(this, RemindersActivity::class.java))
+        }
+    }
+
     /** Tyre size, pressures (psi or bar) and the age from the DOT date code. */
     private fun tyres(v: Vehicle) {
         content.addView(ui.heading("Tyres"))
@@ -237,6 +258,9 @@ class VehicleActivity : Page() {
             }
             age("Tyre date code (DOT)", v.tyreDot)
             age("Spare tyre date code (DOT)", v.spareDot)
+            if (Tyres.madeMs(v.tyreDot) != null || Tyres.madeMs(v.spareDot) != null) {
+                content.addView(ui.button("Add tyre reminders (5 years old)", Colours.TILE) { tyreReminders(v) })
+            }
             return
         }
         content.addView(ui.label("Tyre size (on the sidewall, e.g. 185/80 R14 C)"))

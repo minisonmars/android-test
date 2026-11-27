@@ -158,6 +158,21 @@ class Reminder(
     }
 }
 
+/**
+ * Add a reminder, or move the existing one with the same name (so a second tap doesn't make
+ * a duplicate). Returns true if one was already there.
+ */
+fun Vehicle.setReminder(title: String, dueMs: Long?, dueMiles: Int? = null, repeatMonths: Int = 0,
+                        repeatMiles: Int = 0, notes: String = ""): Boolean {
+    val old = reminders.firstOrNull { it.title.equals(title, ignoreCase = true) }
+    val r = old ?: Reminder(title).also { reminders.add(it) }
+    r.dueMs = dueMs; r.dueMiles = dueMiles
+    r.repeatMonths = repeatMonths; r.repeatMiles = repeatMiles
+    if (notes.isNotBlank()) r.notes = notes
+    r.notifiedSoon = false; r.notifiedDue = false
+    return old != null
+}
+
 /** An odometer reading, typed in or added from a tracked trip. */
 class MileageEntry(val dateMs: Long, val miles: Int, val source: String = "manual") {
     fun json() = JSONObject().put("date", dateMs).put("miles", miles).put("source", source)

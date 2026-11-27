@@ -121,6 +121,7 @@ class ServiceEditActivity : Activity() {
             ui.rowButton("Add photo or file", Colours.TILE) { pickFile() }
         ))
 
+        col.addView(ui.button("Set a reminder for the next one", Colours.TILE) { keep(); nextReminder() })
         col.addView(ui.button("Done", Colours.ACCENT) { finish() })
         col.addView(ui.button("Delete this record", Colours.RED) {
             ui.confirm("Delete this record?", "Its photos and files will be deleted too.", "Delete") {
@@ -131,6 +132,46 @@ class ServiceEditActivity : Activity() {
                 finish()
             }
         })
+    }
+
+    /** A reminder for the next service: this record's date plus N months (and miles for vans). */
+    private fun nextReminder() {
+        val r = record
+        val box = ui.column(20)
+        box.addView(ui.label("What"))
+        val title = ui.field(r.title.ifBlank { "Service" }, "For example: Habitation service")
+        box.addView(title)
+        box.addView(ui.label("Next one due after ... months"))
+        val months = ui.wholeNumberField("12")
+        box.addView(months)
+        val byMiles = vehicle.type.motorised
+        val unit = Units.distUnit(this)
+        val miles = ui.wholeNumberField("", "Optional, for example 10000")
+        if (byMiles) {
+            box.addView(ui.label("or after ... $unit" + (r.mileage?.let { " (this one was at ${Units.distNumber(this, it)})" } ?: "")))
+            box.addView(miles)
+        }
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Reminder for the next one")
+            .setView(ScrollView(this).apply { addView(box) })
+            .setPositiveButton("Set reminder") { _, _ ->
+                val m = months.text.toString().toIntOrNull() ?: 0
+                val every = if (byMiles) Units.parseDist(this, miles.text.toString()) ?: 0 else 0
+                val dueMs = if (m > 0) Units.addMonths(Units.startOfDay(r.dateMs), m) + 12 * 3600_000L else null
+                val dueMiles = if (every > 0 && r.mileage != null) r.mileage!! + every else null
+                if (dueMs == null && dueMiles == null) {
+                    Toast.makeText(this, "Enter months" + (if (byMiles) " or a mileage" else ""), Toast.LENGTH_LONG).show()
+                    return@setPositiveButton
+                }
+                val name = title.text.toString().trim().ifEmpty { "Service" }
+                val moved = vehicle.setReminder(name, dueMs, dueMiles, m, every)
+                GarageStore.save(this, garage)
+                Reminders.checkNow(this)
+                val due = listOfNotNull(dueMs?.let { Units.date(it) }, dueMiles?.let { "${Units.distNumber(this, it)} $unit" }).joinToString(" or ")
+                Toast.makeText(this, (if (moved) "Reminder moved: " else "Reminder set: ") + "$name, due $due", Toast.LENGTH_LONG).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun attachmentCard(name: String) = ui.card().apply {
