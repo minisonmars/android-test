@@ -5,7 +5,8 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- New Towing part in a caravan's Vehicle info: noseweight limit and measured noseweight, plus how the caravan matches your tow car (85% guide, towing limit, target noseweight).
+- Tow cars have their kerb weight, gross weight, maximum towing weight and tow bar noseweight limit.
 
 ## v0.3.55
 

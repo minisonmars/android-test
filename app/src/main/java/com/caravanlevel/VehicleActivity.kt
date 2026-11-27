@@ -133,13 +133,22 @@ class VehicleActivity : Page() {
             content.addView(f)
             commits.add { set(f.text.toString().trim().toIntOrNull() ?: 0) }
         }
-        weight(if (v.type == VehicleType.CARAVAN) "MRO / MIRO (empty weight as built)" else "Mass in running order",
-            { v.mroKg }) { v.mroKg = it }
-        weight("MTPLM (maximum laden weight, on the plate)", { v.mtplmKg }) { v.mtplmKg = it }
+        when (v.type) {
+            VehicleType.CARAVAN -> weight("MRO / MIRO (empty weight as built)", { v.mroKg }) { v.mroKg = it }
+            VehicleType.CAR -> weight("Kerb weight (in the handbook or on the V5C)", { v.mroKg }) { v.mroKg = it }
+            else -> weight("Mass in running order", { v.mroKg }) { v.mroKg = it }
+        }
+        weight(if (v.type == VehicleType.CAR) "Gross vehicle weight (on the plate)" else "MTPLM (maximum laden weight, on the plate)",
+            { v.mtplmKg }) { v.mtplmKg = it }
         if (v.mroKg > 0 && v.mtplmKg > v.mroKg) {
             content.addView(ui.text("Payload for your kit: about ${v.mtplmKg - v.mroKg} kg", 17f, Colours.ACCENT)
                 .apply { setPadding(0, ui.dp(8), 0, 0) })
         }
+        if (v.type == VehicleType.CAR) {
+            weight("Maximum towing weight (braked)", { v.towLimitKg }) { v.towLimitKg = it }
+            weight("Maximum noseweight for the tow bar", { v.noseLimitKg }) { v.noseLimitKg = it }
+        }
+        if (v.type == VehicleType.CARAVAN) towing(v, ::weight)
 
         tyres(v)
 
@@ -175,6 +184,35 @@ class VehicleActivity : Page() {
             content.addView(ui.button("Edit", Colours.ACCENT) { editing = true; rebuild() })
         }
         content.addView(ui.button("Add another vehicle", Colours.TILE) { addVehicle() })
+    }
+
+    /** Caravan: noseweight and how it matches the tow car (the 85% guide). */
+    private fun towing(v: Vehicle, weight: (String, () -> Int, (Int) -> Unit) -> Unit) {
+        content.addView(ui.heading("Towing"))
+        weight("Actual loaded weight, if weighed (otherwise MTPLM is used)", { v.loadedKg }) { v.loadedKg = it }
+        weight("Maximum noseweight (caravan handbook)", { v.noseLimitKg }) { v.noseLimitKg = it }
+        weight("Noseweight measured when loaded", { v.noseKg }) { v.noseKg = it }
+
+        val cars = garage.vehicles.filter { it.type == VehicleType.CAR }
+        if (cars.isEmpty()) {
+            content.addView(ui.text("Add your tow car as another vehicle (type: Tow car) with its weights to check the match.", 16f, Colours.MUTED))
+            return
+        }
+        val car = cars.firstOrNull { it.id == v.towCarId } ?: cars[0]
+        if (editing && cars.size > 1) {
+            content.addView(ui.label("Tow car"))
+            var picked = car
+            content.addView(ui.spinner(cars.map { it.name }, cars.indexOf(car)) { picked = cars[it] })
+            commits.add { v.towCarId = picked.id }
+        }
+        if (editing) return
+
+        val lines = Towing.check(v, car)
+        content.addView(ui.text("With ${car.name}", 17f, Colours.MUTED).apply { setPadding(0, ui.dp(10), 0, 0) })
+        lines.forEach { (ok, text) ->
+            content.addView(ui.text(text, 17f, when (ok) { true -> Colours.ACCENT; false -> Colours.RED; null -> Colours.MUTED })
+                .apply { setPadding(0, ui.dp(6), 0, 0) })
+        }
     }
 
     /** Tyre size, pressures (psi or bar) and the age from the DOT date code. */

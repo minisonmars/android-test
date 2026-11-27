@@ -197,6 +197,13 @@ class Vehicle(
     var mroKg = 0      // mass in running order (MIRO / MRO), empty weight as built
     var mtplmKg = 0    // maximum technically permissible laden mass (the plated maximum)
 
+    // Towing (kg; 0 = not set)
+    var noseLimitKg = 0   // caravan: its maximum noseweight; tow car: the tow bar / car limit
+    var noseKg = 0        // caravan: noseweight measured when loaded
+    var loadedKg = 0      // caravan: actual loaded weight, if weighed (else MTPLM is used)
+    var towLimitKg = 0    // tow car: maximum braked towing weight
+    var towCarId = ""     // caravan: which tow car to compare against
+
     // Tyres; pressures stored in psi (0 = not set), shown in the unit picked
     var tyreSize = ""
     var tyrePsiFront = 0f   // caravan: the only pressure
@@ -244,6 +251,8 @@ class Vehicle(
             .put("photo", photo ?: JSONObject.NULL)
             .put("packingAdded", packingAdded)
             .put("mro", mroKg).put("mtplm", mtplmKg)
+            .put("noseLimit", noseLimitKg).put("nose", noseKg).put("loaded", loadedKg)
+            .put("towLimit", towLimitKg).put("towCar", towCarId)
             .put("tyreSize", tyreSize).put("tyrePsiFront", tyrePsiFront.toDouble())
             .put("tyrePsiRear", tyrePsiRear.toDouble()).put("tyreBar", tyreBar)
             .put("tyreDot", tyreDot).put("spareDot", spareDot)
@@ -286,6 +295,9 @@ class Vehicle(
                 usage = Usage.of(o.optString("usage"))
                 o.optJSONObject("sizeUnits")?.let { u -> u.keys().forEach { k -> sizeUnits[k] = u.optString(k) } }
                 mroKg = o.optInt("mro", 0); mtplmKg = o.optInt("mtplm", 0)
+                noseLimitKg = o.optInt("noseLimit", 0); noseKg = o.optInt("nose", 0)
+                loadedKg = o.optInt("loaded", 0); towLimitKg = o.optInt("towLimit", 0)
+                towCarId = o.optString("towCar")
                 tyreSize = o.optString("tyreSize"); tyrePsiFront = f("tyrePsiFront")
                 tyrePsiRear = f("tyrePsiRear"); tyreBar = o.optBoolean("tyreBar", false)
                 tyreDot = o.optString("tyreDot"); spareDot = o.optString("spareDot")
