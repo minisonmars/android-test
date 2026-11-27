@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.64
+
 - Automatic backup: the app asks once where to keep a backup (Google Drive or OneDrive is best, so it survives a new phone) and then keeps it up to date every day or week when something has changed. Settings shows where it's kept, when it last backed up, and has Back up now.
 - On a new phone, the first-use question also offers to restore a backup.
 
