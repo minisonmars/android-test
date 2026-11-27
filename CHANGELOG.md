@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.69
+
 - Service records are now called Services and repairs.
 - Ask AI: an on/off switch for each kind of information (vehicle details, equipment, services and repairs, reminders, notes, registration numbers). It remembers your choices for next time.
 
