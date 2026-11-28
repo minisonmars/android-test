@@ -5,7 +5,7 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Fill in from a known model: many more caravans (Swift 2017 to 2025, Bailey 2021, Coachman 2021) and now motorhomes and campervans too (Swift 2025, Adria, Rapido, Dreamer, Globecar). Some only have the length published, and anything not published is left as it is.
 
 ## v0.3.70
 

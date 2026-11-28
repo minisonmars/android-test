@@ -1,0 +1,85 @@
+# Published motorhome and campervan sizes and weights, from the makers' handbooks and brochures (a few from magazine tests, named in the source).
+# Figures are approximate and vary with options and base vehicle: always check the vehicle's own plate and handbook.
+# Blank = not published in the source we could read (e.g. Adria, Dreamer and Globecar 2021 give length/width only). "Est" figures copied as printed.
+# MRO is the lowest printed figure (manual gearbox) where two are given.
+# make,year,type,range,model,length_m,width_m,height_m,wheelbase_m,mro_kg,mtplm_kg,base_vehicle,source
+Adria,2025,Motorhome,Compact,Max DL,7.39,2.17,,,,,Volkswagen Crafter,Adria 2025 brochure
+Adria,2025,Motorhome,Compact,Max SL,6.95,2.17,,,,,Volkswagen Crafter,Adria 2025 brochure
+Adria,2025,Motorhome,Compact,Max SP,6.46,2.17,,,,,Volkswagen Crafter,Adria 2025 brochure
+Adria,2025,Motorhome,Compact,Supreme DL,6.99,2.12,,,,,Fiat Ducato,Adria 2025 brochure
+Adria,2025,Motorhome,Compact,Supreme SC,6.99,2.12,,,,,Fiat Ducato,Adria 2025 brochure
+Adria,2025,Motorhome,Compact,Supreme SL,6.79,2.12,,,,,Fiat Ducato,Adria 2025 brochure
+Adria,2025,Motorhome,Coral,Supreme 670 DC,7.49,2.30,,,,,Fiat Ducato,Adria 2025 brochure
+Adria,2025,Motorhome,Coral,Supreme 670 DL,7.49,2.30,,,,,Fiat Ducato,Adria 2025 brochure
+Adria,2025,Motorhome,Coral,Supreme 670 SL,7.49,2.30,,,,,Fiat Ducato,Adria 2025 brochure
+Adria,2025,Motorhome,Coral,Supreme MB 670 DC,7.69,2.29,,,,,Mercedes-Benz Sprinter,Adria 2025 brochure
+Adria,2025,Motorhome,Coral,Supreme MB 670 DL,7.69,2.29,,,,,Mercedes-Benz Sprinter,Adria 2025 brochure
+Adria,2025,Motorhome,Coral,Supreme MB 670 SL,7.69,2.29,,,,,Mercedes-Benz Sprinter,Adria 2025 brochure
+Adria,2025,Motorhome,Matrix,Supreme 670 DC,7.49,2.30,,,,,Fiat Ducato,Adria 2025 brochure
+Adria,2025,Motorhome,Matrix,Supreme 670 SC,7.49,2.30,,,,,Fiat Ducato,Adria 2025 brochure
+Adria,2025,Motorhome,Matrix,Supreme 670 SL,7.49,2.30,,,,,Fiat Ducato,Adria 2025 brochure
+Adria,2025,Motorhome,Matrix,Supreme MB 670 DC,7.69,2.29,,,,,Mercedes-Benz Sprinter,Adria 2025 brochure
+Adria,2025,Motorhome,Matrix,Supreme MB 670 SL,7.69,2.29,,,,,Mercedes-Benz Sprinter,Adria 2025 brochure
+Adria,2025,Motorhome,Sonic,Supreme 700 DC,7.49,2.32,,,,,Fiat Ducato,Adria 2025 brochure
+Adria,2025,Motorhome,Sonic,Supreme 700 DL,7.49,2.32,,,,,Fiat Ducato,Adria 2025 brochure
+Adria,2025,Motorhome,Sonic,Supreme 700 SL,7.49,2.32,,,,,Fiat Ducato,Adria 2025 brochure
+Dreamer,2025,Campervan,Dreamer Fun,Camper Five,6.36,,,,,,Fiat Ducato,Dreamer 2025 brochure
+Dreamer,2025,Campervan,Dreamer Fun,Camper Sport,6.36,,,,,,Fiat Ducato,Dreamer 2025 brochure
+Dreamer,2025,Campervan,Dreamer Fun,D43 UP,5.41,,,,,,Fiat Ducato,Dreamer 2025 brochure
+Dreamer,2025,Campervan,Dreamer Fun,D55,5.99,,,,,,Fiat Ducato,Dreamer 2025 brochure
+Dreamer,2025,Campervan,Dreamer Fun,D55 UP,5.99,,,,,,Fiat Ducato,Dreamer 2025 brochure
+Dreamer,2025,Campervan,Dreamer Select,Camper Van XL Saphir,6.36,,,,,,,Dreamer 2025 brochure
+Dreamer,2025,Campervan,Dreamer Select,Cap Land,5.45,,,,,,,Dreamer 2025 brochure
+Dreamer,2025,Campervan,Dreamer Select,D51 Select,5.98,,,,,,,Dreamer 2025 brochure
+Dreamer,2025,Campervan,Dreamer Select,D55 Saphir,5.99,,,,,,,Dreamer 2025 brochure
+Dreamer,2025,Campervan,Dreamer Select,D62 Saphir,6.36,,,,,,,Dreamer 2025 brochure
+Dreamer,2025,Campervan,Dreamer Select,D68 Saphir,6.36,,,,,,,Dreamer 2025 brochure
+Dreamer,2025,Campervan,Dreamer Select,D68 UP Saphir,6.36,,,,,,,Dreamer 2025 brochure
+Dreamer,2025,Campervan,Dreamer Select,Family Van,5.99,,,,,,,Dreamer 2025 brochure
+Dreamer,2025,Campervan,Dreamer Select,Living Van,6.36,,,,,,,Dreamer 2025 brochure
+Globecar,2021,Campervan,Campscout,Elegance,6.36,,,,,,,Globecar 2021 catalogue
+Globecar,2021,Campervan,Campscout,Standard,6.36,,,,,,,Globecar 2021 catalogue
+Globecar,2021,Campervan,Globescout,Elegance,5.99,,,,,,,Globecar 2021 catalogue
+Globecar,2021,Campervan,Globescout,R,5.99,,,,,,,Globecar 2021 catalogue
+Globecar,2021,Campervan,Globescout,Standard,5.99,,,,,,,Globecar 2021 catalogue
+Globecar,2021,Campervan,Roadscout R,Elegance,5.41,,,,,,,Globecar 2021 catalogue
+Globecar,2021,Campervan,Roadscout R,Standard,5.41,,,,,,,Globecar 2021 catalogue
+Globecar,2022,Campervan,Campscout,Elegance,6.36,2.05,2.58,4.04,2970,,Fiat Ducato,Promobil test 2021
+Globecar,2022,Campervan,Roadscout R,Elegance,5.41,2.05,2.58,,2720,3300,Fiat Ducato,Practical Motorhome test 2022
+Rapido,2021,Campervan,Rapido Van,V55,5.99,2.05,2.59,4.04,3055,3500,Fiat Ducato,Rapido 2021 brochure
+Rapido,2021,Campervan,Rapido Van,V62,6.36,2.05,2.59,4.04,3080,3500,Fiat Ducato,Rapido 2021 brochure
+Rapido,2021,Campervan,Rapido Van,V65 XL,6.36,2.05,2.88,4.04,3060,3500,Fiat Ducato,Rapido 2021 brochure
+Rapido,2021,Campervan,Rapido Van,V68,6.36,2.05,2.59,4.04,3085,3500,Fiat Ducato,Rapido 2021 brochure
+Swift,2025,Campervan,Carrera,122,6.00,2.26,2.72,4.04,2960,3500,Fiat Ducato,Swift 2025 Campervan brochure
+Swift,2025,Campervan,Carrera,132,6.36,2.26,2.72,4.04,3070,3500,Fiat Ducato,Swift 2025 Campervan brochure
+Swift,2025,Campervan,Carrera,144,6.00,2.26,2.72,4.04,3025,3500,Fiat Ducato,Swift 2025 Campervan brochure
+Swift,2025,Campervan,Carrera,184,6.36,2.26,2.72,4.04,3120,3500,Fiat Ducato,Swift 2025 Campervan brochure
+Swift,2025,Campervan,Carrera,194,6.36,2.26,2.72,4.04,3135,3500,Fiat Ducato,Swift 2025 Campervan brochure
+Swift,2025,Campervan,Carrera,244,6.00,2.26,2.79,4.04,3120,3500,Fiat Ducato,Swift 2025 Campervan brochure
+Swift,2025,Campervan,Monza,S,5.05,2.15,2.07,3.10,2669,3115,,Swift 2025 Campervan brochure
+Swift,2025,Campervan,Trekker,Standard,5.53,2.11,2.98,3.30,2970,3500,Ford Transit,Swift 2025 Campervan brochure
+Swift,2025,Campervan,Trekker,X,5.98,2.11,2.98,3.75,3085,3500,Ford Transit,Swift 2025 Campervan brochure
+Swift,2025,Campervan,Trekker,XL,5.98,2.11,2.86,3.75,2890,3500,Ford Transit,Swift 2025 Campervan brochure
+Swift,2025,Motorhome,Ascari,344,5.99,2.26,2.78,3.80,2853,3500,Fiat Ducato,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Ascari,372,6.65,2.26,2.78,3.80,2905,3500,Fiat Ducato,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Ascari,384,6.99,2.26,2.78,3.80,3000,3500,Fiat Ducato,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Escape,640,6.99,2.37,2.86,4.20,3140,3500,Fiat Ducato AL-KO,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Escape,674,8.22,2.37,2.86,4.70,3445,4500,Fiat Ducato AL-KO,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Escape,684,7.84,2.37,2.88,4.70,3245,3700,Fiat Ducato AL-KO,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Escape,694,7.84,2.37,2.88,4.70,3255,3700,Fiat Ducato AL-KO,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Kon-Tiki,774,8.22,2.38,2.87,4.70,3605,4500,Fiat Ducato AL-KO,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Kon-Tiki,784,7.84,2.38,2.89,4.70,3428,4500,Fiat Ducato AL-KO,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Kon-Tiki,794,8.22,2.38,2.89,4.70,3553,4500,Fiat Ducato AL-KO,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Kon-Tiki,874,8.96,2.38,2.91,4.70,3975,5000,Fiat Ducato AL-KO,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Kon-Tiki,884,8.96,2.38,2.92,4.70,3873,5000,Fiat Ducato AL-KO,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Kon-Tiki,894,8.96,2.38,2.92,4.70,3883,5000,Fiat Ducato AL-KO,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Voyager,475,7.54,2.37,2.98,4.52,3070,3500,Ford Transit L4,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Voyager,485,7.54,2.37,2.98,4.52,3070,3500,Ford Transit L4,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Voyager,494,7.54,2.37,2.98,4.52,3088,3500,Ford Transit L4,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Voyager,505,6.19,2.37,2.87,3.95,2830,3500,Ford Transit L4,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Voyager,510,6.19,2.37,2.87,3.95,2860,3500,Ford Transit L4,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Voyager,540,7.01,2.37,2.86,3.95,3005,3500,Ford Transit L4,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Voyager,564,7.22,2.37,2.86,3.95,2990,3500,Ford Transit L5,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Voyager,574,7.73,2.37,2.87,4.52,3115,3500,Ford Transit L5,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Voyager,584,7.85,2.37,2.87,4.52,3076,3500,Ford Transit L5,Swift 2025 Motorhome Technical Handbook
+Swift,2025,Motorhome,Voyager,594,7.85,2.37,2.87,4.52,3095,3500,Ford Transit L5 heavy duty,Swift 2025 Motorhome Technical Handbook

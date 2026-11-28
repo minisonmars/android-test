@@ -73,7 +73,7 @@ class VehicleActivity : Page() {
 
         // Details
         content.addView(ui.heading("Details"))
-        if (editing && v.type == VehicleType.CARAVAN && KnownModels.all(this).isNotEmpty()) {
+        if (editing && KnownModels.of(this, v.type).isNotEmpty()) {
             content.addView(ui.button("Fill in from a known model", Colours.TILE) { pickKnownMake() })
         }
         detailList(v.details, "For example: Chassis number", "For example: Swift")
@@ -575,34 +575,40 @@ class VehicleActivity : Page() {
     // ---------- Known models ----------
 
     private fun pickKnownMake() {
-        val makes = KnownModels.makes(this)
+        val makes = KnownModels.makes(this, vehicle.type)
         AlertDialog.Builder(this).setTitle("Which make?")
             .setItems(makes.toTypedArray()) { _, i -> pickKnownYear(makes[i]) }
             .setNegativeButton("Cancel", null).show()
     }
 
     private fun pickKnownYear(make: String) {
-        val years = KnownModels.years(this, make)
+        val years = KnownModels.years(this, vehicle.type, make)
         AlertDialog.Builder(this).setTitle("$make: which model year?")
             .setItems(years.map { it.toString() }.toTypedArray()) { _, i -> pickKnownModel(make, years[i]) }
             .setNegativeButton("Cancel", null).show()
     }
 
     private fun pickKnownModel(make: String, year: Int) {
-        val models = KnownModels.models(this, make, year)
+        val models = KnownModels.models(this, vehicle.type, make, year)
         AlertDialog.Builder(this).setTitle("$make $year: which model?")
             .setItems(models.map { it.name }.toTypedArray()) { _, i -> confirmKnown(models[i]) }
             .setNegativeButton("Cancel", null).show()
     }
 
     private fun confirmKnown(m: KnownModel) {
-        val msg = "Length ${Store.fixed(m.lengthM)} m, width ${Store.fixed(m.widthM)} m, height ${Store.fixed(m.heightM)} m\n" +
-            "MRO ${m.mroKg} kg, MTPLM ${m.mtplmKg} kg" +
-            (if (m.mtplmUpgradeKg > m.mtplmKg) " (upgradable to ${m.mtplmUpgradeKg} kg)" else "") + "\n" +
-            "${m.axles} axle${if (m.axles == 1) "" else "s"}\n\n" +
+        fun size(label: String, v: Float) = if (v > 0) "$label ${Store.fixed(v)} m" else "$label not published"
+        fun kg(label: String, v: Int) = if (v > 0) "$label $v kg" else "$label not published"
+        val missing = m.lengthM <= 0 || m.widthM <= 0 || m.heightM <= 0 || m.mroKg <= 0 || m.mtplmKg <= 0
+        val msg = "${size("Length", m.lengthM)}, ${size("width", m.widthM)}, ${size("height", m.heightM)}\n" +
+            "${kg("MRO", m.mroKg)}, ${kg("MTPLM", m.mtplmKg)}" +
+            (if (m.mtplmUpgradeKg > m.mtplmKg && m.mtplmKg > 0) " (upgradable to ${m.mtplmUpgradeKg} kg)" else "") + "\n" +
+            (if (m.type == VehicleType.CARAVAN) (if (m.axles > 0) "${m.axles} axle${if (m.axles == 1) "" else "s"}\n" else "") + "\n"
+            else (if (m.wheelbaseM > 0) "Wheelbase ${Store.fixed(m.wheelbaseM)} m\n" else "") +
+                (if (m.baseVehicle.isNotBlank()) "Base vehicle: ${m.baseVehicle}\n" else "") + "\n") +
             "From: ${m.source}. These are the maker's approximate figures for a standard model; options, " +
             "dealer specials and weight upgrades change them, so check your own plate and handbook.\n\n" +
-            "This fills in Make, Model, Year, the sizes and the weights, replacing what's there."
+            "This fills in Make, Model, Year, the sizes and the weights, replacing what's there." +
+            (if (missing) " Anything the maker didn't publish is left as it is." else "")
         AlertDialog.Builder(this).setTitle("${m.make} ${m.name} (${m.year})").setMessage(msg)
             .setPositiveButton("Fill in") { _, _ ->
                 save()
@@ -614,12 +620,13 @@ class VehicleActivity : Page() {
                 line("Make", m.make)
                 line("Model", m.name)
                 line("Year", m.year.toString())
-                v.lengthCm = m.lengthM * 100f
-                v.widthCm = m.widthM * 100f
-                v.heightCm = m.heightM * 100f
+                if (m.lengthM > 0) v.lengthCm = m.lengthM * 100f
+                if (m.widthM > 0) v.widthCm = m.widthM * 100f
+                if (m.heightM > 0) v.heightCm = m.heightM * 100f
                 listOf("length", "width", "height").forEach { v.sizeUnits[it] = SizeUnit.M.name }
-                v.mroKg = m.mroKg
-                v.mtplmKg = m.mtplmKg
+                if (m.wheelbaseM > 0) { v.wheelbaseCm = m.wheelbaseM * 100f; v.sizeUnits["wheelbase"] = SizeUnit.M.name }
+                if (m.mroKg > 0) v.mroKg = m.mroKg
+                if (m.mtplmKg > 0) v.mtplmKg = m.mtplmKg
                 val note = "Sizes and weights filled in from ${m.source} (approximate)."
                 if (!v.notes.contains(note)) v.notes = (v.notes.trim() + "\n" + note).trim()
                 commits.clear() // don't let the old boxes overwrite what was just filled in

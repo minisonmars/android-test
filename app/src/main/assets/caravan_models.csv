@@ -1,6 +1,171 @@
-# Published caravan sizes and weights, copied from the makers' own documents.
+# Published caravan sizes and weights, copied from the makers' own handbooks and brochures.
 # Figures are approximate (the makers say so) and vary with options: always check the vehicle's own plate and handbook.
+# Some figures are printed as "Est" (estimated) by the maker and are copied as printed. Blank = not published.
+# Coachman 2021 prints no overall length (only shipping length), so length is blank there; Bailey 2021 length = printed shipping length.
 # make,year,range,model,length_m,internal_length_m,width_m,height_m,mro_kg,mtplm_kg,mtplm_upgrade_kg,axles,source
+Bailey,2017,Pursuit,400-2,5.450,4.180,2.236,2.590,965,1090,0,1,Bailey 2017 brochure (length is the shipping length)
+Bailey,2017,Pursuit,430-4,6.500,5.226,2.236,2.590,1086,1232,0,1,Bailey 2017 brochure (length is the shipping length)
+Bailey,2017,Pursuit,530-4,7.400,5.713,2.236,2.590,1237,1392,0,1,Bailey 2017 brochure (length is the shipping length)
+Bailey,2017,Pursuit,550-4,7.400,5.713,2.236,2.590,1236,1392,0,1,Bailey 2017 brochure (length is the shipping length)
+Bailey,2017,Pursuit,560-5,7.400,5.713,2.236,2.590,1242,1407,0,1,Bailey 2017 brochure (length is the shipping length)
+Bailey,2017,Pursuit,570-6,7.400,5.713,2.236,2.590,1276,1450,0,1,Bailey 2017 brochure (length is the shipping length)
+Bailey,2017,Pegasus,Genoa,6.317,4.777,2.230,2.610,1136,1265,0,1,Bailey 2017 brochure (length is the shipping length)
+Bailey,2017,Pegasus,Modena,6.493,4.952,2.230,2.610,1126,1275,0,1,Bailey 2017 brochure (length is the shipping length)
+Bailey,2017,Pegasus,Verona,7.170,5.630,2.230,2.610,1281,1450,0,1,Bailey 2017 brochure (length is the shipping length)
+Bailey,2017,Pegasus,Brindisi,7.377,5.837,2.230,2.610,1286,1450,0,1,Bailey 2017 brochure (length is the shipping length)
+Bailey,2017,Pegasus,Rimini,7.170,5.630,2.230,2.610,1287,1450,0,1,Bailey 2017 brochure (length is the shipping length)
+Bailey,2017,Pegasus,Ancona,7.377,5.836,2.230,2.610,1296,1475,0,1,Bailey 2017 brochure (length is the shipping length)
+Bailey,2017,Pegasus,Palermo,7.921,6.380,2.230,2.610,1573,1760,0,2,Bailey 2017 brochure (length is the shipping length)
+Bailey,2017,Unicorn,Seville,6.470,4.915,2.280,2.610,1242,1369,0,1,Bailey 2017 brochure (length is the shipping length)
+Bailey,2017,Unicorn,Madrid,7.372,5.830,2.280,2.610,1352,1496,0,1,Bailey 2017 brochure (length is the shipping length)
+Bailey,2017,Unicorn,Valencia,7.372,5.830,2.280,2.610,1339,1493,0,1,Bailey 2017 brochure (length is the shipping length)
+Bailey,2017,Unicorn,Vigo,7.372,5.830,2.280,2.610,1346,1500,0,1,Bailey 2017 brochure (length is the shipping length)
+Bailey,2017,Unicorn,Cadiz,7.372,5.830,2.280,2.610,1337,1491,0,1,Bailey 2017 brochure (length is the shipping length)
+Bailey,2021,Alicanto Grande,Estoril,7.38,6.11,2.45,2.61,1469,1624,1624,1,Bailey 2021 brochure
+Bailey,2021,Alicanto Grande,Sintra,7.86,6.33,2.45,2.61,1619,1779,1779,2,Bailey 2021 brochure
+Bailey,2021,Alicanto Grande,Faro,7.38,6.11,2.45,2.61,1441,1596,1596,1,Bailey 2021 brochure
+Bailey,2021,Alicanto Grande,Porto,7.86,6.33,2.45,2.61,1630,1790,1790,2,Bailey 2021 brochure
+Bailey,2021,Pegasus Grande SE,Rimini,7.38,5.90,2.45,2.58,1401,1556,1556,1,Bailey 2021 brochure
+Bailey,2021,Pegasus Grande SE,Brindisi,7.38,5.90,2.45,2.58,1384,1539,1539,1,Bailey 2021 brochure
+Bailey,2021,Pegasus Grande SE,Bologna,7.86,6.33,2.45,2.58,1496,1656,1656,2,Bailey 2021 brochure
+Bailey,2021,Pegasus Grande SE,Messina,7.86,6.33,2.45,2.58,1538,1698,1698,2,Bailey 2021 brochure
+Bailey,2021,Pegasus Grande SE,Palermo,7.86,6.33,2.45,2.58,1535,1715,1715,2,Bailey 2021 brochure
+Bailey,2021,Pegasus Grande SE,Turin,7.86,6.33,2.45,2.58,1544,1724,1724,2,Bailey 2021 brochure
+Bailey,2021,Unicorn Black Edition,Merida,6.19,4.67,2.28,2.61,1217,1330,1330,1,Bailey 2021 brochure
+Bailey,2021,Unicorn Black Edition,Valencia,7.36,5.83,2.28,2.61,1344,1499,1499,,Bailey 2021 brochure
+Bailey,2021,Unicorn Black Edition,Cadiz,7.36,5.83,2.28,2.61,1335,1490,1490,,Bailey 2021 brochure
+Bailey,2021,Unicorn Black Edition,Vigo,7.36,5.83,2.28,2.61,1344,1499,1499,,Bailey 2021 brochure
+Bailey,2021,Unicorn Black Edition,Cabrera,7.36,5.83,2.28,2.61,1377,1532,1532,,Bailey 2021 brochure
+Bailey,2021,Unicorn Black Edition,Cartagena,7.91,6.38,2.28,2.61,1522,1682,1682,,Bailey 2021 brochure
+Bailey,2021,Unicorn Black Edition,Pamplona,7.91,6.38,2.28,2.61,1538,1698,1698,,Bailey 2021 brochure
+Bailey,2021,Phoenix+,420,5.56,4.03,2.21,2.62,1029,1146,1146,,Bailey 2021 brochure
+Bailey,2021,Phoenix+,440,6.88,5.35,2.21,2.62,1197,1347,1347,,Bailey 2021 brochure
+Bailey,2021,Phoenix+,642,7.37,5.84,2.21,2.62,1255,1410,1410,,Bailey 2021 brochure
+Bailey,2021,Phoenix+,644,7.37,5.84,2.21,2.62,1240,1395,1395,,Bailey 2021 brochure
+Bailey,2021,Phoenix+,640,7.37,5.84,2.21,2.62,1257,1411,1411,,Bailey 2021 brochure
+Bailey,2021,Phoenix+,650,7.37,5.84,2.21,2.62,1244,1409,1409,,Bailey 2021 brochure
+Bailey,2021,Discovery,D4-2,5.62,3.87,2.23,2.61,884,995,995,,Bailey 2021 brochure
+Bailey,2021,Discovery,D4-3,6.11,4.35,2.23,2.61,946,1082,1082,,Bailey 2021 brochure
+Bailey,2021,Discovery,D4-4,7.14,5.40,2.23,2.61,1059,1206,1206,,Bailey 2021 brochure
+Coachman,2021,Acadia,460,,4.63,2.26,2.65,1236,1360,1400,,Coachman 2021 Technical Data Manual
+Coachman,2021,Acadia,520,,5.30,2.26,2.65,1314,1455,1500,,Coachman 2021 Technical Data Manual
+Coachman,2021,Acadia,545,,5.76,2.26,2.65,1442,1597,1600,,Coachman 2021 Technical Data Manual
+Coachman,2021,Acadia,565,,5.71,2.26,2.65,1431,1586,1600,,Coachman 2021 Technical Data Manual
+Coachman,2021,Acadia,575,,5.76,2.26,2.65,1392,1547,1550,,Coachman 2021 Technical Data Manual
+Coachman,2021,Acadia,830 Xcel,,6.27,2.44,2.65,1650,1820,2000,,Coachman 2021 Technical Data Manual
+Coachman,2021,Acadia,860 Xcel,,6.27,2.44,2.65,1635,1805,2000,,Coachman 2021 Technical Data Manual
+Coachman,2021,Acadia,875 Xcel,,6.27,2.44,2.65,1665,1825,2000,,Coachman 2021 Technical Data Manual
+Coachman,2021,VIP,460,,4.75,2.31,2.65,1319,1444,1500,,Coachman 2021 Technical Data Manual
+Coachman,2021,VIP,520,,5.42,2.31,2.65,1402,1544,1550,,Coachman 2021 Technical Data Manual
+Coachman,2021,VIP,545,,5.80,2.31,2.65,1506,1662,1700,,Coachman 2021 Technical Data Manual
+Coachman,2021,VIP,565,,5.74,2.31,2.65,1497,1652,1700,,Coachman 2021 Technical Data Manual
+Coachman,2021,VIP,575,,5.80,2.31,2.65,1486,1642,1700,,Coachman 2021 Technical Data Manual
+Coachman,2021,Laser,575 Xcel,,5.80,2.44,2.65,1579,1734,1800,,Coachman 2021 Technical Data Manual
+Coachman,2021,Laser,650,,6.27,2.31,2.65,1674,1834,1900,,Coachman 2021 Technical Data Manual
+Coachman,2021,Laser,665,,6.27,2.31,2.65,1681,1841,1900,,Coachman 2021 Technical Data Manual
+Coachman,2021,Laser,675,,6.27,2.31,2.65,1657,1817,1900,,Coachman 2021 Technical Data Manual
+Coachman,2021,Laser Xcel,845,,6.27,2.44,2.65,1767,1927,2000,,Coachman 2021 Technical Data Manual
+Coachman,2021,Laser Xcel,850,,6.27,2.44,2.65,1767,1927,2000,,Coachman 2021 Technical Data Manual
+Coachman,2021,Laser Xcel,875,,6.27,2.44,2.65,1725,1885,2000,,Coachman 2021 Technical Data Manual
+Coachman,2021,Lusso,Standard,,6.27,2.44,2.65,1800,1960,2000,,Coachman 2021 Technical Data Manual
+Coachman,2023,Acadia,545,7.390,5.760,2.260,2.650,1430,1585,0,1,Coachman 2023 brochure
+Coachman,2023,Acadia,575,7.390,5.760,2.260,2.650,1405,1560,0,1,Coachman 2023 brochure
+Coachman,2023,Acadia,630Xtra,7.895,6.265,2.440,2.650,1610,1780,0,2,Coachman 2023 brochure
+Coachman,2023,Acadia,660Xtra,7.895,6.265,2.440,2.650,1615,1785,0,2,Coachman 2023 brochure
+Coachman,2023,VIP,460,6.380,4.750,2.310,2.650,1319,1444,0,1,Coachman 2023 brochure
+Coachman,2023,VIP,520,7.050,5.420,2.310,2.650,1382,1524,0,1,Coachman 2023 brochure
+Coachman,2023,VIP,540Xtra,7.430,5.800,2.440,2.650,1544,1700,0,1,Coachman 2023 brochure
+Coachman,2023,VIP,565,7.370,5.740,2.310,2.650,1497,1652,0,1,Coachman 2023 brochure
+Coachman,2023,VIP,575,7.430,5.800,2.310,2.650,1486,1642,0,1,Coachman 2023 brochure
+Coachman,2023,VIP,675,7.895,6.265,2.310,2.650,1650,1810,0,2,Coachman 2023 brochure
+Coachman,2023,Laser,545 Xtra,7.430,5.800,2.440,2.650,1579,1734,0,1,Coachman 2023 brochure
+Coachman,2023,Laser,575 Xtra,7.430,5.800,2.440,2.650,1579,1734,0,1,Coachman 2023 brochure
+Coachman,2023,Laser,620Xtra,7.895,6.265,2.440,2.650,1725,1875,0,2,Coachman 2023 brochure
+Coachman,2023,Laser,665,7.895,6.265,2.310,2.650,1668,1828,0,2,Coachman 2023 brochure
+Coachman,2023,Laser Xcel,845,7.895,6.265,2.440,2.650,1750,1910,0,2,Coachman 2023 brochure
+Coachman,2023,Laser Xcel,850,7.895,6.265,2.440,2.650,1750,1910,0,2,Coachman 2023 brochure
+Coachman,2023,Laser Xcel,855,7.895,6.265,2.440,2.650,1790,1950,0,2,Coachman 2023 brochure (weights estimated by Coachman)
+Coachman,2023,Laser Xcel,875,7.895,6.265,2.440,2.650,1725,1885,0,2,Coachman 2023 brochure
+Coachman,2023,Lusso,I,7.430,5.800,2.440,2.750,1674,1829,0,1,Coachman 2023 brochure (weights estimated by Coachman)
+Coachman,2023,Lusso,II,7.895,6.265,2.440,2.750,1800,1960,0,2,Coachman 2023 brochure (weights estimated by Coachman)
+Swift,2017,Sprite Freedom,6,7.25,5.60,2.23,2.58,1187,1360,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Sprite Freedom,6TD,7.48,5.83,2.23,2.58,1222,1398,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Sprite Freedom,FB,7.92,6.27,2.23,2.55,1320,1500,1600,2,Swift 2017 Technical Handbook
+Swift,2017,Sprite,Alpine 2,5.99,4.34,2.23,2.67,1020,1186,1250,1,Swift 2017 Technical Handbook
+Swift,2017,Sprite,Alpine 4,6.39,4.74,2.23,2.67,1054,1244,1300,1,Swift 2017 Technical Handbook
+Swift,2017,Sprite,Major 4 SB,7.48,5.83,2.23,2.68,1209,1410,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Sprite,Major 4 EB,7.48,5.83,2.23,2.68,1232,1433,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Sprite,Major 6,7.25,5.60,2.23,2.68,1227,1445,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Sprite,Major 6 TD,7.48,5.83,2.23,2.68,1263,1484,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Sprite,Quattro EW,7.92,6.27,2.23,2.65,1358,1583,1800,2,Swift 2017 Technical Handbook
+Swift,2017,Sprite,Quattro FB,7.92,6.27,2.23,2.65,1363,1588,1800,2,Swift 2017 Technical Handbook
+Swift,2017,Sprite,Quattro DD,7.92,6.27,2.23,2.65,1399,1624,1800,2,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Alde),480,6.11,4.40,2.23,2.61,1166,1288,1350,1,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Alde),510,6.94,5.23,2.23,2.61,1278,1428,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Alde),530,7.00,5.29,2.23,2.61,1313,1464,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Alde),560,7.54,5.83,2.23,2.61,1338,1494,1550,1,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Alde),565,7.31,5.60,2.23,2.61,1343,1497,1550,1,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Alde),580,7.54,5.83,2.23,2.61,1353,1509,1550,1,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Alde),590,7.54,5.83,2.23,2.61,1439,1615,1650,1,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Alde),635,7.98,6.27,2.23,2.61,1540,1700,2000,2,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Alde),645,7.98,6.27,2.23,2.61,1495,1655,2000,2,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Alde),480,6.11,4.40,2.23,2.61,1166,1288,1350,1,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Alde),510,6.94,5.23,2.23,2.61,1278,1428,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Alde),530,7.00,5.29,2.23,2.61,1313,1464,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Alde),560,7.54,5.83,2.23,2.61,1338,1494,1550,1,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Alde),565,7.31,5.60,2.23,2.61,1343,1497,1550,1,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Alde),580,7.54,5.83,2.23,2.61,1353,1509,1550,1,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Alde),590,7.54,5.83,2.23,2.61,1439,1615,1650,1,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Alde),635,7.98,6.27,2.23,2.61,1540,1700,2000,2,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Alde),645,7.98,6.27,2.23,2.61,1495,1655,2000,2,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Truma),480,6.11,4.40,2.23,2.61,1151,1273,1350,1,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Truma),510,6.94,5.23,2.23,2.61,1257,1407,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Truma),530,7.00,5.29,2.23,2.61,1298,1449,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Truma),560,7.54,5.83,2.23,2.61,1318,1474,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Truma),565,7.31,5.60,2.23,2.61,1323,1477,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Truma),580,7.54,5.83,2.23,2.61,1333,1489,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Truma),590,7.54,5.83,2.23,2.61,1419,1600,1600,1,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Truma),635,7.98,6.27,2.23,2.61,1520,1680,2000,2,Swift 2017 Technical Handbook
+Swift,2017,Challenger (Truma),645,7.98,6.27,2.23,2.61,1475,1635,2000,2,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Truma),480,6.11,4.40,2.23,2.61,1151,1273,1350,1,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Truma),510,6.94,5.23,2.23,2.61,1257,1407,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Truma),530,7.00,5.29,2.23,2.61,1298,1449,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Truma),560,7.54,5.83,2.23,2.61,1318,1474,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Truma),565,7.31,5.60,2.23,2.61,1323,1477,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Truma),580,7.54,5.83,2.23,2.61,1333,1489,1500,1,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Truma),590,7.54,5.83,2.23,2.61,1419,1600,1600,1,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Truma),635,7.98,6.27,2.23,2.61,1520,1680,2000,2,Swift 2017 Technical Handbook
+Swift,2017,Eccles (Truma),645,7.98,6.27,2.23,2.61,1475,1635,2000,2,Swift 2017 Technical Handbook
+Swift,2017,Conqueror,480,6.54,4.98,2.26,2.61,1323,1449,1550,1,Swift 2017 Technical Handbook
+Swift,2017,Conqueror,560,7.49,5.93,2.26,2.61,1510,1666,1700,1,Swift 2017 Technical Handbook
+Swift,2017,Conqueror,565,7.49,5.93,2.26,2.61,1500,1656,1700,1,Swift 2017 Technical Handbook
+Swift,2017,Conqueror,570,7.49,5.93,2.26,2.61,1480,1636,1700,1,Swift 2017 Technical Handbook
+Swift,2017,Conqueror,580,7.49,5.93,2.26,2.61,1485,1641,1700,1,Swift 2017 Technical Handbook
+Swift,2017,Conqueror,630,7.94,6.38,2.26,2.61,1611,1791,2000,2,Swift 2017 Technical Handbook
+Swift,2017,Conqueror,645,7.94,6.38,2.26,2.61,1601,1761,2000,2,Swift 2017 Technical Handbook
+Swift,2017,Conqueror,650,7.94,6.38,2.26,2.61,1636,1796,2000,2,Swift 2017 Technical Handbook
+Swift,2017,Elite,480,6.54,4.98,2.26,2.61,1323,1449,1550,1,Swift 2017 Technical Handbook
+Swift,2017,Elite,560,7.49,5.93,2.26,2.61,1510,1666,1700,1,Swift 2017 Technical Handbook
+Swift,2017,Elite,565,7.49,5.93,2.26,2.61,1500,1656,1700,1,Swift 2017 Technical Handbook
+Swift,2017,Elite,570,7.49,5.93,2.26,2.61,1480,1636,1700,1,Swift 2017 Technical Handbook
+Swift,2017,Elite,580,7.49,5.93,2.26,2.61,1485,1641,1700,1,Swift 2017 Technical Handbook
+Swift,2017,Elite,630,7.94,6.38,2.26,2.61,1611,1791,2000,2,Swift 2017 Technical Handbook
+Swift,2017,Elite,645,7.94,6.38,2.26,2.61,1601,1761,2000,2,Swift 2017 Technical Handbook
+Swift,2017,Elite,650,7.94,6.38,2.26,2.61,1636,1796,2000,2,Swift 2017 Technical Handbook
+Swift,2017,Elegance,480,6.54,4.98,2.26,2.61,1396,1522,1650,1,Swift 2017 Technical Handbook
+Swift,2017,Elegance,530,7.01,5.45,2.26,2.61,1510,1661,1750,1,Swift 2017 Technical Handbook
+Swift,2017,Elegance,565,7.49,5.93,2.26,2.61,1570,1726,1750,1,Swift 2017 Technical Handbook
+Swift,2017,Elegance,570,7.49,5.93,2.26,2.61,1555,1711,1750,1,Swift 2017 Technical Handbook
+Swift,2017,Elegance,580,7.49,5.93,2.26,2.61,1550,1706,1750,1,Swift 2017 Technical Handbook
+Swift,2017,Elegance,645,7.94,6.38,2.26,2.61,1700,1900,2000,2,Swift 2017 Technical Handbook
+Swift,2017,Elegance,650,7.94,6.38,2.26,2.61,1722,1900,2000,2,Swift 2017 Technical Handbook
+Swift,2017,Continental,480,6.54,4.98,2.26,2.61,1396,1522,1650,1,Swift 2017 Technical Handbook
+Swift,2017,Continental,530,7.01,5.45,2.26,2.61,1510,1661,1750,1,Swift 2017 Technical Handbook
+Swift,2017,Continental,565,7.49,5.93,2.26,2.61,1570,1726,1750,1,Swift 2017 Technical Handbook
+Swift,2017,Continental,570,7.49,5.93,2.26,2.61,1555,1711,1750,1,Swift 2017 Technical Handbook
+Swift,2017,Continental,580,7.49,5.93,2.26,2.61,1550,1706,1750,1,Swift 2017 Technical Handbook
+Swift,2017,Continental,645,7.94,6.38,2.26,2.61,1700,1900,2000,2,Swift 2017 Technical Handbook
+Swift,2017,Continental,650,7.94,6.38,2.26,2.61,1722,1900,2000,2,Swift 2017 Technical Handbook
 Swift,2018,Sprite,Alpine 2,6.05,4.34,2.25,2.59,1042,1208,1250,1,Swift 2018 Technical Handbook
 Swift,2018,Sprite,Alpine 4,6.45,4.74,2.25,2.59,1094,1284,1300,1,Swift 2018 Technical Handbook
 Swift,2018,Sprite,Major 4 SB,7.54,5.83,2.25,2.59,1236,1437,1500,1,Swift 2018 Technical Handbook
@@ -34,26 +199,47 @@ Swift,2018,Elegance,565,7.49,5.93,2.26,2.61,1588,1750,1750,1,Swift 2018 Technica
 Swift,2018,Elegance,580,7.49,5.93,2.26,2.61,1568,1724,1750,1,Swift 2018 Technical Handbook
 Swift,2018,Elegance,645,7.94,6.38,2.26,2.61,1703,1863,2000,2,Swift 2018 Technical Handbook
 Swift,2018,Elegance,650,7.94,6.38,2.26,2.61,1711,1871,2000,2,Swift 2018 Technical Handbook
-Coachman,2023,Acadia,545,7.390,5.760,2.260,2.650,1430,1585,0,1,Coachman 2023 brochure
-Coachman,2023,Acadia,575,7.390,5.760,2.260,2.650,1405,1560,0,1,Coachman 2023 brochure
-Coachman,2023,Acadia,630Xtra,7.895,6.265,2.440,2.650,1610,1780,0,2,Coachman 2023 brochure
-Coachman,2023,Acadia,660Xtra,7.895,6.265,2.440,2.650,1615,1785,0,2,Coachman 2023 brochure
-Coachman,2023,VIP,460,6.380,4.750,2.310,2.650,1319,1444,0,1,Coachman 2023 brochure
-Coachman,2023,VIP,520,7.050,5.420,2.310,2.650,1382,1524,0,1,Coachman 2023 brochure
-Coachman,2023,VIP,540Xtra,7.430,5.800,2.440,2.650,1544,1700,0,1,Coachman 2023 brochure
-Coachman,2023,VIP,565,7.370,5.740,2.310,2.650,1497,1652,0,1,Coachman 2023 brochure
-Coachman,2023,VIP,575,7.430,5.800,2.310,2.650,1486,1642,0,1,Coachman 2023 brochure
-Coachman,2023,VIP,675,7.895,6.265,2.310,2.650,1650,1810,0,2,Coachman 2023 brochure
-Coachman,2023,Laser,545 Xtra,7.430,5.800,2.440,2.650,1579,1734,0,1,Coachman 2023 brochure
-Coachman,2023,Laser,575 Xtra,7.430,5.800,2.440,2.650,1579,1734,0,1,Coachman 2023 brochure
-Coachman,2023,Laser,620Xtra,7.895,6.265,2.440,2.650,1725,1875,0,2,Coachman 2023 brochure
-Coachman,2023,Laser,665,7.895,6.265,2.310,2.650,1668,1828,0,2,Coachman 2023 brochure
-Coachman,2023,Laser Xcel,845,7.895,6.265,2.440,2.650,1750,1910,0,2,Coachman 2023 brochure
-Coachman,2023,Laser Xcel,850,7.895,6.265,2.440,2.650,1750,1910,0,2,Coachman 2023 brochure
-Coachman,2023,Laser Xcel,855,7.895,6.265,2.440,2.650,1790,1950,0,2,Coachman 2023 brochure (weights estimated by Coachman)
-Coachman,2023,Laser Xcel,875,7.895,6.265,2.440,2.650,1725,1885,0,2,Coachman 2023 brochure
-Coachman,2023,Lusso,I,7.430,5.800,2.440,2.750,1674,1829,0,1,Coachman 2023 brochure (weights estimated by Coachman)
-Coachman,2023,Lusso,II,7.895,6.265,2.440,2.750,1800,1960,0,2,Coachman 2023 brochure (weights estimated by Coachman)
+Swift,2019,Sprite,Alpine 2,6.05,4.34,2.25,2.59,1042,1208,1250,1,Swift 2019 Technical Handbook
+Swift,2019,Sprite,Alpine 4,6.45,4.74,2.25,2.59,1094,1284,1300,1,Swift 2019 Technical Handbook
+Swift,2019,Sprite,Major 4 SB,7.54,5.83,2.25,2.59,1236,1437,1500,1,Swift 2019 Technical Handbook
+Swift,2019,Sprite,Major 4 EB,7.54,5.83,2.25,2.59,1275,1476,1500,1,Swift 2019 Technical Handbook
+Swift,2019,Sprite,Major 6,7.31,5.60,2.25,2.59,1249,1468,1500,1,Swift 2019 Technical Handbook
+Swift,2019,Sprite,Major 6 TD,7.54,5.83,2.25,2.59,1297,1518,1550,1,Swift 2019 Technical Handbook
+Swift,2019,Sprite,Quattro EW,7.98,6.27,2.25,2.59,1380,1605,1800,2,Swift 2019 Technical Handbook
+Swift,2019,Sprite,Quattro FB,7.98,6.27,2.25,2.59,1395,1620,1800,2,Swift 2019 Technical Handbook
+Swift,2019,Sprite,Quattro DD,7.98,6.27,2.25,2.59,1453,1678,1800,2,Swift 2019 Technical Handbook
+Swift,2019,Sprite,Quattro EB,7.98,6.27,2.25,2.59,1419,1624,1800,2,Swift 2019 Technical Handbook
+Swift,2019,Sprite Super,Quattro FB,7.98,6.27,2.46,2.59,1479,1704,1800,2,Swift 2019 Technical Handbook
+Swift,2019,Sprite Super,Quattro DB,7.98,6.27,2.46,2.59,1486,1711,1800,2,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Alde),480,6.66,4.95,2.23,2.61,1252,1384,1500,1,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Alde),530,7.00,5.29,2.23,2.61,1320,1476,1500,1,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Alde),560,7.54,5.83,2.23,2.61,1389,1550,1550,1,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Alde),565,7.31,5.60,2.23,2.61,1357,1516,1550,1,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Alde),580,7.54,5.83,2.23,2.61,1362,1523,1550,1,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Alde),590,7.54,5.83,2.23,2.61,1445,1626,1650,1,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Alde),635,7.98,6.27,2.23,2.61,1550,1715,2000,2,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Alde),645,7.98,6.27,2.23,2.61,1516,1681,2000,2,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Alde),650,7.98,6.27,2.23,2.61,1539,1704,2000,2,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Truma),480,6.66,4.95,2.23,2.61,1235,1367,1500,1,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Truma),530,7.00,5.29,2.23,2.61,1306,1462,1500,1,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Truma),560,7.54,5.83,2.23,2.61,1368,1529,1550,1,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Truma),565,7.31,5.60,2.23,2.61,1333,1492,1500,1,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Truma),580,7.54,5.83,2.23,2.61,1339,1500,1500,1,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Truma),590,7.54,5.83,2.23,2.61,1419,1600,1600,1,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Truma),635,7.98,6.27,2.23,2.61,1524,1689,2000,2,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Truma),645,7.98,6.27,2.23,2.61,1496,1661,2000,2,Swift 2019 Technical Handbook
+Swift,2019,Challenger (Truma),650,7.98,6.27,2.23,2.61,1531,1696,2000,2,Swift 2019 Technical Handbook
+Swift,2019,Elegance,480,6.59,4.98,2.28,2.59,1341,1467,1500,1,Swift 2019 Technical Handbook
+Swift,2019,Elegance,530,7.07,5.45,2.28,2.59,1474,1625,1650,1,Swift 2019 Technical Handbook
+Swift,2019,Elegance,560,7.54,5.93,2.28,2.59,1528,1684,1700,1,Swift 2019 Technical Handbook
+Swift,2019,Elegance,565,7.54,5.93,2.28,2.59,1525,1681,1700,1,Swift 2019 Technical Handbook
+Swift,2019,Elegance,580,7.54,5.93,2.28,2.59,1525,1681,1700,1,Swift 2019 Technical Handbook
+Swift,2019,Elegance,635,7.98,6.36,2.28,2.59,1670,1830,2000,2,Swift 2019 Technical Handbook
+Swift,2019,Elegance,645,7.98,6.36,2.28,2.59,1633,1793,2000,2,Swift 2019 Technical Handbook
+Swift,2019,Elegance,650,7.98,6.36,2.28,2.59,1670,1830,2000,2,Swift 2019 Technical Handbook
+Swift,2019,Elegance Grande,635,7.98,6.36,2.45,2.59,1725,1885,2000,2,Swift 2019 Technical Handbook
+Swift,2019,Elegance Grande,645,7.98,6.36,2.45,2.59,1695,1855,2000,2,Swift 2019 Technical Handbook
+Swift,2019,Elegance Grande,655,7.98,6.36,2.45,2.59,1787,1967,2000,2,Swift 2019 Technical Handbook
 Swift,2021,Basecamp,2,5.10,3.42,2.28,2.60,932,1043,1300,1,Swift 2021 Technical Handbook
 Swift,2021,Basecamp,4,5.59,3.91,2.28,2.60,1050,1186,1450,1,Swift 2021 Technical Handbook
 Swift,2021,Sprite,Alpine 2,6.05,4.34,2.25,2.59,1097,1218,1250,1,Swift 2021 Technical Handbook (MRO +45 kg as its addendum says)
@@ -80,6 +266,113 @@ Swift,2021,Elegance,580,7.54,5.93,2.28,2.59,1530,1686,1750,1,Swift 2021 Technica
 Swift,2021,Elegance Grande,835,7.98,6.36,2.45,2.59,1745,1905,2000,2,Swift 2021 Technical Handbook
 Swift,2021,Elegance Grande,845 (4 berth),7.98,6.36,2.45,2.59,1710,1870,2000,2,Swift 2021 Technical Handbook
 Swift,2021,Elegance Grande,845 (6 berth),7.98,6.36,2.45,2.59,1740,1900,2000,2,Swift 2021 Technical Handbook
+Swift,2022,Basecamp,2,5.10,3.42,2.28,2.60,932,1043,1300,1,Swift 2022 Technical Handbook
+Swift,2022,Basecamp,4,5.59,3.91,2.28,2.61,1050,1186,1450,1,Swift 2022 Technical Handbook
+Swift,2022,Basecamp,6,6.57,4.88,2.28,2.62,1165,1331,1500,1,Swift 2022 Technical Handbook
+Swift,2022,Sprite,Compact,5.37,3.66,2.03,2.59,980,1094,1200,1,Swift 2022 Technical Handbook
+Swift,2022,Sprite,Alpine 2,6.05,4.34,2.25,2.59,1097,1218,1250,1,Swift 2022 Technical Handbook
+Swift,2022,Sprite,Alpine 4,6.45,4.74,2.25,2.59,1139,1284,1300,1,Swift 2022 Technical Handbook
+Swift,2022,Sprite,Major 4 SB,7.54,5.83,2.25,2.59,1286,1442,1500,1,Swift 2022 Technical Handbook
+Swift,2022,Sprite,Major 4 EB,7.54,5.83,2.25,2.59,1320,1476,1500,1,Swift 2022 Technical Handbook
+Swift,2022,Sprite,Major 6 TD,7.54,5.83,2.25,2.59,1352,1528,1550,1,Swift 2022 Technical Handbook
+Swift,2022,Sprite,Quattro EW,7.98,6.27,2.25,2.59,1430,1610,1800,2,Swift 2022 Technical Handbook
+Swift,2022,Sprite,Quattro FB,7.98,6.27,2.25,2.59,1450,1630,1800,2,Swift 2022 Technical Handbook
+Swift,2022,Sprite Super,Major 4 SB,7.54,5.83,2.46,2.61,1390,1546,1650,1,Swift 2022 Technical Handbook
+Swift,2022,Sprite Super,Quattro FB,7.98,6.27,2.46,2.59,1524,1704,1800,2,Swift 2022 Technical Handbook
+Swift,2022,Sprite Super,Quattro DB,7.98,6.27,2.46,2.59,1530,1710,1800,2,Swift 2022 Technical Handbook
+Swift,2022,Challenger,480,6.66,4.95,2.23,2.61,1267,1394,1500,1,Swift 2022 Technical Handbook
+Swift,2022,Challenger,530,7.00,5.29,2.23,2.61,1330,1481,1500,1,Swift 2022 Technical Handbook
+Swift,2022,Challenger,560,7.54,5.83,2.23,2.61,1394,1550,1550,1,Swift 2022 Technical Handbook
+Swift,2022,Challenger,580,7.54,5.83,2.23,2.61,1367,1523,1550,1,Swift 2022 Technical Handbook
+Swift,2022,Challenger,650,7.98,6.27,2.23,2.61,1549,1709,2000,2,Swift 2022 Technical Handbook
+Swift,2022,Challenger X,860,7.54,5.83,2.45,2.61,1504,1660,1750,1,Swift 2022 Technical Handbook
+Swift,2022,Challenger X,880,7.54,5.83,2.45,2.61,1460,1616,1750,1,Swift 2022 Technical Handbook
+Swift,2022,Challenger X,835,7.98,6.27,2.45,2.59,1621,1781,2000,2,Swift 2022 Technical Handbook
+Swift,2022,Challenger X,850,7.98,6.27,2.45,2.59,1639,1799,2000,2,Swift 2022 Technical Handbook
+Swift,2022,Conqueror,480,6.59,4.98,2.28,2.59,1351,1477,1500,1,Swift 2022 Technical Handbook
+Swift,2022,Conqueror,560,7.54,5.93,2.28,2.61,1558,1714,1750,1,Swift 2022 Technical Handbook
+Swift,2022,Conqueror,565,7.54,5.93,2.28,2.61,1545,1701,1750,1,Swift 2022 Technical Handbook
+Swift,2022,Conqueror,580,7.54,5.93,2.28,2.61,1530,1686,1750,1,Swift 2022 Technical Handbook
+Swift,2022,Elegance,835,7.98,6.36,2.45,2.59,1775,1976,2000,2,Swift 2022 Technical Handbook
+Swift,2022,Elegance,845,7.98,6.36,2.45,2.59,1740,1941,2000,2,Swift 2022 Technical Handbook
+Swift,2022,Elegance,850,7.98,6.36,2.45,2.59,1770,1971,2000,2,Swift 2022 Technical Handbook
+Swift,2023,Basecamp,2,5.10,3.42,2.28,2.60,932,1043,1300,1,Swift 2023 Technical Handbook
+Swift,2023,Basecamp,3,5.59,3.91,2.28,2.61,1020,1146,1450,1,Swift 2023 Technical Handbook
+Swift,2023,Basecamp,4,5.59,3.91,2.28,2.61,1030,1166,1450,1,Swift 2023 Technical Handbook
+Swift,2023,Sprite,Compact,5.37,3.66,2.03,2.59,980,1094,1200,1,Swift 2023 Technical Handbook
+Swift,2023,Sprite,Alpine 2,6.05,4.34,2.25,2.59,1097,1218,1250,1,Swift 2023 Technical Handbook
+Swift,2023,Sprite,Alpine 4,6.45,4.74,2.25,2.59,1139,1284,1300,1,Swift 2023 Technical Handbook
+Swift,2023,Sprite,Major 4 SB,7.54,5.83,2.25,2.59,1286,1442,1500,1,Swift 2023 Technical Handbook
+Swift,2023,Sprite,Major 4 EB,7.54,5.83,2.25,2.59,1320,1476,1500,1,Swift 2023 Technical Handbook
+Swift,2023,Sprite,Major 6 TD,7.54,5.83,2.25,2.59,1352,1528,1550,1,Swift 2023 Technical Handbook
+Swift,2023,Sprite,Quattro EW,7.98,6.27,2.25,2.59,1430,1610,1800,2,Swift 2023 Technical Handbook
+Swift,2023,Sprite,Quattro FB,7.98,6.27,2.25,2.59,1450,1630,1800,2,Swift 2023 Technical Handbook
+Swift,2023,Sprite Grande,Major 4 SB,7.54,5.83,2.46,2.61,1351,1507,1650,1,Swift 2023 Technical Handbook
+Swift,2023,Sprite Grande,Quattro FB,7.98,6.27,2.46,2.59,1524,1704,1800,2,Swift 2023 Technical Handbook
+Swift,2023,Sprite Grande,Quattro DB,7.98,6.27,2.46,2.59,1530,1710,1800,2,Swift 2023 Technical Handbook
+Swift,2023,Challenger,480,6.66,4.95,2.28,2.61,1278,1405,1500,1,Swift 2023 Technical Handbook
+Swift,2023,Challenger,560,7.54,5.83,2.28,2.61,1387,1543,1550,1,Swift 2023 Technical Handbook
+Swift,2023,Challenger,580,7.54,5.83,2.28,2.61,1369,1525,1550,1,Swift 2023 Technical Handbook
+Swift,2023,Challenger,650,7.98,6.27,2.28,2.61,1550,1710,2000,2,Swift 2023 Technical Handbook
+Swift,2023,Challenger SE,480,6.66,4.95,2.28,2.61,1308,1435,1500,1,Swift 2023 Technical Handbook
+Swift,2023,Challenger SE,560,7.54,5.83,2.28,2.61,1447,1603,1650,1,Swift 2023 Technical Handbook
+Swift,2023,Challenger SE,580,7.54,5.83,2.28,2.61,1429,1585,1650,1,Swift 2023 Technical Handbook
+Swift,2023,Challenger SE,650,7.98,6.27,2.28,2.61,1580,1740,2000,2,Swift 2023 Technical Handbook
+Swift,2023,Challenger Grande,560 L,7.54,5.83,2.45,2.61,1509,1665,1750,1,Swift 2023 Technical Handbook
+Swift,2023,Challenger Grande,580,7.54,5.83,2.45,2.61,1465,1621,1750,1,Swift 2023 Technical Handbook
+Swift,2023,Challenger Grande,635,7.98,6.27,2.45,2.59,1613,1773,2000,2,Swift 2023 Technical Handbook
+Swift,2023,Challenger Grande,650 L,7.98,6.27,2.45,2.59,1605,1765,2000,2,Swift 2023 Technical Handbook
+Swift,2023,Challenger Grande,670,7.98,6.27,2.45,2.59,1610,1790,2000,2,Swift 2023 Technical Handbook
+Swift,2023,Challenger Grande SE,560 L,7.54,5.83,2.45,2.61,1549,1705,1750,1,Swift 2023 Technical Handbook
+Swift,2023,Challenger Grande SE,580,7.54,5.83,2.45,2.61,1505,1661,1750,1,Swift 2023 Technical Handbook
+Swift,2023,Challenger Grande SE,635,7.98,6.27,2.45,2.59,1653,1813,2000,2,Swift 2023 Technical Handbook
+Swift,2023,Challenger Grande SE,650,7.98,6.27,2.45,2.59,1645,1805,2000,2,Swift 2023 Technical Handbook
+Swift,2023,Challenger Grande SE,670,7.98,6.27,2.45,2.59,1640,1820,2000,2,Swift 2023 Technical Handbook
+Swift,2023,Conqueror,480,6.59,4.98,2.28,2.59,1351,1477,1500,1,Swift 2023 Technical Handbook
+Swift,2023,Conqueror,560,7.54,5.93,2.28,2.61,1558,1714,1750,1,Swift 2023 Technical Handbook
+Swift,2023,Conqueror,580,7.54,5.93,2.28,2.61,1530,1686,1750,1,Swift 2023 Technical Handbook
+Swift,2023,Elegance Grande,835,7.98,6.36,2.45,2.59,1866,2067,2250,2,Swift 2023 Technical Handbook
+Swift,2023,Elegance Grande,845,7.98,6.36,2.45,2.59,1850,2051,2250,2,Swift 2023 Technical Handbook
+Swift,2023,Elegance Grande,850,7.98,6.36,2.45,2.59,1866,2067,2250,2,Swift 2023 Technical Handbook
+Swift,2024,Basecamp,2,5.10,3.42,2.28,2.60,932,1043,1300,1,Swift 2024 Technical Handbook
+Swift,2024,Basecamp,3,5.59,3.91,2.28,2.61,1000,1126,1450,1,Swift 2024 Technical Handbook
+Swift,2024,Basecamp,4,5.59,3.91,2.28,2.61,1010,1146,1450,1,Swift 2024 Technical Handbook
+Swift,2024,Sprite,Compact,5.37,3.66,2.03,2.59,980,1094,1200,1,Swift 2024 Technical Handbook
+Swift,2024,Sprite,Alpine 2,6.05,4.34,2.25,2.59,1097,1218,1250,1,Swift 2024 Technical Handbook
+Swift,2024,Sprite,Alpine 4,6.45,4.74,2.25,2.59,1139,1284,1300,1,Swift 2024 Technical Handbook
+Swift,2024,Sprite,Major 4 SB,7.54,5.83,2.25,2.59,1286,1442,1500,1,Swift 2024 Technical Handbook
+Swift,2024,Sprite,Major 4 EB,7.54,5.83,2.25,2.59,1320,1476,1500,1,Swift 2024 Technical Handbook
+Swift,2024,Sprite,Major 6 TD,7.54,5.83,2.25,2.59,1352,1528,1550,1,Swift 2024 Technical Handbook
+Swift,2024,Sprite,Quattro EW,7.98,6.27,2.25,2.59,1430,1610,1800,2,Swift 2024 Technical Handbook
+Swift,2024,Sprite,Quattro FB,7.98,6.27,2.25,2.59,1450,1630,1800,2,Swift 2024 Technical Handbook
+Swift,2024,Sprite Grande,Major 4 SB,7.54,5.83,2.46,2.61,1351,1507,1650,1,Swift 2024 Technical Handbook
+Swift,2024,Sprite Grande,Quattro FB,7.98,6.27,2.46,2.59,1524,1704,1800,2,Swift 2024 Technical Handbook
+Swift,2024,Sprite Grande,Quattro DB,7.98,6.27,2.46,2.59,1530,1710,1800,2,Swift 2024 Technical Handbook
+Swift,2024,Sprite Grande,Quattro EB,7.98,6.27,2.46,2.59,1530,1690,1800,2,Swift 2024 Technical Handbook
+Swift,2024,Challenger SE,480,6.68,4.98,2.28,2.61,1308,1435,1500,1,Swift 2024 Technical Handbook
+Swift,2024,Challenger SE,560,7.63,5.93,2.28,2.61,1467,1624,1650,1,Swift 2024 Technical Handbook
+Swift,2024,Challenger SE,580,7.63,5.93,2.28,2.61,1449,1606,1650,1,Swift 2024 Technical Handbook
+Swift,2024,Challenger SE,650,7.98,6.27,2.28,2.61,1600,1760,2000,2,Swift 2024 Technical Handbook
+Swift,2024,Challenger Grande SE,560 L,7.63,5.93,2.45,2.61,1549,1706,1750,1,Swift 2024 Technical Handbook
+Swift,2024,Challenger Grande SE,580,7.63,5.93,2.45,2.61,1515,1672,1750,1,Swift 2024 Technical Handbook
+Swift,2024,Challenger Grande SE,635,7.98,6.27,2.45,2.59,1673,1833,2000,2,Swift 2024 Technical Handbook
+Swift,2024,Challenger Grande SE,650,7.98,6.27,2.45,2.59,1645,1805,2000,2,Swift 2024 Technical Handbook
+Swift,2024,Challenger Grande SE,670,7.98,6.27,2.45,2.59,1683,1863,2000,2,Swift 2024 Technical Handbook
+Swift,2024,Challenger Exclusive,480,6.68,4.98,2.28,2.61,1315,1442,1500,1,Swift 2024 Technical Handbook
+Swift,2024,Challenger Exclusive,560,7.63,5.93,2.28,2.61,1474,1631,1650,1,Swift 2024 Technical Handbook
+Swift,2024,Challenger Exclusive,580,7.63,5.93,2.28,2.61,1456,1613,1650,1,Swift 2024 Technical Handbook
+Swift,2024,Challenger Exclusive,650,7.98,6.27,2.28,2.61,1607,1767,2000,2,Swift 2024 Technical Handbook
+Swift,2024,Challenger Grande Exclusive,560 L,7.63,5.93,2.45,2.61,1556,1713,1750,1,Swift 2024 Technical Handbook
+Swift,2024,Challenger Grande Exclusive,580,7.63,5.93,2.45,2.61,1522,1679,1750,1,Swift 2024 Technical Handbook
+Swift,2024,Challenger Grande Exclusive,635,7.98,6.27,2.45,2.59,1680,1840,2000,2,Swift 2024 Technical Handbook
+Swift,2024,Challenger Grande Exclusive,650,7.98,6.27,2.45,2.59,1652,1812,2000,2,Swift 2024 Technical Handbook
+Swift,2024,Challenger Grande Exclusive,670,7.98,6.27,2.45,2.59,1690,1870,2000,2,Swift 2024 Technical Handbook
+Swift,2024,Elegance Grande,760,7.57,5.95,2.45,2.61,1674,1871,1900,1,Swift 2024 Technical Handbook
+Swift,2024,Elegance Grande,780,7.57,5.95,2.45,2.61,1695,1892,1900,1,Swift 2024 Technical Handbook
+Swift,2024,Elegance Grande,835,7.98,6.36,2.45,2.59,1876,2077,2250,2,Swift 2024 Technical Handbook
+Swift,2024,Elegance Grande,845,7.98,6.36,2.45,2.59,1850,2051,2250,2,Swift 2024 Technical Handbook
+Swift,2024,Elegance Grande,850,7.98,6.36,2.45,2.59,1866,2067,2250,2,Swift 2024 Technical Handbook
+Swift,2024,Elegance Grande,860,7.98,6.36,2.45,2.59,1876,2077,2250,2,Swift 2024 Technical Handbook
 Swift,2025,Basecamp,2,5.10,3.42,2.28,2.60,932,1043,1300,1,Swift 2025 Technical Handbook (issued September 2024)
 Swift,2025,Basecamp,3,5.59,3.91,2.28,2.61,1000,1126,1400,1,Swift 2025 Technical Handbook (issued September 2024)
 Swift,2025,Basecamp,4,5.59,3.91,2.28,2.61,1010,1146,1400,1,Swift 2025 Technical Handbook (issued September 2024)
@@ -130,21 +423,3 @@ Swift,2025,Elegance Grande,835,7.98,6.36,2.45,2.59,1898,2099,2250,2,Swift 2025 T
 Swift,2025,Elegance Grande,845,7.98,6.36,2.45,2.59,1888,2089,2250,2,Swift 2025 Technical Handbook (issued September 2024) (weights estimated by Swift)
 Swift,2025,Elegance Grande,850,7.98,6.36,2.45,2.59,1888,2089,2250,2,Swift 2025 Technical Handbook (issued September 2024) (weights estimated by Swift)
 Swift,2025,Elegance Grande,860,7.98,6.36,2.45,2.59,1842,2043,2250,2,Swift 2025 Technical Handbook (issued September 2024) (weights estimated by Swift)
-Bailey,2017,Pursuit,400-2,5.450,4.180,2.236,2.590,965,1090,0,1,Bailey 2017 brochure (length is the shipping length)
-Bailey,2017,Pursuit,430-4,6.500,5.226,2.236,2.590,1086,1232,0,1,Bailey 2017 brochure (length is the shipping length)
-Bailey,2017,Pursuit,530-4,7.400,5.713,2.236,2.590,1237,1392,0,1,Bailey 2017 brochure (length is the shipping length)
-Bailey,2017,Pursuit,550-4,7.400,5.713,2.236,2.590,1236,1392,0,1,Bailey 2017 brochure (length is the shipping length)
-Bailey,2017,Pursuit,560-5,7.400,5.713,2.236,2.590,1242,1407,0,1,Bailey 2017 brochure (length is the shipping length)
-Bailey,2017,Pursuit,570-6,7.400,5.713,2.236,2.590,1276,1450,0,1,Bailey 2017 brochure (length is the shipping length)
-Bailey,2017,Pegasus,Genoa,6.317,4.777,2.230,2.610,1136,1265,0,1,Bailey 2017 brochure (length is the shipping length)
-Bailey,2017,Pegasus,Modena,6.493,4.952,2.230,2.610,1126,1275,0,1,Bailey 2017 brochure (length is the shipping length)
-Bailey,2017,Pegasus,Verona,7.170,5.630,2.230,2.610,1281,1450,0,1,Bailey 2017 brochure (length is the shipping length)
-Bailey,2017,Pegasus,Brindisi,7.377,5.837,2.230,2.610,1286,1450,0,1,Bailey 2017 brochure (length is the shipping length)
-Bailey,2017,Pegasus,Rimini,7.170,5.630,2.230,2.610,1287,1450,0,1,Bailey 2017 brochure (length is the shipping length)
-Bailey,2017,Pegasus,Ancona,7.377,5.836,2.230,2.610,1296,1475,0,1,Bailey 2017 brochure (length is the shipping length)
-Bailey,2017,Pegasus,Palermo,7.921,6.380,2.230,2.610,1573,1760,0,2,Bailey 2017 brochure (length is the shipping length)
-Bailey,2017,Unicorn,Seville,6.470,4.915,2.280,2.610,1242,1369,0,1,Bailey 2017 brochure (length is the shipping length)
-Bailey,2017,Unicorn,Madrid,7.372,5.830,2.280,2.610,1352,1496,0,1,Bailey 2017 brochure (length is the shipping length)
-Bailey,2017,Unicorn,Valencia,7.372,5.830,2.280,2.610,1339,1493,0,1,Bailey 2017 brochure (length is the shipping length)
-Bailey,2017,Unicorn,Vigo,7.372,5.830,2.280,2.610,1346,1500,0,1,Bailey 2017 brochure (length is the shipping length)
-Bailey,2017,Unicorn,Cadiz,7.372,5.830,2.280,2.610,1337,1491,0,1,Bailey 2017 brochure (length is the shipping length)
