@@ -1,0 +1,47 @@
+# Where each known model's figures came from, so they can be checked. Matched to the "source" column of
+# caravan_models.csv / motorhome_models.csv by the label (anything in brackets after it is a note).
+# label,url,read_on
+Swift 2017 Technical Handbook,https://www.swiftgroup.co.uk/media/g5yes42w/2017-swift-group-tourer-combined-tech-book-web.pdf,2026-11-28
+Swift 2018 Technical Handbook,https://www.swiftgroup.co.uk/media/1ojakm1x/2018-touring-caravan-technical-handbookv2.pdf,2026-11-26
+Swift 2019 Technical Handbook,https://www.swiftgroup.co.uk/media/srtg2ejf/2019-touring-caravan-technical-handbook-web.pdf,2026-11-28
+Swift 2021 Technical Handbook,https://www.swiftgroup.co.uk/media/1deootxs/2021-caravan-technical-handbook.pdf,2026-11-26
+Swift 2022 Technical Handbook,https://www.swiftgroup.co.uk/media/auremp10/2022-caravan-technical-handbook.pdf,2026-11-28
+Swift 2023 Technical Handbook,https://www.swiftgroup.co.uk/media/mlgl2mt3/2023-caravan-technical-handbook.pdf,2026-11-28
+Swift 2024 Technical Handbook,https://www.swiftgroup.co.uk/media/hnsc1jf2/2024-caravan-technical-handbook.pdf,2026-11-28
+Swift 2025 Technical Handbook,https://swiftgroup.co.uk/media/rg3bw1t4/2025-caravan-technical-handbook-web.pdf,2026-11-26
+Swift 2025 Motorhome Technical Handbook,https://www.swiftgroup.co.uk/media/tuwf3lgc/2025-motorhomes-technical-handbook-web.pdf,2026-11-28
+Swift 2025 Campervan brochure,https://www.wandahome.online/assets/media/swift-campervans-2025-brochure.pdf,2026-11-28
+Bailey 2017 brochure,https://www.baileyofbristol.co.uk/wp-content/uploads/2020/06/Bailey-Caravan-Brochure-Pursuit-I-Pegasus-IV-Unicorn-III-Sept-16.pdf,2026-11-26
+Bailey 2021 brochure,https://www.baileyofbristol.co.uk/wp-content/uploads/2021/07/Bailey-Of-Bristol-Caravan-Brochure-April-2021.pdf,2026-11-28
+Coachman 2021 Technical Data Manual,https://www.coachman.co.uk/wp-content/uploads/2021-Coachman-Service-Warranty-Technical-Data-Manual.pdf,2026-11-28
+Coachman 2023 brochure,https://www.coachman.co.uk/wp-content/uploads/2023-Coachman-Brochure-Sep-2022-1.pdf,2026-11-26
+Adria 2025 brochure,https://marquisleisure.co.uk/storage/1116632/motorhome_brochure_2025.pdf,2026-11-28
+Rapido 2021 brochure,https://www.rapido-motorhome.co.uk/dist/pdf/EN/GT_vans.pdf,2026-11-28
+Dreamer 2025 brochure,https://camperonline.it/magazine/cataloghi/2025-Dreamer.pdf,2026-11-28
+Globecar 2021 catalogue,https://www.camperonline.it/magazine/cataloghi/2021-Globecar.pdf,2026-11-28
+Promobil test 2021,https://www.promobil.de/einzeltest/globecar-campscout-elegance-campingbus-test/technische-daten/,2026-11-28
+Practical Motorhome test 2022,https://www.pressreader.com/uk/practical-motorhome/20220526/282475712435906,2026-11-28
+Adria 2026 motorhome catalogue,https://pl.adria-mobil.com/download-centre/1845/download,2026-11-28
+Adria UK tech sheet Adora,https://www.tenbytourers.co.uk/media/tg5pxcu1/technical-data-pdf.pdf,2026-11-28
+Adria UK tech sheet Altea,https://www.tenbytourers.co.uk/media/fxpjhpb3/technical-data-pdf.pdf,2026-11-28
+Adria UK tech sheet Alpina,https://www.tenbytourers.co.uk/media/3eskihdi/technical-data-pdf.pdf,2026-11-28
+Coachman 2022 brochure,https://www.coachman.co.uk/wp-content/uploads/KAL00808-Coachman-Coachman-2022-Brochure-WEB-1.pdf,2026-11-28
+Coachman 2024 brochure,https://kimberleycaravans.co.uk/storage/988183/Coachman-2024-Brochure.pdf,2026-11-28
+Coachman 2025 brochure,https://www.marquisleisure.co.uk/storage/1116635/Coachman-2025-Brochure.pdf,2026-11-28
+Globecar 2022 brochure,https://www.buscamper.nl/cms/wp-content/uploads/2021/09/Globecar-brochure-2022.pdf,2026-11-28
+Pössl 2025 catalogue,https://www.duemo-duelmen.de/wp-content/uploads/2025/04/poessl-katalog-web-de-1.pdf,2026-11-28
+Elddis 2025 campervan brochure,https://elddis.co.uk/media/pages/help-support/brochures/83b9155965-1756909608/elddis-campervan-brochure-2025-fiat-series-2-digital-pdf.pdf,2026-11-28
+Elddis 2026 motorhome brochure,https://elddis.co.uk/media/pages/help-support/brochures/2001fa69f4-1759932578/elddis-brochure-2026-motorhome.pdf,2026-11-28
+Auto-Trail 2024 brochure,https://www.continentalcaravans.co.uk/assets/media/auto-trail-brochure-2024.pdf,2026-11-28
+Auto-Trail tech sheet Adventure,https://www.auto-trail.co.uk/wp-content/uploads/Auto-Trail-Website-Tech-Spec-Adventure.pdf,2026-11-28
+Auto-Trail tech sheet V-Line SE,https://www.auto-trail.co.uk/wp-content/uploads/Auto-Trail-Website-Tech-Spec-V-Line-SE.pdf,2026-11-28
+Auto-Trail tech sheet F-Line,https://www.auto-trail.co.uk/wp-content/uploads/Auto-Trail-Website-Tech-Spec-F-Line-7.pdf,2026-11-28
+Auto-Trail tech sheet Excel,https://www.auto-trail.co.uk/wp-content/uploads/Auto-Trail-Website-Tech-Spec-Excel-4.pdf,2026-11-28
+Auto-Trail tech sheet Expedition Van,https://www.auto-trail.co.uk/wp-content/uploads/Auto-Trail-Website-Tech-Spec-Expedition-Van.pdf,2026-11-28
+Auto-Trail tech sheet Frontier,https://www.auto-trail.co.uk/wp-content/uploads/Auto-Trail-Website-Tech-Spec-Frontier-4.pdf,2026-11-28
+Auto-Trail tech sheet Expedition Coach,https://www.auto-trail.co.uk/wp-content/uploads/Auto-Trail-Website-Tech-Spec-Expedition-Coach.pdf,2026-11-28
+Auto-Trail tech sheet Imala,https://www.auto-trail.co.uk/wp-content/uploads/Auto-Trail-Website-Tech-Spec-Imala-6.pdf,2026-11-28
+Swift 2017 Motorhome Technical Handbook,https://www.swiftgroup.co.uk/media/j23iudt0/2017-swift-group-motorhome-combined-tech-book-web.pdf,2026-11-28
+Swift 2022 Motorhome Technical Handbook,https://www.swiftgroup.co.uk/media/1flbfkpg/2022-motorhomes-technical-handbook.pdf,2026-11-28
+Swift 2023 Motorhome Technical Handbook,https://www.swiftgroup.co.uk/media/f3dnb5xu/2023-motorhome-technical-handbook.pdf,2026-11-28
+Swift 2024 Motorhome Technical Handbook,https://www.swiftgroup.co.uk/media/lvtotycd/2024-motorhomes-technical-handbook.pdf,2026-11-28

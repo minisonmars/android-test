@@ -609,7 +609,14 @@ class VehicleActivity : Page() {
             "dealer specials and weight upgrades change them, so check your own plate and handbook.\n\n" +
             "This fills in Make, Model, Year, the sizes and the weights, replacing what's there." +
             (if (missing) " Anything the maker didn't publish is left as it is." else "")
+        val url = KnownModels.sourceUrl(this, m)
         AlertDialog.Builder(this).setTitle("${m.make} ${m.name} (${m.year})").setMessage(msg)
+            .also { b ->
+                if (url != null) b.setNeutralButton("Check source") { _, _ ->
+                    try { startActivity(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url))) }
+                    catch (_: ActivityNotFoundException) { Toast.makeText(this, url, Toast.LENGTH_LONG).show() }
+                }
+            }
             .setPositiveButton("Fill in") { _, _ ->
                 save()
                 val v = vehicle

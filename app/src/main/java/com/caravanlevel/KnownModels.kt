@@ -45,6 +45,17 @@ object KnownModels {
         (caravans + vans).also { cache = it }
     }
 
+    private var links: List<Pair<String, String>>? = null
+
+    /** Link to the document a model's figures were copied from (assets/model_sources.csv), or null. */
+    fun sourceUrl(ctx: Context, m: KnownModel): String? {
+        val all = links ?: lines(ctx, "model_sources.csv").mapNotNull { line ->
+            val c = line.split(',')
+            if (c.size < 2 || !c[1].trim().startsWith("http")) null else c[0].trim() to c[1].trim()
+        }.also { links = it }
+        return all.filter { m.source.startsWith(it.first) }.maxByOrNull { it.first.length }?.second
+    }
+
     fun of(ctx: Context, t: VehicleType) = all(ctx).filter { it.type == t }
     fun makes(ctx: Context, t: VehicleType) = of(ctx, t).map { it.make }.distinct().sorted()
     fun years(ctx: Context, t: VehicleType, make: String) = of(ctx, t).filter { it.make == make }.map { it.year }.distinct().sorted()
