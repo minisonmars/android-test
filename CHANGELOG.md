@@ -5,6 +5,10 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
+- (nothing yet)
+
+## v0.3.72
+
 - Fill in from a known model: more makes and years. Caravans: Coachman 2022, 2024 and 2025, and three Adria caravans. Motorhomes and campervans: Swift 2017 and 2022 to 2024 (including Rio, Bessacarr and Bolero), Auto-Trail, Elddis, Pössl, Adria 2026 and more Globecar.
 - A "Check source" button on each known model opens the maker's document its figures came from, so you can check them.
 
