@@ -5,7 +5,7 @@ Each build uses the "Next" section as its release notes on GitHub, then renames 
 
 ## Next
 
-- (nothing yet)
+- Vehicle info: a "Dealer special" tick box. When ticked, it asks for the base model it's built on and the original dealer. Ask AI includes this too.
 
 ## v0.3.69
 

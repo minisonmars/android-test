@@ -77,6 +77,7 @@ class VehicleActivity : Page() {
             content.addView(ui.button("Fill in from a known model", Colours.TILE) { pickKnownMake() })
         }
         detailList(v.details, "For example: Chassis number", "For example: Swift")
+        dealerSpecial(v)
 
         // Sizes: each one in the unit it was typed in
         content.addView(ui.heading("Sizes"))
@@ -397,6 +398,42 @@ class VehicleActivity : Page() {
             list.add(Detail("", ""))
             saveAndRebuild()
         })
+    }
+
+    /** Dealer special: the standard model it's built on and the dealer it was made for. */
+    private fun dealerSpecial(v: Vehicle) {
+        if (!editing) {
+            if (v.dealerSpecial) {
+                show("Dealer special", listOfNotNull(
+                    v.baseModel.takeIf { it.isNotBlank() }?.let { "Based on $it" },
+                    v.dealer.takeIf { it.isNotBlank() }?.let { "made for $it" }
+                ).joinToString(", ").ifBlank { "Yes" })
+            }
+            return
+        }
+        val box = android.widget.CheckBox(this).apply {
+            text = "Dealer special (a version made for one dealer)"
+            textSize = 17f
+            setTextColor(Colours.TEXT)
+            isChecked = v.dealerSpecial
+            setPadding(0, ui.dp(10), 0, ui.dp(6))
+        }
+        content.addView(box)
+        val extras = ui.column(0)
+        extras.addView(ui.label("Base model it's built on"))
+        val base = ui.field(v.baseModel, "For example: Swift Challenger 580")
+        extras.addView(base)
+        extras.addView(ui.label("Original dealer"))
+        val dealer = ui.field(v.dealer, "For example: Lowdhams")
+        extras.addView(dealer)
+        content.addView(extras)
+        extras.visibility = if (v.dealerSpecial) android.view.View.VISIBLE else android.view.View.GONE
+        box.setOnCheckedChangeListener { _, on -> extras.visibility = if (on) android.view.View.VISIBLE else android.view.View.GONE }
+        commits.add {
+            v.dealerSpecial = box.isChecked
+            v.baseModel = base.text.toString().trim()
+            v.dealer = dealer.text.toString().trim()
+        }
     }
 
     /** Factory fitted or aftermarket; aftermarket items get date fitted, cost and warranty. */

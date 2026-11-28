@@ -73,6 +73,8 @@ object AskAi {
         appendLine("VEHICLE: ${v.name} (${v.type.label})")
         if (details) {
             v.details.filter { it.value.isNotBlank() && (ids || it.label !in hidden) }.forEach { appendLine("${it.label}: ${it.value}") }
+            if (v.dealerSpecial) appendLine("Dealer special" + (if (v.baseModel.isNotBlank()) ", based on ${v.baseModel}" else "") +
+                (if (v.dealer.isNotBlank()) ", made for ${v.dealer}" else ""))
             fun size(label: String, cm: Float) { if (cm > 0) appendLine("$label: %.2f m".format(cm / 100f)) }
             size("Length", v.lengthCm); size("Body length", v.bodyLengthCm); size("Width", v.widthCm)
             size("Width with mirrors", v.mirrorWidthCm); size("Height", v.heightCm)

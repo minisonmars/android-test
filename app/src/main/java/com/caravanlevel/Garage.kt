@@ -254,6 +254,11 @@ class Vehicle(
     /** Photo of the vehicle: a file name in the attachments folder. */
     var photo: String? = null
 
+    // Dealer special: a version made for one dealer, built on a standard model
+    var dealerSpecial = false
+    var baseModel = ""
+    var dealer = ""
+
     /** Documents and pictures (sales details, V5C, warranty...): names in the attachments folder. */
     val files = mutableListOf<String>()
 
@@ -290,6 +295,7 @@ class Vehicle(
             .put("photo", photo ?: JSONObject.NULL)
             .put("packingAdded", packingAdded)
             .put("files", JSONArray().apply { files.forEach { put(it) } })
+            .put("dealerSpecial", dealerSpecial).put("baseModel", baseModel).put("dealer", dealer)
             .put("mro", mroKg).put("mtplm", mtplmKg)
             .put("noseLimit", noseLimitKg).put("nose", noseKg).put("loaded", loadedKg)
             .put("towLimit", towLimitKg).put("towCar", towCarId)
@@ -344,6 +350,8 @@ class Vehicle(
                 photo = if (o.isNull("photo")) null else o.optString("photo").ifBlank { null }
                 packingAdded = o.optBoolean("packingAdded", false)
                 files.addAll(o.optJSONArray("files").strings())
+                dealerSpecial = o.optBoolean("dealerSpecial", false)
+                baseModel = o.optString("baseModel"); dealer = o.optString("dealer")
             }
         }
 
